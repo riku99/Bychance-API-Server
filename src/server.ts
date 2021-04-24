@@ -2,6 +2,7 @@
 
 import Hapi from "@hapi/hapi";
 import { rootPlugin } from "~/plugins/root";
+import { prismaPlugin } from "~/plugins/prisma";
 
 const server = Hapi.server({
   port: 4001,
@@ -9,7 +10,7 @@ const server = Hapi.server({
 });
 
 export const initializeServer = async () => {
-  await server.register([rootPlugin]);
+  await server.register([rootPlugin, prismaPlugin]);
   await server.initialize();
 
   return server;
