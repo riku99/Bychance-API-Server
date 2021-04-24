@@ -2,7 +2,7 @@ version: "3.8"
 services:
   mysql:
     image: mysql:5.7.31
-    container_name: bc-mysql
+    container_name: bc-mysql-dev
     restart: unless-stopped
     networks:
       - bc-net
@@ -10,9 +10,9 @@ services:
       - bc-mysql-volume:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: bc-mysql-root-pass-dev
-      MYSQL_DATABASE: bc-db
-      MYSQL_USER: bc-db-user-dev
-      MYSQL_PASSWORD: bc-mysql-pass-dev
+      # MYSQL_DATABASE: bc-db-dev
+      # MYSQL_USER: bc-db-user-dev
+      # MYSQL_PASSWORD: bc-mysql-pass-dev
     ports:
       - 3306:3306
 
