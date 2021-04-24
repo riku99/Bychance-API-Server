@@ -1,22 +1,23 @@
-// テストで使用するため初期化までされたサーバーを作るため。起動はしない
+// テストで使用するため初期化までされたサーバーが必要なので初期化と起動でプロセス分ける
 
 import Hapi from "@hapi/hapi";
+import { rootPlugin } from "~/routes/root";
+
+const server = Hapi.server({
+  port: 4001,
+  host: "localhost",
+});
 
 export const initializeServer = async () => {
-  const server = Hapi.server({
-    port: 4001,
-    host: "localhost",
-  });
-
-  server.route({
-    method: "GET",
-    path: "/",
-    handler: (req, h) => {
-      return "Hello World";
-    },
-  });
-
+  await server.register([rootPlugin]);
   await server.initialize();
+
+  return server;
+};
+
+export const startServer = async (server: Hapi.Server) => {
+  await server.start();
+  console.log("サーバー起動: " + server.info.uri);
 
   return server;
 };
