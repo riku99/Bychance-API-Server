@@ -11,7 +11,7 @@ generator client {
 }
 
 model User {
-  id String @default(uuid()) @id
+  id String @default(uuid()) @id // create時に何も指定しなくてもuuid入る
   lineId String @unique 
   name String
   avatar String?
@@ -19,7 +19,7 @@ model User {
   statusMessage String? 
   display Boolean @default(false)
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @updatedAt // create時に何も指定しなくてもDateTime入る
   accessToken String @unique
   lat String?
   lng String?
@@ -98,7 +98,7 @@ model TalkRoomMessage {
 
   user User @relation(fields: [userId], references: [id])
   room TalkRoom @relation(fields: [roomId], references: [id])
-  
+
   readTalkRoomMessages readTalkRoomMessage[]
 
   @@index([userId, roomId])
