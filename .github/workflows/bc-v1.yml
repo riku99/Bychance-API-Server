@@ -1,0 +1,9 @@
+name: bc-v1
+on: [push]
+jobs:
+  jest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: yarn install
+      - run: yarn test
