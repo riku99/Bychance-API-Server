@@ -1,7 +1,7 @@
 // テストで使用するため初期化までされたサーバーが必要なので初期化と起動でプロセス分ける
 
 import Hapi from "@hapi/hapi";
-import { rootPlugin } from "~/routes/root";
+import { rootPlugin } from "~/plugins/root";
 
 const server = Hapi.server({
   port: 4001,

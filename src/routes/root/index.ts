@@ -1,6 +1,6 @@
 import Hapi from "@hapi/hapi";
 
-const root = async (server: Hapi.Server) => {
+export const root = async (server: Hapi.Server) => {
   server.route({
     method: "GET",
     path: "/",
@@ -8,9 +8,4 @@ const root = async (server: Hapi.Server) => {
       return "Hello World";
     },
   });
-};
-
-export const rootPlugin: Hapi.Plugin<undefined> = {
-  name: "app/routes/root",
-  register: root,
 };
