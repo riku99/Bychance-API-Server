@@ -1,0 +1,140 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id String @default(uuid()) @id
+  lineId String @unique 
+  name String
+  avatar String?
+  introduce String?
+  statusMessage String? 
+  display Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  accessToken String @unique
+  lat String?
+  lng String?
+  @@index([lineId])
+  @@index([display])
+
+  // リレーション
+  posts Post[]
+  flashes Flash[]
+  senderTalkRooms TalkRoom[] @relation(name: "sender")
+  recipientTalkRooms TalkRoom[] @relation(name: "recipient")
+  talkRoomMessages TalkRoomMessage[]
+  readTalkRoomMessages readTalkRoomMessage[]
+  viewedFlashes viewedFlash[]
+}
+
+model Post {
+  id Int @default(autoincrement()) @id
+  text String?
+  image String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId String
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
+
+model Flash {
+  id Int @default(autoincrement()) @id
+  source String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  sourceType FlashSourceTypeRole
+  userId String
+
+  user User @relation(fields: [userId], references: [id])
+
+  viewed viewedFlash[]
+
+  @@index([userId])
+}
+
+model Nonce {
+  id Int  @default(autoincrement()) @id
+  nonce String @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TalkRoom {
+  id Int @default(autoincrement()) @id
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  senderId String
+  recipientId String
+
+  sender User @relation(fields: [senderId], references: [id], name: "sender")
+  recipient User @relation(fields: [recipientId], references: [id], name: "recipient")
+
+  messages TalkRoomMessage[]
+  readTalkRoomMessages readTalkRoomMessage[]
+
+  @@unique([senderId, recipientId])
+  @@index([senderId, recipientId])
+}
+
+model TalkRoomMessage {
+  id Int @default(autoincrement()) @id
+  text String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId String
+  roomId Int
+
+  user User @relation(fields: [userId], references: [id])
+  room TalkRoom @relation(fields: [roomId], references: [id])
+  
+  readTalkRoomMessages readTalkRoomMessage[]
+
+  @@index([userId, roomId])
+}
+
+model viewedFlash {
+  id Int @default(autoincrement()) @id
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId String
+  flashId Int
+
+  user User @relation(fields: [userId], references: [id])
+  flash Flash @relation(fields: [flashId], references: [id])
+
+  @@unique([userId, flashId])
+  @@index([userId, flashId])
+}
+
+model readTalkRoomMessage {
+  id Int @default(autoincrement()) @id
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId String
+  messageId Int
+  roomId Int
+
+  user User @relation(fields: [userId], references: [id])
+  message TalkRoomMessage @relation(fields: [messageId], references: [id])
+  room TalkRoom @relation(fields: [roomId], references: [id])
+
+  @@index([userId, messageId, roomId])
+  @@unique([userId, messageId, roomId])
+}
+
+enum FlashSourceTypeRole {
+  image
+  video
+}
