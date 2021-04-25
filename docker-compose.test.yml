@@ -1,0 +1,39 @@
+version: "3.8"
+services:
+  server:
+    build:
+      context: "."
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: mysql://root:root@bc_mysql_test:3306/bc_mysql_test # テスト環境には.envも含まれているが、こっちの環境変数が使用される
+    ports:
+      - 9999:80
+    volumes:
+      - ./src:/usr/src/app/src
+      - ./tests:/usr/src/app/tests
+      - ./package.json:/usr/src/app/package.json
+    networks:
+      - bc_net_test
+    depends_on:
+      - bc_mysql_test
+
+  bc_mysql_test:
+    image: mysql:5.7.31
+    restart: always
+    networks:
+      - bc_net_test
+    volumes:
+      - bc_mysql_volume_test:/var/lib/mysql
+    expose:
+      - 3307
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - 3307:3306
+
+networks:
+  bc_net_test:
+    driver: bridge
+volumes:
+  bc_mysql_volume_test:
+    driver: local
