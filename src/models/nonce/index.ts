@@ -12,6 +12,6 @@ const create = async ({ nonce }: { nonce: string }) => {
   return result;
 };
 
-export const nonce = {
+export const Nonce = {
   create,
 };
