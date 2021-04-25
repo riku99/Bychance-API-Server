@@ -23,8 +23,8 @@ services:
     restart: always
     networks:
       - bc_net_test
-    volumes:
-      - bc_mysql_volume_test:/var/lib/mysql
+    # volumes:
+    #   - bc_mysql_volume_test:/var/lib/mysql
     expose:
       - 3307
     environment:
