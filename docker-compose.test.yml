@@ -28,6 +28,7 @@ services:
       - 3307
     environment:
       MYSQL_ROOT_PASSWORD: root
+      MYSQL_PORT: 3306
     ports:
       - 3307:3306
 

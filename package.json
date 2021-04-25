@@ -24,7 +24,8 @@
     "dev": "ts-node-dev -r tsconfig-paths/register --respawn ./src/index.ts",
     "test": "docker-compose -f docker-compose.test.yml run test_server yarn prisma migrate reset --force && yarn prisma generate && yarn jest && yarn test:down",
     "test:down": "docker-compose -f docker-compose.test.yml down",
-    "seed": "ts-node ./src/db/seed.ts"
+    "db:seed": "ts-node ./src/db/seed.ts",
+    "db:show": "yarn prisma studio"
   },
   "jest": {
     "testMatch": [
