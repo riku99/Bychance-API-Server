@@ -19,6 +19,7 @@ services:
 
   bc_mysql_test:
     image: mysql:5.7.31
+    container_name: bc_mysql_test
     restart: always
     networks:
       - bc_net_test

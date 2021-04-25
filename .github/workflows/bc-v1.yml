@@ -6,4 +6,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: yarn install
+      - run: docker-compose -f docker-compose.test.yml up -d bc_mysql_test
+      - run: docker container exec -it bc_mysql_test bash
+      - run: etc/init.d/mysql start
       - run: yarn test
