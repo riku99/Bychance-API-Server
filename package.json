@@ -22,7 +22,7 @@
   },
   "scripts": {
     "dev": "ts-node-dev -r tsconfig-paths/register --respawn ./src/index.ts",
-    "test": "jest",
+    "test": "docker-compose -f docker-compose.test.yml run --rm test_server yarn jest",
     "seed": "ts-node ./src/db/seed.ts"
   },
   "jest": {

@@ -1,6 +1,6 @@
 version: "3.8"
 services:
-  server:
+  test_server:
     build:
       context: "."
       dockerfile: Dockerfile
