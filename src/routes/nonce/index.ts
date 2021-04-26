@@ -1,5 +1,7 @@
 import Hapi from "@hapi/hapi";
+
 import { nonceHandler } from "~/handlers/nonce";
+import { joiValidator } from "./validator";
 
 export const nonce = async (server: Hapi.Server) => {
   server.route([
@@ -7,6 +9,11 @@ export const nonce = async (server: Hapi.Server) => {
       method: "POST",
       path: "/nonce",
       handler: nonceHandler.create,
+      options: {
+        validate: {
+          payload: joiValidator.create,
+        },
+      },
     },
   ]);
 };

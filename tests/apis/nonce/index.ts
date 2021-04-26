@@ -46,5 +46,14 @@ describe("nonce", () => {
       });
       expect(res.statusCode).toEqual(500);
     });
+
+    test("payloadがないとエラー", async () => {
+      const res = await server.inject({
+        method: "POST",
+        url: "/nonce",
+      });
+
+      expect(res.statusCode).toEqual(400);
+    });
   });
 });
