@@ -38,4 +38,3 @@ networks:
     driver: bridge
 volumes:
   bc_mysql_volume_test:
-    driver: local
