@@ -36,5 +36,3 @@ services:
 networks:
   bc_net_test:
     driver: bridge
-volumes:
-  bc_mysql_volume_test:
