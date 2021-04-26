@@ -5,6 +5,11 @@ import { initializeServer } from "~/server";
 
 const prisma = new PrismaClient();
 
+afterAll(async (done) => {
+  await prisma.$disconnect();
+  done();
+});
+
 describe("nonce", () => {
   let server: Hapi.Server;
 
@@ -12,11 +17,9 @@ describe("nonce", () => {
     server = await initializeServer();
   });
 
-  afterAll(async (done) => {
+  afterAll(async () => {
     await prisma.nonce.deleteMany();
     await server.stop();
-    await prisma.$disconnect();
-    done();
   });
 
   describe("POST /nonce", () => {
