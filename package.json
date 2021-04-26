@@ -22,7 +22,7 @@
   },
   "scripts": {
     "dev": "ts-node-dev -r tsconfig-paths/register --respawn ./src/index.ts",
-    "test": "docker-compose -f docker-compose.test.yml run test_server yarn jest",
+    "test": "docker-compose -f docker-compose.test.yml run test_server yarn jest --forceExit",
     "test:db:up": "docker-compose -f docker-compose.test.yml up -d bc_mysql_test",
     "test:server:migrate": "docker-compose -f docker-compose.test.yml run test_server yarn prisma migrate reset --force",
     "test:server:gene": "docker-compose -f docker-compose.test.yml run test_server yarn prisma generate",
