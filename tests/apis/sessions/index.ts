@@ -11,15 +11,25 @@ describe("sessions", () => {
 
   describe("line", () => {
     describe("POST /sessions/lineLogin", () => {
+      const url = "/sessions/lineLogin";
+
       test("headers", async () => {
         const res = await server.inject({
           method: "POST",
-          url: "/sessions/lineLogin",
+          url,
           headers: { Authorization: "Bearer ヘッダー" },
         });
 
-        console.log(res.statusCode);
         expect(res.statusCode).toEqual(200);
+      });
+
+      test("headerにAuthorizationがないと400が返る", async () => {
+        const res = await server.inject({
+          method: "POST",
+          url,
+        });
+
+        expect(res.statusCode).toEqual(400);
       });
     });
   });
