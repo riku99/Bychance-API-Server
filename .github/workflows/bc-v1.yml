@@ -2,7 +2,7 @@ name: bc-v1
 on: [push]
 jobs:
   jest:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
       - run: yarn install
