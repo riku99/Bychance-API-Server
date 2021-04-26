@@ -22,8 +22,12 @@
   },
   "scripts": {
     "dev": "ts-node-dev -r tsconfig-paths/register --respawn ./src/index.ts",
-    "test": "docker-compose -f docker-compose.test.yml up -d bc_mysql_test && sleep 10 && docker-compose -f docker-compose.test.yml run test_server yarn prisma migrate reset --force && docker-compose -f docker-compose.test.yml run test_server yarn prisma generate && docker-compose -f docker-compose.test.yml run test_server yarn jest",
+    "test": "docker-compose -f docker-compose.test.yml run test_server yarn jest",
+    "test:db:up": "docker-compose -f docker-compose.test.yml up -d bc_mysql_test",
+    "test:server:migrate": "docker-compose -f docker-compose.test.yml run test_server yarn prisma migrate reset --force",
+    "test:server:gene": "docker-compose -f docker-compose.test.yml run test_server yarn prisma generate",
     "test:down": "docker-compose -f docker-compose.test.yml down --volumes",
+    "test:ci": "yarn test:db:up && sleep 10 && yarn test:server:migrate && yarn test:server:gene && yarn test && yarn test:down",
     "db:seed": "ts-node ./src/db/seed.ts",
     "db:show": "yarn prisma studio"
   },

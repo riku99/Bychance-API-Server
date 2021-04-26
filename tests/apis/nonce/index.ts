@@ -12,9 +12,11 @@ describe("nonce", () => {
     server = await initializeServer();
   });
 
-  afterAll(async () => {
+  afterAll(async (done) => {
     await prisma.nonce.deleteMany();
     await server.stop();
+    await prisma.$disconnect();
+    done();
   });
 
   describe("POST /nonce", () => {
