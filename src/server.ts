@@ -5,6 +5,7 @@ import Hapi from "@hapi/hapi";
 import { rootPlugin } from "~/plugins/root";
 import { prismaPlugin } from "~/plugins/prisma";
 import { noncePlugin } from "~/plugins/nonce";
+import { sesisonsPlugin } from "~/plugins/sessions";
 
 const server = Hapi.server({
   port: 4001,
@@ -12,7 +13,12 @@ const server = Hapi.server({
 });
 
 export const initializeServer = async () => {
-  await server.register([rootPlugin, prismaPlugin, noncePlugin]);
+  await server.register([
+    rootPlugin,
+    prismaPlugin,
+    noncePlugin,
+    sesisonsPlugin,
+  ]);
   await server.initialize();
 
   return server;

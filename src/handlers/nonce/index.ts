@@ -1,7 +1,6 @@
 import Hapi from "@hapi/hapi";
 import { Nonce } from "~/models/nonce";
-
-type NoncePayload = { nonce: string };
+import { NoncePayload } from "~/routes/nonce/validator";
 
 const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const { nonce } = req.payload as NoncePayload;

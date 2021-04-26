@@ -1,9 +1,11 @@
 import Joi from "joi";
 
-const create = Joi.object({
+export type NoncePayload = { nonce: string };
+
+const create = Joi.object<{ nonce: string }>({
   nonce: Joi.string().required(),
 });
 
-export const joiValidator = {
+export const nonceValidator = {
   create,
 };
