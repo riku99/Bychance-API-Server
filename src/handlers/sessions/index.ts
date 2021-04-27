@@ -4,7 +4,7 @@ import { PrismaClient } from "@prisma/client";
 
 import { createHash, createRandomString } from "~/helpers/crypto";
 import { SessionsReqestType } from "~/routes/sessions/validator";
-import { createErrorObj } from "~/helpers/errors";
+import { createErrorBody } from "~/helpers/errors";
 
 const prisma = new PrismaClient();
 
@@ -21,11 +21,9 @@ const line = {
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
         });
       } catch (err) {
-        return h.response(createErrorObj({ name: "loginError" })).code(400);
+        console.log(err);
+        return h.response(createErrorBody({ name: "loginError" })).code(400);
       }
-
-      console.log("resだよ");
-      console.log(res);
 
       const nonce = res!.data.nonce as string;
       const existingNonce = await prisma.nonce.findUnique({
@@ -33,7 +31,7 @@ const line = {
       });
 
       if (!existingNonce) {
-        return h.response(createErrorObj({ name: "loginError" })).code(400);
+        return h.response(createErrorBody({ name: "loginError" })).code(400);
       } else {
         await prisma.nonce.delete({ where: { nonce } });
       }
@@ -74,7 +72,6 @@ const line = {
           },
         });
 
-        console.log(newUser);
         return newUser;
       }
     } catch (e) {

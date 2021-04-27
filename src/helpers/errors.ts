@@ -1,6 +1,6 @@
 import { ApiErrorType } from "~/config/apis/errors";
 
-type CreateErrorObj =
+type CreateErrorBody =
   | {
       name: "invalidError";
       message: string;
@@ -9,7 +9,7 @@ type CreateErrorObj =
       name: "loginError";
     };
 
-export const createErrorObj = (info: CreateErrorObj): ApiErrorType => {
+export const createErrorBody = (info: CreateErrorBody): ApiErrorType => {
   switch (info.name) {
     case "invalidError":
       return { errorType: "invalidError", message: info.message };

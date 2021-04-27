@@ -11,10 +11,11 @@ export const sessionsRoute = async (server: Hapi.Server) => {
       handler: sessionsHandler.line.create,
       options: {
         validate: {
-          headers: sessionsValidator.line.create.headers,
+          ...sessionsValidator.lineLogin.validate,
           options: {
             allowUnknown: true, // headersで指定した以外のものは全て受け入れるための設定
           },
+          failAction: sessionsValidator.lineLogin.failAction,
         },
       },
     },

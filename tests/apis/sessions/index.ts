@@ -3,7 +3,7 @@ import axios from "axios";
 import { PrismaClient } from "@prisma/client";
 
 import { initializeServer } from "~/server";
-import { createErrorObj } from "~/helpers/errors";
+import { createErrorBody } from "~/helpers/errors";
 import { createHash } from "~/helpers/crypto";
 
 const prisma = new PrismaClient();
@@ -19,19 +19,10 @@ jest.mock("axios");
   },
 });
 
-// spyOnじゃなくてmock使う
-// const axiosSpy = jest.spyOn(axios, "post");
-// axiosSpy.mockResolvedValue({
-//   data: {
-//     nonce: "nonce",
-//     name: "ローランド",
-//     sub: "lineId",
-//   },
-// });
-
 describe("sessions", () => {
   let server: Hapi.Server;
 
+  // beforeAll, afterAllはそれが所属しているブロックの実行に応じて1度だけ実行される
   beforeAll(async () => {
     server = await initializeServer();
     await prisma.user.deleteMany({});
@@ -56,6 +47,7 @@ describe("sessions", () => {
 
         describe("lineAPIの検証が成功", () => {
           describe("nonceが存在する", () => {
+            // beforeEachはそのブロック内のテストに対して毎回行われる
             beforeEach(async () => {
               await prisma.user.deleteMany({});
               await prisma.nonce.deleteMany({});
@@ -110,7 +102,7 @@ describe("sessions", () => {
               const res = await server.inject(requestSchema);
 
               expect(JSON.parse(res.payload)).toEqual(
-                createErrorObj({ name: "loginError" })
+                createErrorBody({ name: "loginError" })
               );
             });
           });
@@ -126,7 +118,7 @@ describe("sessions", () => {
           //   });
           //   expect(res.statusCode).toEqual(400);
           //   expect(JSON.parse(res.payload)).toEqual(
-          //     createErrorObj({ name: "loginError" })
+          //     createErrorBody({ name: "loginError" })
           //   );
           // });
         });
@@ -141,6 +133,9 @@ describe("sessions", () => {
           const res = await server.inject(requestSchema);
 
           expect(res.statusCode).toEqual(400);
+          expect(JSON.parse(res.payload)).toEqual(
+            createErrorBody({ name: "loginError" })
+          );
         });
       });
     });
