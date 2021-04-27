@@ -12,6 +12,15 @@ const create = async ({ nonce }: { nonce: string }) => {
   return result;
 };
 
+const findFirst = async ({ nonce }: { nonce: string }) => {
+  const result = await prisma.nonce.findFirst({
+    where: { nonce },
+  });
+
+  return result;
+};
+
 export const Nonce = {
   create,
+  findFirst,
 };
