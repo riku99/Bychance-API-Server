@@ -1,26 +1,16 @@
-import { PrismaClient, User as UserType } from "@prisma/client";
+// import { PrismaClient, User as UserType } from "@prisma/client";
 
-const prisma = new PrismaClient();
+// const prisma = new PrismaClient();
 
-const findFirstByLineId = async ({ lineId }: { lineId: string }) => {
-  const result = await prisma.user.findFirst({
-    where: { lineId },
-  });
+// const create = async (
+//   data: Pick<UserType, "lineId" | "name" | "accessToken" | "avatar">
+// ) => {
+//   const result = await prisma.user.create({
+//     data,
+//   });
 
-  return result;
-};
+//   return result;
+// };
 
-const create = async (
-  data: Pick<UserType, "lineId" | "name" | "accessToken" | "avatar">
-) => {
-  const result = await prisma.user.create({
-    data,
-  });
-
-  return result;
-};
-
-export const User = {
-  findFirstByLineId,
-  create,
-};
+// モデルには複雑なクエリかつ複数回使われそうな物を書くようにする。
+// それ以外はとりあえずhandlerで直接prisma呼び出せばいいと思う

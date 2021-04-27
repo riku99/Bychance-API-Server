@@ -27,16 +27,14 @@ const line = {
       const existingNonce = await Nonce.findFirst({ nonce });
 
       if (!existingNonce) {
-        // payloadにログインエラーであることを表すために値持たせる
-        return h.response().code(401);
+        return h.response().code(401); // あとでpayloadにログインエラーであることを表すために値持たせる
       }
 
       const lineId = res.data.sub as string;
-      const hashedLineId = createHash(lineId);
+      const hashedLineId = createHash(lineId); // lineIdのDBへの保存はハッシュ化
 
-      // lineIdはハッシュ 化して保存するため、同じプロセスでハッシュ化して検証するようにする
-      const existingUser = await User.findFirstByLineId({
-        lineId: hashedLineId,
+      const existingUser = await prisma.user.findFirst({
+        where: { lineId: hashedLineId },
       });
 
       const accessToken = createRandomString(); // ユーザー側で保存
@@ -44,7 +42,7 @@ const line = {
 
       if (existingUser) {
         // userが存在する場合はそれを返す
-        const result = await prisma.user.update({
+        const user = await prisma.user.update({
           where: {
             id: existingUser.id,
           },
@@ -53,21 +51,24 @@ const line = {
           },
         });
 
-        console.log(result);
+        console.log(user);
+        return user;
       } else {
         // userが存在しない場合は登録
         const name = res.data.name;
         const avatar = res.data.picture ? (res.data.picture as string) : null;
 
-        const newUser = await User.create({
-          lineId: hashedLineId,
-          accessToken: hashededAccessToken,
-          name,
-          avatar,
+        const newUser = await prisma.user.create({
+          data: {
+            lineId: hashedLineId,
+            accessToken: hashededAccessToken,
+            name,
+            avatar,
+          },
         });
 
         console.log(newUser);
-        return h.response(newUser).code(200);
+        return newUser;
       }
 
       return h.response().code(200); // payload返さない場合でもcode指定しないとエラーコード返る
