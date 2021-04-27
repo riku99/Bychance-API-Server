@@ -1,12 +1,11 @@
 import Hapi from "@hapi/hapi";
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import { PrismaClient } from "@prisma/client";
 
 import { Nonce } from "~/models/nonce";
-import { User } from "~/models/users";
 import { createHash, createRandomString } from "~/helpers/crypto";
-
 import { SessionsReqestType } from "~/routes/sessions/validator";
+import { createErrorObj } from "~/helpers/errors";
 
 const prisma = new PrismaClient();
 
@@ -16,21 +15,24 @@ const line = {
       const headers = req.headers as SessionsReqestType["line"]["create"]["headers"];
       const token = headers.authorization.split(" ")[1]; // Bearer取り出し
       const body = `id_token=${token}&client_id=${process.env.ChannelId}`; // x-www-form-urlencodedに形成
+      let res: AxiosResponse<any>;
 
-      const res = await axios.post(
-        "https://api.line.me/oauth2/v2.1/verify",
-        body,
-        { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
-      );
+      try {
+        res = await axios.post("https://api.line.me/oauth2/v2.1/verify", body, {
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        });
+      } catch (err) {
+        return h.response(createErrorObj({ name: "loginError" })).code(400);
+      }
 
-      const nonce = res.data.nonce as string;
+      const nonce = res!.data.nonce as string;
       const existingNonce = await Nonce.findFirst({ nonce });
 
       if (!existingNonce) {
-        return h.response().code(401); // あとでpayloadにログインエラーであることを表すために値持たせる
+        return h.response(createErrorObj({ name: "loginError" })).code(400);
       }
 
-      const lineId = res.data.sub as string;
+      const lineId = res!.data.sub as string;
       const hashedLineId = createHash(lineId); // lineIdのDBへの保存はハッシュ化
 
       const existingUser = await prisma.user.findFirst({
@@ -51,12 +53,11 @@ const line = {
           },
         });
 
-        console.log(user);
         return user;
       } else {
         // userが存在しない場合は登録
-        const name = res.data.name;
-        const avatar = res.data.picture ? (res.data.picture as string) : null;
+        const name = res!.data.name;
+        const avatar = res!.data.picture ? (res!.data.picture as string) : null;
 
         const newUser = await prisma.user.create({
           data: {
@@ -70,8 +71,6 @@ const line = {
         console.log(newUser);
         return newUser;
       }
-
-      return h.response().code(200); // payload返さない場合でもcode指定しないとエラーコード返る
     } catch (e) {
       console.log(e);
       return h.response().code(500);
