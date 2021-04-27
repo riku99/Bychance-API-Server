@@ -2,7 +2,6 @@ import Hapi from "@hapi/hapi";
 import axios, { AxiosResponse } from "axios";
 import { PrismaClient } from "@prisma/client";
 
-import { Nonce } from "~/models/nonce";
 import { createHash, createRandomString } from "~/helpers/crypto";
 import { SessionsReqestType } from "~/routes/sessions/validator";
 import { createErrorObj } from "~/helpers/errors";
@@ -25,11 +24,18 @@ const line = {
         return h.response(createErrorObj({ name: "loginError" })).code(400);
       }
 
+      console.log("resだよ");
+      console.log(res);
+
       const nonce = res!.data.nonce as string;
-      const existingNonce = await Nonce.findFirst({ nonce });
+      const existingNonce = await prisma.nonce.findUnique({
+        where: { nonce },
+      });
 
       if (!existingNonce) {
         return h.response(createErrorObj({ name: "loginError" })).code(400);
+      } else {
+        await prisma.nonce.delete({ where: { nonce } });
       }
 
       const lineId = res!.data.sub as string;
