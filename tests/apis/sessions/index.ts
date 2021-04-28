@@ -144,7 +144,7 @@ describe("sessions", () => {
         const res = server.inject({
           method: "GET",
           url: "/sessions",
-          headers: { Authorization: "Bearer lineId" },
+          headers: { Authorization: "Bearer ヘッダーおじさん" },
         });
       });
     });

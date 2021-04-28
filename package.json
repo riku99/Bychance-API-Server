@@ -5,6 +5,7 @@
   "license": "MIT",
   "dependencies": {
     "@hapi/basic": "^6.0.0",
+    "@hapi/boom": "^9.1.2",
     "@hapi/hapi": "^20.1.2",
     "@now-ims/hapi-now-auth": "^2.0.3",
     "@prisma/client": "2.19.0",
