@@ -47,7 +47,7 @@ describe("sessions", () => {
 
         describe("lineAPIの検証が成功", () => {
           describe("nonceが存在する", () => {
-            // beforeEachはそのブロック内のテストに対して毎回行われる
+            // beforeEachはそのブロック内のテストに対してネストも含めて毎回行われる
             beforeEach(async () => {
               await prisma.user.deleteMany({});
               await prisma.nonce.deleteMany({});
@@ -75,7 +75,6 @@ describe("sessions", () => {
 
                 const res = await server.inject(requestSchema);
 
-                expect(JSON.parse(res.payload).lineId).toEqual(hashedLineId);
                 expect(JSON.parse(res.payload).name).toEqual("圭介ホンダ"); // lineAPIからの戻り値ではなく既存データのもの
                 expect(res.statusCode).toEqual(200);
               });
@@ -88,7 +87,6 @@ describe("sessions", () => {
 
                 const res = await server.inject(requestSchema);
 
-                expect(JSON.parse(res.payload).lineId).toEqual(hashedLineId);
                 expect(JSON.parse(res.payload).name).toEqual("ローランド"); // lineAPIの戻り値のデータ
                 expect(res.statusCode).toEqual(200);
               });

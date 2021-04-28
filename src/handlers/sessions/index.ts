@@ -5,6 +5,7 @@ import { PrismaClient } from "@prisma/client";
 import { createHash, createRandomString } from "~/helpers/crypto";
 import { SessionsReqestType } from "~/routes/sessions/validator";
 import { createErrorBody } from "~/helpers/errors";
+import { serializeUser } from "~/serializers/users";
 
 const prisma = new PrismaClient();
 
@@ -57,7 +58,7 @@ const line = {
           },
         });
 
-        return user;
+        return serializeUser({ user });
       } else {
         // userが存在しない場合は登録
         const name = res!.data.name;
@@ -72,7 +73,7 @@ const line = {
           },
         });
 
-        return newUser;
+        return serializeUser({ user: newUser });
       }
     } catch (e) {
       console.log(e);
