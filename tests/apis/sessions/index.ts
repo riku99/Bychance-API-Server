@@ -64,6 +64,7 @@ describe("sessions", () => {
 
             describe("Userが既に存在する", () => {
               test("200と既存のデータを返す", async () => {
+                await prisma.user.deleteMany({});
                 // 既存データの作成
                 await prisma.user.create({
                   data: {
@@ -134,6 +135,16 @@ describe("sessions", () => {
           expect(JSON.parse(res.payload)).toEqual(
             createErrorBody({ name: "loginError" })
           );
+        });
+      });
+    });
+
+    describe("GET /sessions", () => {
+      test("session", async () => {
+        const res = server.inject({
+          method: "GET",
+          url: "/sessions",
+          headers: { Authorization: "Bearer lineId" },
         });
       });
     });
