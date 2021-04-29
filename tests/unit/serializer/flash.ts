@@ -1,6 +1,7 @@
 import { Flash } from "@prisma/client";
 
-import { serializeFlash, ClientFlash } from "~/serializers/flash";
+import { serializeFlash } from "~/serializers/flash";
+import { ClientFlash } from "~/types/clientData";
 
 const flash: Flash = {
   id: 1,

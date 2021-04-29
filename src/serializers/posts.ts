@@ -1,10 +1,7 @@
 import { Post } from "@prisma/client";
 
 import { formatDate } from "~/helpers/date";
-
-export type ClientPost = Pick<Post, "id" | "image" | "text" | "userId"> & {
-  date: string;
-};
+import { ClientPost } from "~/types/clientData";
 
 export const serializePost = ({ post }: { post: Post }): ClientPost => {
   const date = formatDate({ date: post.createdAt });

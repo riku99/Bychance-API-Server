@@ -1,8 +1,5 @@
 import { Flash } from "@prisma/client";
-
-export type ClientFlash = Pick<Flash, "id" | "sourceType" | "source"> & {
-  timeStamp: string;
-};
+import { ClientFlash } from "~/types/clientData";
 
 export const serializeFlash = ({ flash }: { flash: Flash }): ClientFlash => {
   const { id, source, sourceType } = flash;

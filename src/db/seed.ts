@@ -106,29 +106,52 @@ const runSeed = async () => {
     },
   });
 
-  const sr = [...data!.senderTalkRooms, ...data!.recipientTalkRooms];
-
-  const srResult = sr.map((_sr) => {
-    const { messages, readTalkRoomMessages, ...rest } = _sr;
-    return serializeTalkRoom({
-      talkRoom: rest,
-      talkRoomMessages: messages,
-      readTalkRoomMessages,
-      userId: user2.id,
-    });
+  await prisma.flash.create({
+    data: {
+      source: "sourceURL",
+      sourceType: "image",
+      user: {
+        connect: { id: user.id },
+      },
+    },
   });
 
-  console.log(srResult);
+  //const sr = [...data!.senderTalkRooms, ...data!.recipientTalkRooms];
 
-  const withPost = await prisma.user.findUnique({
-    where: {
-      id: user.id,
-    },
-    select: {
-      ...clientUserSelector,
+  // const srResult = sr.map((_sr) => {
+  //   const { messages, readTalkRoomMessages, ...rest } = _sr;
+  //   return serializeTalkRoom({
+  //     talkRoom: rest,
+  //     talkRoomMessages: messages,
+  //     readTalkRoomMessages,
+  //     userId: user2.id,
+  //   });
+  // });
+
+  //console.log(srResult);
+
+  const allData = await prisma.user.findUnique({
+    where: { id: user.id },
+    include: {
       posts: true,
+      senderTalkRooms: true,
+      recipientTalkRooms: true,
+      talkRoomMessages: true,
+      flashes: true,
     },
   });
+
+  console.log(allData);
+
+  // const withPost = await prisma.user.findUnique({
+  //   where: {
+  //     id: user.id,
+  //   },
+  //   select: {
+  //     ...clientUserSelector,
+  //     posts: true,
+  //   },
+  // });
 
   // console.log(user);
   // console.log(serializePost({ post }));

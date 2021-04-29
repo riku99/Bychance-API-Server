@@ -1,137 +1,129 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+generator client {
+  provider = "prisma-client-js"
+}
 
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
-}
-
 model User {
-  id String @default(uuid()) @id // create時に何も指定しなくてもuuid入る
-  lineId String @unique 
-  name String
-  avatar String?
-  introduce String?
-  statusMessage String? 
-  display Boolean @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt // create時に何も指定しなくてもDateTime入る
-  accessToken String @unique
-  lat String?
-  lng String?
-  @@index([lineId])
-  @@index([display])
-
-  // リレーション
-  posts Post[]
-  flashes Flash[]
-  senderTalkRooms TalkRoom[] @relation(name: "sender")
-  recipientTalkRooms TalkRoom[] @relation(name: "recipient")
-  talkRoomMessages TalkRoomMessage[]
+  id                   String                @id @default(uuid())
+  lineId               String                @unique
+  name                 String
+  avatar               String?
+  introduce            String?
+  statusMessage        String?
+  display              Boolean               @default(false)
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  accessToken          String                @unique
+  lat                  String?
+  lng                  String?
+  flashes              Flash[]
+  posts                Post[]
   readTalkRoomMessages ReadTalkRoomMessage[]
-  viewedFlashes viewedFlash[]
+  recipientTalkRooms   TalkRoom[]            @relation("recipient")
+  senderTalkRooms      TalkRoom[]            @relation("sender")
+  talkRoomMessages     TalkRoomMessage[]
+  viewedFlashes        viewedFlash[]
+
+  @@index([display], name: "User.display_index")
+  @@index([lineId], name: "User.lineId_index")
 }
 
 model Post {
-  id Int @default(autoincrement()) @id
-  text String?
-  image String
+  id        Int      @id @default(autoincrement())
+  text      String?
+  image     String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  userId String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
 
-  user User @relation(fields: [userId], references: [id])
-
-  @@index([userId])
+  @@index([userId], name: "Post.userId_index")
 }
 
 model Flash {
-  id Int @default(autoincrement()) @id
-  source String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         Int                 @id @default(autoincrement())
+  source     String
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
   sourceType FlashSourceTypeRole
-  userId String
+  userId     String
+  user       User                @relation(fields: [userId], references: [id])
+  viewed     viewedFlash[]
 
-  user User @relation(fields: [userId], references: [id])
-
-  viewed viewedFlash[]
-
-  @@index([userId])
+  @@index([userId], name: "Flash.userId_index")
 }
 
 model Nonce {
-  id Int  @default(autoincrement()) @id
-  nonce String @unique
+  id        Int      @id @default(autoincrement())
+  nonce     String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model TalkRoom {
-  id Int @default(autoincrement()) @id
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  senderId String
-  recipientId String
-
-  sender User @relation(fields: [senderId], references: [id], name: "sender")
-  recipient User @relation(fields: [recipientId], references: [id], name: "recipient")
-
-  messages TalkRoomMessage[]
+  id                   Int                   @id @default(autoincrement())
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  senderId             String
+  recipientId          String
+  recipient            User                  @relation("recipient", fields: [recipientId], references: [id])
+  sender               User                  @relation("sender", fields: [senderId], references: [id])
   readTalkRoomMessages ReadTalkRoomMessage[]
+  messages             TalkRoomMessage[]
 
-  @@unique([senderId, recipientId])
-  @@index([senderId, recipientId])
+  @@unique([senderId, recipientId], name: "TalkRoom.senderId_recipientId_unique")
+  @@index([senderId, recipientId], name: "TalkRoom.senderId_recipientId_index")
+  @@index([recipientId], name: "recipientId")
 }
 
 model TalkRoomMessage {
-  id Int @default(autoincrement()) @id
-  text String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  userId String
-  roomId Int
-
-  user User @relation(fields: [userId], references: [id])
-  room TalkRoom @relation(fields: [roomId], references: [id])
-
+  id                   Int                   @id @default(autoincrement())
+  text                 String
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  userId               String
+  roomId               Int
+  room                 TalkRoom              @relation(fields: [roomId], references: [id])
+  user                 User                  @relation(fields: [userId], references: [id])
   readTalkRoomMessages ReadTalkRoomMessage[]
 
-  @@index([userId, roomId])
+  @@index([userId, roomId], name: "TalkRoomMessage.userId_roomId_index")
+  @@index([roomId], name: "roomId")
 }
 
 model viewedFlash {
-  id Int @default(autoincrement()) @id
+  id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  userId String
-  flashId Int
+  userId    String
+  flashId   Int
+  flash     Flash    @relation(fields: [flashId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 
-  user User @relation(fields: [userId], references: [id])
-  flash Flash @relation(fields: [flashId], references: [id])
-
-  @@unique([userId, flashId])
-  @@index([userId, flashId])
+  @@unique([userId, flashId], name: "viewedFlash.userId_flashId_unique")
+  @@index([flashId], name: "flashId")
+  @@index([userId, flashId], name: "viewedFlash.userId_flashId_index")
 }
 
 model ReadTalkRoomMessage {
-  id Int @default(autoincrement()) @id
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  userId String
+  id        Int             @id @default(autoincrement())
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  userId    String
   messageId Int
-  roomId Int
+  roomId    Int
+  message   TalkRoomMessage @relation(fields: [messageId], references: [id])
+  room      TalkRoom        @relation(fields: [roomId], references: [id])
+  user      User            @relation(fields: [userId], references: [id])
 
-  user User @relation(fields: [userId], references: [id])
-  message TalkRoomMessage @relation(fields: [messageId], references: [id])
-  room TalkRoom @relation(fields: [roomId], references: [id])
-
-  @@index([userId, messageId, roomId])
-  @@unique([userId, messageId, roomId])
+  @@unique([userId, messageId, roomId], name: "ReadTalkRoomMessage.userId_messageId_roomId_unique")
+  @@index([userId, messageId, roomId], name: "ReadTalkRoomMessage.userId_messageId_roomId_index")
+  @@index([messageId], name: "messageId")
+  @@index([roomId], name: "roomId")
 }
 
 enum FlashSourceTypeRole {

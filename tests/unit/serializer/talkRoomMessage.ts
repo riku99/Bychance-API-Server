@@ -1,9 +1,7 @@
 import { TalkRoomMessage } from "@prisma/client";
 
-import {
-  serializeTalkRoomMessage,
-  ClientTalkRoomMessage,
-} from "~/serializers/talkRoomMessage";
+import { serializeTalkRoomMessage } from "~/serializers/talkRoomMessage";
+import { ClientTalkRoomMessage } from "~/types/clientData";
 
 const talkRoomMessage: TalkRoomMessage = {
   id: 1,

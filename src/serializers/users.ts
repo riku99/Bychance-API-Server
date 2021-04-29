@@ -1,9 +1,5 @@
 import { User } from "@prisma/client";
-
-export type ClientUser = Omit<
-  User,
-  "lineId" | "createdAt" | "updatedAt" | "accessToken"
->;
+import { ClientUser } from "~/types/clientData";
 
 export const serializeUser = ({ user }: { user: User }): ClientUser => {
   const { lineId, createdAt, updatedAt, accessToken, ...clientData } = user;

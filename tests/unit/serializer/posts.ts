@@ -1,6 +1,7 @@
 import { Post } from "@prisma/client";
 
-import { serializePost, ClientPost } from "~/serializers/posts";
+import { serializePost } from "~/serializers/posts";
+import { ClientPost } from "~/types/clientData";
 
 const post: Post = {
   id: 1,

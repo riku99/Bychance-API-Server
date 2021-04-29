@@ -1,6 +1,7 @@
 import { User } from "@prisma/client";
 
-import { serializeUser, ClientUser } from "~/serializers/users";
+import { serializeUser } from "~/serializers/users";
+import { ClientUser } from "~/types/clientData";
 
 const user: User = {
   id: "ididid",

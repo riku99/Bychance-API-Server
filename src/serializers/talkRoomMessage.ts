@@ -1,9 +1,6 @@
 import { TalkRoomMessage } from "@prisma/client";
 
-export type ClientTalkRoomMessage = Pick<
-  TalkRoomMessage,
-  "id" | "userId" | "roomId" | "text"
-> & { timeStamp: string };
+import { ClientTalkRoomMessage } from "~/types/clientData";
 
 export const serializeTalkRoomMessage = ({
   talkRoomMessage,
