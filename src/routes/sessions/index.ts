@@ -22,11 +22,7 @@ export const sessionsRoute = async (server: Hapi.Server) => {
     {
       method: "GET",
       path: "/sessions",
-      handler: (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
-        console.log("authです！");
-        console.log(req.auth);
-        return req.auth;
-      },
+      handler: sessionsHandler.sessionLogin,
       options: {
         auth: "simple",
       },

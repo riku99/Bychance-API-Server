@@ -9,6 +9,18 @@ import { loginErrorType } from "~/config/apis/errors";
 
 const prisma = new PrismaClient();
 
+const lineId = "生lineId";
+const hashedLineId = createHash(lineId);
+
+const accessToken = "生accessToken";
+const hashedAccessToken = createHash(accessToken);
+
+const testUser = {
+  lineId: hashedLineId,
+  accessToken: hashedAccessToken,
+  name: "範馬勇次郎",
+};
+
 jest.mock("axios");
 
 // lineAPIが成功した場合を仮定
@@ -60,8 +72,6 @@ describe("sessions", () => {
                 },
               });
             });
-
-            const hashedLineId = createHash("lineId");
 
             describe("Userが既に存在する", () => {
               test("200と既存のデータを返す", async () => {
@@ -132,37 +142,103 @@ describe("sessions", () => {
         test("400を返す", async () => {
           const res = await server.inject(requestSchema);
 
-          expect(res.statusCode).toEqual(400);
-          expect(JSON.parse(res.payload)).toEqual(
-            createErrorBody({ name: "loginError" })
-          );
+          expect(res.statusCode).toEqual(401);
+          expect(JSON.parse(res.payload).errorType).toEqual(loginErrorType);
         });
       });
     });
 
     describe("GET /sessions", () => {
-      const url = "/sessions?id=userId"; // クエリ付き
-
-      const requestSchema = {
-        method: "GET",
-        url,
-        headers: { Authorization: "Bearer accessToken" },
-      };
+      const url = "/sessions";
 
       describe("Bearerが存在する", () => {
         describe("クエリにidが存在する", () => {
           describe("idからユーザーを見つけることができる", () => {
             describe("ユーザーのaccessTokenとヘッダーで送られてきたaccessTokenのハッシュと一致する", () => {
-              test("シリアライズされたデータを返す", async () => {});
+              test("シリアライズされたデータを返す", async () => {
+                await prisma.user.deleteMany({});
+
+                const user = await prisma.user.create({
+                  data: {
+                    id: "uuid",
+                    ...testUser,
+                  },
+                });
+
+                const _user = await prisma.user.findUnique({
+                  where: { id: "uuid" },
+                });
+
+                expect(_user).toEqual(user); // 正しいidを渡すとuserを取り出せることを保証
+
+                const res = await server.inject({
+                  method: "GET",
+                  url: url + "?id=uuid", // 上記ユーザーと同じidを付与
+                  headers: { Authorization: `Bearer ${accessToken}` }, // 上記ユーザーと同じaccessTokenを付与(ハッシュ化前)
+                });
+
+                console.log(res.payload);
+                expect(res.statusCode).toEqual(200);
+              });
             });
 
             describe("ユーザーのaccessTokenとヘッダーで送られてきたaccessTokenのハッシュと一致しない", () => {
-              test("エラーを返す", async () => {});
+              test("エラーを返す", async () => {
+                await prisma.user.deleteMany({});
+
+                const user = await prisma.user.create({
+                  data: {
+                    id: "uuid",
+                    ...testUser,
+                  },
+                });
+
+                const _user = await prisma.user.findUnique({
+                  where: { id: "uuid" },
+                });
+
+                expect(_user).toEqual(user); // 正しいidを渡すとuserを取り出せることを保証
+
+                const res = await server.inject({
+                  method: "GET",
+                  url: url + "?id=uuid", // 上記ユーザーと同じidを付与
+                  headers: { Authorization: "Bearer 間違ったトークン" }, // 上記ユーザーと異なるトークンを付与(正しいトークンんは 生accessToken)
+                });
+
+                expect(res.statusCode).toEqual(401);
+                expect(JSON.parse(res.payload).errorType).toEqual(
+                  loginErrorType
+                );
+              });
             });
           });
 
           describe("idからユーザーを見つけることができない", () => {
-            test("エラーを返す", async () => {});
+            test("エラーを返す", async () => {
+              await prisma.user.deleteMany({});
+
+              const user = await prisma.user.create({
+                data: {
+                  id: "一致しないuuid",
+                  ...testUser,
+                },
+              });
+
+              const _user = await prisma.user.findUnique({
+                where: { id: "一致しないuuid" },
+              });
+
+              expect(_user).toEqual(user); // 正しいidを渡すとuserを取り出せることを保証
+
+              const res = await server.inject({
+                method: "GET",
+                url: url + "?id=idだよーん", // 上のuserと異なるidをクエリに付与
+                headers: { Authorization: "Bearer accessToken" },
+              });
+
+              expect(res.statusCode).toEqual(401);
+              expect(JSON.parse(res.payload).errorType).toEqual(loginErrorType);
+            });
           });
         });
 
@@ -170,11 +246,10 @@ describe("sessions", () => {
           test("エラーを返す", async () => {
             const res = await server.inject({
               method: "GET",
-              url: "/sessions", // クエリつけない
+              url, // クエリつけてない
               headers: { Authorization: "Bearer accessToken" },
             });
 
-            console.log(res.payload);
             expect(JSON.parse(res.payload).errorType).toEqual(loginErrorType);
             expect(res.statusCode).toEqual(401);
           });
@@ -185,11 +260,10 @@ describe("sessions", () => {
         test("エラーを返す", async () => {
           const res = await server.inject({
             method: "GET",
-            url,
+            url: url + "?=id",
             // headerつけない
           });
 
-          console.log(res.payload);
           expect(JSON.parse(res.payload).errorType).toEqual(loginErrorType);
           expect(res.statusCode).toEqual(401);
         });

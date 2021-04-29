@@ -1,18 +1,12 @@
 import Joi from "joi";
 import Hapi from "@hapi/hapi";
 
-import { createErrorBody } from "~/helpers/errors";
+import { throwLoginError } from "~/helpers/errors";
 
-export type SessionsReqestType = {
-  line: {
-    create: {
-      headers: { authorization: string };
-    };
-  };
-};
+export type LineLoginHeaders = { authorization: string };
 
-const lineLoginValidator = {
-  headers: Joi.object<SessionsReqestType["line"]["create"]["headers"]>({
+export const lineLoginValidator = {
+  headers: Joi.object<LineLoginHeaders>({
     authorization: Joi.string().required(),
   }),
 };
@@ -22,10 +16,8 @@ const lineLoginFailAction = (
   h: Hapi.ResponseToolkit,
   err: Error | undefined
 ) => {
-  return h
-    .response(createErrorBody({ name: "loginError" }))
-    .code(400)
-    .takeover(); // takeoverでデフォルトの値書き換え
+  // ヘッダの有無でバリデーションしていて、バリデーションエラーなら400を返すのが一般的かと思うが、今回は再度ログインプロセスをユーザーに踏ませたいので、ここの場合のバリデーションエラーは401を返す
+  return throwLoginError();
 };
 
 // const emailAndPass = () => {}; セッションを構築する方法は複数になることが考えられるので分ける

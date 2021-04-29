@@ -15,7 +15,7 @@ export const checkBeareAccessToken = async (
   if (!id) {
     // Boomを使ったエラーのスローはstrategy作成時のunauthorizeに実装する
     // throwLoginError();
-    return { isValid: false };
+    return { isValid: false, credentials: {} };
   }
 
   const user = await prisma.user.findUnique({
@@ -23,14 +23,15 @@ export const checkBeareAccessToken = async (
   });
 
   if (!user) {
-    return { isValid: false };
+    return { isValid: false, credentials: {} };
   }
 
   const isSame = user.accessToken === createHash(token);
 
   if (!isSame) {
-    return { isValid: false };
+    return { isValid: false, credentials: {} };
   }
 
-  return { isValid: true, artifacts: user };
+  // credentialsは例えisValidがfalseでも、trueだがhandler内で必要なくても定義しないとダメ
+  return { isValid: true, credentials: {}, artifacts: user };
 };

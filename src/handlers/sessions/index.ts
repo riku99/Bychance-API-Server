@@ -3,7 +3,7 @@ import axios, { AxiosResponse } from "axios";
 import { PrismaClient } from "@prisma/client";
 
 import { createHash, createRandomString } from "~/helpers/crypto";
-import { SessionsReqestType } from "~/routes/sessions/validator";
+import { LineLoginHeaders } from "~/routes/sessions/validator";
 import { createErrorBody } from "~/helpers/errors";
 import { serializeUser } from "~/serializers/users";
 
@@ -11,7 +11,7 @@ const prisma = new PrismaClient();
 
 const lineLogin = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   try {
-    const headers = req.headers as SessionsReqestType["line"]["create"]["headers"];
+    const headers = req.headers as LineLoginHeaders;
     const token = headers.authorization.split(" ")[1]; // Bearer取り出し
     const body = `id_token=${token}&client_id=${process.env.ChannelId}`; // x-www-form-urlencodedに形成
     let res: AxiosResponse<any>;
@@ -80,6 +80,22 @@ const lineLogin = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   }
 };
 
+export const sessionLogin = async (
+  req: Hapi.Request,
+  h: Hapi.ResponseToolkit
+) => {
+  try {
+    const user = req.auth.artifacts;
+
+    console.log(user);
+    return user;
+  } catch (err) {
+    console.log(err);
+    return h.response().code(500);
+  }
+};
+
 export const sessionsHandler = {
   lineLogin,
+  sessionLogin,
 };
