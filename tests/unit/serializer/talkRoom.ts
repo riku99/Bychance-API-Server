@@ -88,7 +88,7 @@ const readTalkRoomMessages: ReadTalkRoomMessage[] = [
   },
 ];
 
-const expectedResult: ClientTalkRoom = {
+const clientTalkRoomt: ClientTalkRoom = {
   id: 1,
   partner: "1",
   messages: [1, 2, 3, 4, 5],
@@ -106,6 +106,6 @@ describe("talkRoom serializer", () => {
       userId: "2",
     });
 
-    expect(result).toEqual(expectedResult);
+    expect(result).toEqual(clientTalkRoomt);
   });
 });
