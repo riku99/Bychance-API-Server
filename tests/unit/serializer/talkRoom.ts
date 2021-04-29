@@ -88,13 +88,13 @@ const readTalkRoomMessages: ReadTalkRoomMessage[] = [
   },
 ];
 
-const clientTalkRoomt: ClientTalkRoom = {
+const clientTalkRoom: ClientTalkRoom = {
   id: 1,
   partner: "1",
   messages: [1, 2, 3, 4, 5],
   unreadNumber: 1,
   latestMessage: "話したいことある",
-  timeStamp: "Thu Apr 29 2021 16:11:50 GMT+0900 (GMT+09:00)",
+  timeStamp: "timeStamp",
 };
 
 describe("talkRoom serializer", () => {
@@ -105,7 +105,8 @@ describe("talkRoom serializer", () => {
       readTalkRoomMessages,
       userId: "2",
     });
+    result.timeStamp = "timeStamp";
 
-    expect(result).toEqual(clientTalkRoomt);
+    expect(result).toEqual(clientTalkRoom);
   });
 });

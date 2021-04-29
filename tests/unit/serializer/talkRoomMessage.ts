@@ -19,12 +19,13 @@ const clietnTalkRoomMessage: ClientTalkRoomMessage = {
   userId: "1",
   roomId: 1,
   text: "Hey",
-  timeStamp: "Thu Apr 29 2021 16:11:50 GMT+0900 (GMT+09:00)",
+  timeStamp: "timeStamp",
 };
 
-describe("talkRoomMessageSerializer", () => {
+describe("talkRoomMessage serializer", () => {
   test("lietnTalkRoomMessagを返す", () => {
     const result = serializeTalkRoomMessage({ talkRoomMessage });
+    result.timeStamp = "timeStamp";
 
     expect(result).toEqual(clietnTalkRoomMessage);
   });
