@@ -41,7 +41,7 @@
     "test:db:migrate": "docker-compose -f docker-compose.test.yml run test_server yarn prisma migrate reset --force",
     "test:db:gene": "docker-compose -f docker-compose.test.yml run test_server yarn prisma generate",
     "test:down": "docker-compose -f docker-compose.test.yml down --volumes",
-    "test:ci": "yarn test:db:up && sleep 10 && yarn test:server:migrate && yarn test:server:gene && yarn test && yarn test:down",
+    "test:ci": "yarn test:db:up && sleep 10 && yarn test:db:migrate && yarn test:server:gene && yarn test && yarn test:down",
     "db:seed": "ts-node --files -r tsconfig-paths/register ./src/db/seed.ts",
     "db:show": "yarn prisma studio"
   },
