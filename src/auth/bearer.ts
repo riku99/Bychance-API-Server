@@ -1,7 +1,6 @@
 import Hapi from "@hapi/hapi";
 
 import { PrismaClient } from "@prisma/client";
-import { throwLoginError } from "~/helpers/errors";
 import { createHash } from "~/helpers/crypto";
 
 const prisma = new PrismaClient();
@@ -14,8 +13,9 @@ export const checkBeareAccessToken = async (
   const id = request.query.id as string | undefined;
 
   if (!id) {
-    throwLoginError();
-    return;
+    // Boomを使ったエラーのスローはstrategy作成時のunauthorizeに実装する
+    // throwLoginError();
+    return { isValid: false };
   }
 
   const user = await prisma.user.findUnique({
@@ -23,15 +23,13 @@ export const checkBeareAccessToken = async (
   });
 
   if (!user) {
-    throwLoginError();
-    return;
+    return { isValid: false };
   }
 
   const isSame = user.accessToken === createHash(token);
 
   if (!isSame) {
-    throwLoginError();
-    return;
+    return { isValid: false };
   }
 
   return { isValid: true, artifacts: user };

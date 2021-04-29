@@ -1,10 +1,10 @@
 import Boom from "@hapi/boom";
 
-import { ApiErrorType } from "~/config/apis/errors";
+import { ApiErrorType, loginErrorType } from "~/config/apis/errors";
 
 export const throwLoginError = () => {
   const error = Boom.unauthorized();
-  error.output.payload.errorType = "loginError";
+  error.output.payload.errorType = loginErrorType;
   throw error;
 };
 

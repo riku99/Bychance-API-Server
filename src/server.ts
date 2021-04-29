@@ -8,6 +8,7 @@ import { prismaPlugin } from "~/plugins/prisma";
 import { noncePlugin } from "~/plugins/nonce";
 import { sesisonsPlugin } from "~/plugins/sessions";
 import { checkBeareAccessToken } from "~/auth/bearer";
+import { throwLoginError } from "~/helpers/errors";
 
 const server = Hapi.server({
   port: 4001,
@@ -15,11 +16,16 @@ const server = Hapi.server({
 });
 
 export const initializeServer = async () => {
-  // authをプラグインとして登録する場合、routeの登録よりも先にしないと死ぬ
   // @ts-ignore
-  await server.register(AuthBearer);
+  await server.register(AuthBearer); // authをプラグインとして登録する場合、routeの登録よりも先にしないと死ぬ
+
   server.auth.strategy("simple", "bearer-access-token", {
     validate: checkBeareAccessToken,
+    unauthorized: () => {
+      // unauthorizedはtokenが存在しない場合、validateに渡した関数から{isValid: false}が返された場合に実行される
+      console.log("認可失敗");
+      throwLoginError();
+    },
   });
 
   await server.register([

@@ -5,6 +5,7 @@ import { PrismaClient } from "@prisma/client";
 import { initializeServer } from "~/server";
 import { createErrorBody } from "~/helpers/errors";
 import { createHash } from "~/helpers/crypto";
+import { loginErrorType } from "~/config/apis/errors";
 
 const prisma = new PrismaClient();
 
@@ -140,11 +141,57 @@ describe("sessions", () => {
     });
 
     describe("GET /sessions", () => {
-      test("session", async () => {
-        const res = server.inject({
-          method: "GET",
-          url: "/sessions",
-          headers: { Authorization: "Bearer ヘッダーおじさん" },
+      const url = "/sessions?id=userId"; // クエリ付き
+
+      const requestSchema = {
+        method: "GET",
+        url,
+        headers: { Authorization: "Bearer accessToken" },
+      };
+
+      describe("Bearerが存在する", () => {
+        describe("クエリにidが存在する", () => {
+          describe("idからユーザーを見つけることができる", () => {
+            describe("ユーザーのaccessTokenとヘッダーで送られてきたaccessTokenのハッシュと一致する", () => {
+              test("シリアライズされたデータを返す", async () => {});
+            });
+
+            describe("ユーザーのaccessTokenとヘッダーで送られてきたaccessTokenのハッシュと一致しない", () => {
+              test("エラーを返す", async () => {});
+            });
+          });
+
+          describe("idからユーザーを見つけることができない", () => {
+            test("エラーを返す", async () => {});
+          });
+        });
+
+        describe("クエリにidが存在しない", () => {
+          test("エラーを返す", async () => {
+            const res = await server.inject({
+              method: "GET",
+              url: "/sessions", // クエリつけない
+              headers: { Authorization: "Bearer accessToken" },
+            });
+
+            console.log(res.payload);
+            expect(JSON.parse(res.payload).errorType).toEqual(loginErrorType);
+            expect(res.statusCode).toEqual(401);
+          });
+        });
+      });
+
+      describe("Bearerが存在しない", () => {
+        test("エラーを返す", async () => {
+          const res = await server.inject({
+            method: "GET",
+            url,
+            // headerつけない
+          });
+
+          console.log(res.payload);
+          expect(JSON.parse(res.payload).errorType).toEqual(loginErrorType);
+          expect(res.statusCode).toEqual(401);
         });
       });
     });

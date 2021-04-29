@@ -28,9 +28,7 @@ export const sessionsRoute = async (server: Hapi.Server) => {
         return req.auth;
       },
       options: {
-        auth: {
-          strategies: ["simple"],
-        },
+        auth: "simple",
       },
     },
   ]);
