@@ -3,7 +3,6 @@ import axios from "axios";
 import { PrismaClient } from "@prisma/client";
 
 import { initializeServer } from "~/server";
-import { createErrorBody } from "~/helpers/errors";
 import { createHash } from "~/helpers/crypto";
 import { loginErrorType } from "~/config/apis/errors";
 
@@ -27,8 +26,8 @@ jest.mock("axios");
 (axios.post as any).mockResolvedValue({
   data: {
     nonce: "nonce",
-    name: "ローランド",
-    sub: "lineId",
+    name: "デンジ",
+    sub: lineId,
   },
 });
 
@@ -81,13 +80,13 @@ describe("sessions", () => {
                   data: {
                     lineId: hashedLineId,
                     accessToken: "token",
-                    name: "圭介ホンダ",
+                    name: "チェンソーマン",
                   },
                 });
 
                 const res = await server.inject(requestSchema);
 
-                expect(JSON.parse(res.payload).name).toEqual("圭介ホンダ"); // lineAPIからの戻り値ではなく既存データのもの
+                expect(JSON.parse(res.payload).name).toEqual("チェンソーマン"); // lineAPIからの戻り値ではなく既存データのもの
                 expect(res.statusCode).toEqual(200);
               });
             });
@@ -99,21 +98,20 @@ describe("sessions", () => {
 
                 const res = await server.inject(requestSchema);
 
-                expect(JSON.parse(res.payload).name).toEqual("ローランド"); // lineAPIの戻り値のデータ
+                expect(JSON.parse(res.payload).name).toEqual("デンジ"); // lineAPIの戻り値のデータ(axios.postでモックしたデータ)
                 expect(res.statusCode).toEqual(200);
               });
             });
           });
 
           describe("nonceが存在しない", () => {
-            test("400でloginError", async () => {
+            test("401loginErrorを返す", async () => {
               await prisma.nonce.deleteMany({});
 
               const res = await server.inject(requestSchema);
 
-              expect(JSON.parse(res.payload)).toEqual(
-                createErrorBody({ name: "loginError" })
-              );
+              expect(res.statusCode).toEqual(401);
+              expect(JSON.parse(res.payload).errorType).toEqual(loginErrorType);
             });
           });
         });
@@ -139,7 +137,7 @@ describe("sessions", () => {
           method: "POST",
           url,
         };
-        test("400を返す", async () => {
+        test("401loginErrorを返す", async () => {
           const res = await server.inject(requestSchema);
 
           expect(res.statusCode).toEqual(401);
@@ -177,7 +175,6 @@ describe("sessions", () => {
                   headers: { Authorization: `Bearer ${accessToken}` }, // 上記ユーザーと同じaccessTokenを付与(ハッシュ化前)
                 });
 
-                console.log(res.payload);
                 expect(res.statusCode).toEqual(200);
               });
             });

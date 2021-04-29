@@ -5,6 +5,7 @@ import { createHash } from "~/helpers/crypto";
 
 const prisma = new PrismaClient();
 
+// 認可が必要なAPIのAuthorizationヘッダ + クエリのidフィールドはこの認可プロセスで検証を行えるのでそのためのバリデーションは定義する必要ない
 export const checkBeareAccessToken = async (
   request: Hapi.Request,
   token: string,

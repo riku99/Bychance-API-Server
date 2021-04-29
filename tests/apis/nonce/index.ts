@@ -2,13 +2,9 @@ import Hapi from "@hapi/hapi";
 import { PrismaClient } from "@prisma/client";
 
 import { initializeServer } from "~/server";
+import { loginErrorType } from "~/config/apis/errors";
 
 const prisma = new PrismaClient();
-
-afterAll(async (done) => {
-  await prisma.$disconnect();
-  done();
-});
 
 describe("nonce", () => {
   let server: Hapi.Server;
@@ -18,8 +14,7 @@ describe("nonce", () => {
   });
 
   afterAll(async () => {
-    await prisma.nonce.deleteMany();
-    await server.stop();
+    await prisma.nonce.deleteMany({});
   });
 
   describe("POST /nonce", () => {
@@ -47,13 +42,14 @@ describe("nonce", () => {
       expect(res.statusCode).toEqual(500);
     });
 
-    test("payloadがないとエラー", async () => {
+    test("payloadがないと401loginError返す", async () => {
       const res = await server.inject({
         method: "POST",
         url: "/nonce",
       });
 
-      expect(res.statusCode).toEqual(400);
+      expect(res.statusCode).toEqual(401);
+      expect(JSON.parse(res.payload).errorType).toEqual(loginErrorType);
     });
   });
 });
