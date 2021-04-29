@@ -32,7 +32,7 @@ model User {
   senderTalkRooms TalkRoom[] @relation(name: "sender")
   recipientTalkRooms TalkRoom[] @relation(name: "recipient")
   talkRoomMessages TalkRoomMessage[]
-  readTalkRoomMessages readTalkRoomMessage[]
+  readTalkRoomMessages ReadTalkRoomMessage[]
   viewedFlashes viewedFlash[]
 }
 
@@ -82,7 +82,7 @@ model TalkRoom {
   recipient User @relation(fields: [recipientId], references: [id], name: "recipient")
 
   messages TalkRoomMessage[]
-  readTalkRoomMessages readTalkRoomMessage[]
+  readTalkRoomMessages ReadTalkRoomMessage[]
 
   @@unique([senderId, recipientId])
   @@index([senderId, recipientId])
@@ -99,7 +99,7 @@ model TalkRoomMessage {
   user User @relation(fields: [userId], references: [id])
   room TalkRoom @relation(fields: [roomId], references: [id])
 
-  readTalkRoomMessages readTalkRoomMessage[]
+  readTalkRoomMessages ReadTalkRoomMessage[]
 
   @@index([userId, roomId])
 }
@@ -118,7 +118,7 @@ model viewedFlash {
   @@index([userId, flashId])
 }
 
-model readTalkRoomMessage {
+model ReadTalkRoomMessage {
   id Int @default(autoincrement()) @id
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

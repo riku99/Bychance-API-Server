@@ -1,10 +1,11 @@
-import { TalkRoom, TalkRoomMessage, readTalkRoomMessage } from "@prisma/client";
+import { TalkRoom, TalkRoomMessage, ReadTalkRoomMessage } from "@prisma/client";
 
 export type ClientTalkRoom = Pick<TalkRoom, "id"> & {
   partner: string;
   messages: number[];
   unreadNumber: number;
   latestMessage: string | null;
+  timeStamp: string;
 };
 
 export const serializeTalkRoom = ({
@@ -15,11 +16,11 @@ export const serializeTalkRoom = ({
 }: {
   talkRoom: TalkRoom;
   talkRoomMessages: TalkRoomMessage[];
-  readTalkRoomMessages: readTalkRoomMessage[];
+  readTalkRoomMessages: ReadTalkRoomMessage[];
   userId: string;
 }): ClientTalkRoom => {
   const partner =
-    talkRoom.senderId === userId ? talkRoom.recipientId : talkRoom.recipientId;
+    talkRoom.senderId === userId ? talkRoom.recipientId : talkRoom.senderId;
   const messages = talkRoomMessages.map((message) => message.id);
   const messagesWithoutMine = talkRoomMessages.filter(
     (message) => message.userId !== userId
@@ -38,6 +39,7 @@ export const serializeTalkRoom = ({
     messages,
     unreadNumber,
     latestMessage,
+    timeStamp: talkRoom.updatedAt.toString(),
   };
 
   return clientTalkRoom;
