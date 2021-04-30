@@ -2,12 +2,13 @@ import Hapi from "@hapi/hapi";
 
 import { sessionsValidator } from "./validator";
 import { sessionsHandler } from "~/handlers/sessions";
+import { baseUrl } from "~/constants/url";
 
 export const sessionsRoute = async (server: Hapi.Server) => {
   server.route([
     {
       method: "POST",
-      path: "/sessions/lineLogin",
+      path: `${baseUrl}/sessions/lineLogin`,
       handler: sessionsHandler.lineLogin,
       options: {
         validate: {
@@ -17,15 +18,13 @@ export const sessionsRoute = async (server: Hapi.Server) => {
           },
           failAction: sessionsValidator.lineLogin.failAction,
         },
+        auth: false,
       },
     },
     {
       method: "GET",
-      path: "/sessions",
+      path: `${baseUrl}/sessions`,
       handler: sessionsHandler.sessionLogin,
-      options: {
-        auth: "simple",
-      },
     },
   ]);
 };

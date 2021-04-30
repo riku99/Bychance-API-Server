@@ -7,5 +7,8 @@ export const root = async (server: Hapi.Server) => {
     handler: (req, h) => {
       return "Hello World";
     },
+    options: {
+      auth: false,
+    },
   });
 };

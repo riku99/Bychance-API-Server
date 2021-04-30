@@ -5,6 +5,7 @@ import { PrismaClient } from "@prisma/client";
 import { initializeServer } from "~/server";
 import { createHash } from "~/helpers/crypto";
 import { loginErrorType } from "~/config/apis/errors";
+import { baseUrl } from "~/constants/url";
 
 const prisma = new PrismaClient();
 
@@ -48,7 +49,7 @@ describe("sessions", () => {
 
   describe("line", () => {
     describe("POST /sessions/lineLogin", () => {
-      const url = "/sessions/lineLogin";
+      const url = `${baseUrl}/sessions/lineLogin`;
 
       describe("headersが適切に指定されている", () => {
         const requestSchema = {
@@ -163,7 +164,7 @@ describe("sessions", () => {
     });
 
     describe("GET /sessions", () => {
-      const url = "/sessions";
+      const url = `${baseUrl}/sessions`;
 
       describe("Bearerが存在する", () => {
         describe("クエリにidが存在する", () => {

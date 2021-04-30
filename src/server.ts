@@ -8,6 +8,7 @@ import { rootPlugin } from "~/plugins/root";
 import { prismaPlugin } from "~/plugins/prisma";
 import { noncePlugin } from "~/plugins/nonce";
 import { sesisonsPlugin } from "~/plugins/sessions";
+import { usersPlugin } from "~/plugins/users";
 import { checkBeareAccessToken } from "~/auth/bearer";
 import { throwLoginError } from "~/helpers/errors";
 
@@ -30,6 +31,8 @@ export const initializeServer = async () => {
     },
   });
 
+  server.auth.default("simple");
+
   await server.register({
     plugin: require("hapi-pino"),
     options: {
@@ -45,6 +48,7 @@ export const initializeServer = async () => {
     noncePlugin,
     rootPlugin,
     sesisonsPlugin,
+    usersPlugin,
   ]);
 
   await server.initialize();

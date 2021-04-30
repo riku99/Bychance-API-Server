@@ -3,6 +3,7 @@ import { PrismaClient } from "@prisma/client";
 
 import { initializeServer } from "~/server";
 import { loginErrorType } from "~/config/apis/errors";
+import { baseUrl } from "~/constants/url";
 
 const prisma = new PrismaClient();
 
@@ -21,7 +22,7 @@ describe("nonce", () => {
     test("nonceが作成される", async () => {
       const res = await server.inject({
         method: "POST",
-        url: "/nonce",
+        url: `${baseUrl}/nonce`,
         payload: { nonce: `腰が痛いヨ${Date.now()}` },
       });
 
@@ -36,7 +37,7 @@ describe("nonce", () => {
       });
       const res = await server.inject({
         method: "POST",
-        url: "/nonce",
+        url: `${baseUrl}/nonce`,
         payload: obj,
       });
       expect(res.statusCode).toEqual(500);
@@ -45,7 +46,7 @@ describe("nonce", () => {
     test("payloadがないと401loginError返す", async () => {
       const res = await server.inject({
         method: "POST",
-        url: "/nonce",
+        url: `${baseUrl}/nonce`,
       });
 
       expect(res.statusCode).toEqual(401);
