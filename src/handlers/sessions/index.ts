@@ -49,65 +49,53 @@ const lineLogin = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const accessToken = createRandomString(); // ユーザー側で保存
   const hashededAccessToken = createHash(accessToken); // DBに保存
 
-  if (existingUser) {
-    // userが存在する場合はそれを返す
-    const user = await prisma.user.update({
-      where: {
-        id: existingUser.id,
-      },
-      data: {
-        accessToken: hashededAccessToken,
-      },
-      include: userIncludes.createClient,
-    });
+  const name = res!.data.name;
+  const avatar = res!.data.picture ? (res!.data.picture as string) : null;
 
-    const {
-      posts,
-      flashes,
-      senderTalkRooms,
-      recipientTalkRooms,
-      talkRoomMessages,
-      readTalkRoomMessages,
-      ...rest
-    } = user;
+  const user = existingUser
+    ? // userが存在する場合はそれを返す
+      await prisma.user.update({
+        where: {
+          id: existingUser.id,
+        },
+        data: {
+          accessToken: hashededAccessToken,
+        },
+        include: userIncludes.createClient,
+      })
+    : // 新規の場合は新たに作成
+      await prisma.user.create({
+        data: {
+          lineId: hashedLineId,
+          accessToken: hashededAccessToken,
+          name,
+          avatar,
+        },
+        include: userIncludes.createClient,
+      });
 
-    const allTalkRooms = [...senderTalkRooms, ...recipientTalkRooms];
+  const {
+    posts,
+    flashes,
+    senderTalkRooms,
+    recipientTalkRooms,
+    talkRoomMessages,
+    readTalkRoomMessages,
+    ...rest
+  } = user;
 
-    const clientData = createClientData({
-      user: rest,
-      posts,
-      flashes,
-      talkRooms: allTalkRooms,
-      talkRoomMessages,
-      readTalkRoomMessages,
-    });
+  const allTalkRooms = [...senderTalkRooms, ...recipientTalkRooms];
 
-    return { ...clientData, token: accessToken };
-  } else {
-    // userが存在しない場合は登録
-    const name = res!.data.name;
-    const avatar = res!.data.picture ? (res!.data.picture as string) : null;
+  const clientData = createClientData({
+    user: rest,
+    posts,
+    flashes,
+    talkRooms: allTalkRooms,
+    talkRoomMessages,
+    readTalkRoomMessages,
+  });
 
-    const newUser = await prisma.user.create({
-      data: {
-        lineId: hashedLineId,
-        accessToken: hashededAccessToken,
-        name,
-        avatar,
-      },
-    });
-
-    const clientData = createClientData({
-      user: newUser,
-      posts: [],
-      flashes: [],
-      talkRooms: [],
-      talkRoomMessages: [],
-      readTalkRoomMessages: [],
-    });
-
-    return { ...clientData, token: accessToken };
-  }
+  return { ...clientData, accessToken };
 };
 
 export const sessionLogin = async (
