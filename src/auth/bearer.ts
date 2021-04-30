@@ -34,6 +34,16 @@ type ReturnType =
       artifacts: Artifacts;
     };
 
+const accessToken = "生accessToken";
+const hashedAccessToken = createHash(accessToken);
+
+const _user = {
+  id: "user-id",
+  lineId: "lineId",
+  accessToken: hashedAccessToken,
+  name: "name",
+};
+
 // 認可が必要なAPIのAuthorizationヘッダ + クエリのidフィールドはこの認可プロセスで検証を行えるのでそのためのバリデーションは定義する必要ない
 export const checkBeareAccessToken = async (
   request: Hapi.Request,

@@ -62,7 +62,7 @@ describe("sessions", () => {
           describe("nonceが存在する", () => {
             // beforeEachはそのブロック内のテストに対してネストも含めて毎回行われる
             beforeEach(async () => {
-              await prisma.user.deleteMany({});
+              // await prisma.user.deleteMany({});
               await prisma.nonce.deleteMany({});
 
               // 既存nonceの作成
@@ -105,6 +105,7 @@ describe("sessions", () => {
 
             describe("Userがその時点で存在せず、新規である", () => {
               test("200と新規データを返す", async () => {
+                await prisma.user.deleteMany({});
                 const user = await prisma.user.findFirst({});
                 expect(user).toBe(null);
 
