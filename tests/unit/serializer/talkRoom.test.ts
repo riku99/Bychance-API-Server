@@ -1,21 +1,18 @@
-import { TalkRoom, TalkRoomMessage, ReadTalkRoomMessage } from "@prisma/client";
-
 import { serializeTalkRoom } from "~/serializers/talkRoom";
-import { ClientTalkRoom } from "~/types/clientData";
 import {
   talkRoom,
-  talkRoomMessages,
-  readTalkRoomMessages,
   clientTalkRoom,
+  talkRoomMessage,
+  readTalkRoomMessage,
 } from "../../data";
 
 describe("talkRoom serializer", () => {
   test("clientTalkRoomを返す", () => {
     const result = serializeTalkRoom({
       talkRoom,
-      talkRoomMessages,
-      readTalkRoomMessages,
-      userId: "2",
+      talkRoomMessages: [talkRoomMessage],
+      readTalkRoomMessages: [readTalkRoomMessage],
+      userId: "1",
     });
     result.timeStamp = "timeStamp";
 

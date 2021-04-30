@@ -62,8 +62,8 @@ export const flash: Flash = {
   id: 1,
   source: "sourceURL",
   sourceType: "image",
-  createdAt: new Date("2021-01-01"),
-  updatedAt: new Date("2021-01-01"),
+  createdAt: new Date(),
+  updatedAt: new Date(),
   userId: "1",
 };
 
@@ -82,90 +82,13 @@ export const talkRoom: TalkRoom = {
   recipientId: "2",
 };
 
-export const talkRoomMessages: TalkRoomMessage[] = [
-  {
-    id: 1,
-    text: "久しぶり",
-    createdAt: new Date("2021-04-29T07:11:50.036Z"),
-    updatedAt: new Date("2021-04-29T07:11:50.036Z"),
-    userId: "1",
-    roomId: 1,
-  },
-  {
-    id: 2,
-    text: "どうしたの?",
-    createdAt: new Date("2021-04-29T07:11:50.036Z"),
-    updatedAt: new Date("2021-04-29T07:11:50.036Z"),
-    userId: "2",
-    roomId: 1,
-  },
-  {
-    id: 3,
-    text: "今電話できる?",
-    createdAt: new Date("2021-04-29T07:11:50.036Z"),
-    updatedAt: new Date("2021-04-29T07:11:50.036Z"),
-    userId: "1",
-    roomId: 1,
-  },
-  {
-    id: 4,
-    text: "なんで?",
-    createdAt: new Date("2021-04-29T07:11:50.036Z"),
-    updatedAt: new Date("2021-04-29T07:11:50.036Z"),
-    userId: "2",
-    roomId: 1,
-  },
-  {
-    id: 5,
-    text: "話したいことある",
-    createdAt: new Date("2021-04-29T07:11:50.036Z"),
-    updatedAt: new Date("2021-04-29T07:11:50.036Z"),
-    userId: "1",
-    roomId: 1,
-  },
-];
-
-export const readTalkRoomMessages: ReadTalkRoomMessage[] = [
-  {
-    id: 1,
-    userId: "2",
-    messageId: 1,
-    roomId: 1,
-    createdAt: new Date("2021-04-29T07:11:50.036Z"),
-    updatedAt: new Date("2021-04-29T07:11:50.036Z"),
-  },
-  {
-    id: 2,
-    userId: "1",
-    messageId: 2,
-    roomId: 1,
-    createdAt: new Date("2021-04-29T07:11:50.036Z"),
-    updatedAt: new Date("2021-04-29T07:11:50.036Z"),
-  },
-  {
-    id: 3,
-    userId: "2",
-    messageId: 3,
-    roomId: 1,
-    createdAt: new Date("2021-04-29T07:11:50.036Z"),
-    updatedAt: new Date("2021-04-29T07:11:50.036Z"),
-  },
-  {
-    id: 4,
-    userId: "1",
-    messageId: 4,
-    roomId: 1,
-    createdAt: new Date("2021-04-29T07:11:50.036Z"),
-    updatedAt: new Date("2021-04-29T07:11:50.036Z"),
-  },
-];
-
 export const clientTalkRoom: ClientTalkRoom = {
   id: 1,
-  partner: "1",
-  messages: [1, 2, 3, 4, 5],
-  unreadNumber: 1,
-  latestMessage: "話したいことある",
+  partner: "2",
+  //messages: [1, 2, 3, 4, 5],
+  messages: [1],
+  unreadNumber: 0,
+  latestMessage: "Hey",
   timeStamp: "timeStamp",
 };
 
@@ -185,3 +108,90 @@ export const clietnTalkRoomMessage: ClientTalkRoomMessage = {
   text: "Hey",
   timeStamp: "timeStamp",
 };
+
+export const readTalkRoomMessage: ReadTalkRoomMessage = {
+  id: 1,
+  userId: "2",
+  messageId: 1,
+  roomId: 1,
+  createdAt: new Date("2021-04-29T07:11:50.036Z"),
+  updatedAt: new Date("2021-04-29T07:11:50.036Z"),
+};
+
+// export const talkRoomMessages: TalkRoomMessage[] = [
+//   {
+//     id: 1,
+//     text: "久しぶり",
+//     createdAt: new Date("2021-04-29T07:11:50.036Z"),
+//     updatedAt: new Date("2021-04-29T07:11:50.036Z"),
+//     userId: "1",
+//     roomId: 1,
+//   },
+//   {
+//     id: 2,
+//     text: "どうしたの?",
+//     createdAt: new Date("2021-04-29T07:11:50.036Z"),
+//     updatedAt: new Date("2021-04-29T07:11:50.036Z"),
+//     userId: "2",
+//     roomId: 1,
+//   },
+//   {
+//     id: 3,
+//     text: "今電話できる?",
+//     createdAt: new Date("2021-04-29T07:11:50.036Z"),
+//     updatedAt: new Date("2021-04-29T07:11:50.036Z"),
+//     userId: "1",
+//     roomId: 1,
+//   },
+//   {
+//     id: 4,
+//     text: "なんで?",
+//     createdAt: new Date("2021-04-29T07:11:50.036Z"),
+//     updatedAt: new Date("2021-04-29T07:11:50.036Z"),
+//     userId: "2",
+//     roomId: 1,
+//   },
+//   {
+//     id: 5,
+//     text: "話したいことある",
+//     createdAt: new Date("2021-04-29T07:11:50.036Z"),
+//     updatedAt: new Date("2021-04-29T07:11:50.036Z"),
+//     userId: "1",
+//     roomId: 1,
+//   },
+// ];
+
+// export const readTalkRoomMessages: ReadTalkRoomMessage[] = [
+//   {
+//     id: 1,
+//     userId: "2",
+//     messageId: 1,
+//     roomId: 1,
+//     createdAt: new Date("2021-04-29T07:11:50.036Z"),
+//     updatedAt: new Date("2021-04-29T07:11:50.036Z"),
+//   },
+//   {
+//     id: 2,
+//     userId: "1",
+//     messageId: 2,
+//     roomId: 1,
+//     createdAt: new Date("2021-04-29T07:11:50.036Z"),
+//     updatedAt: new Date("2021-04-29T07:11:50.036Z"),
+//   },
+//   {
+//     id: 3,
+//     userId: "2",
+//     messageId: 3,
+//     roomId: 1,
+//     createdAt: new Date("2021-04-29T07:11:50.036Z"),
+//     updatedAt: new Date("2021-04-29T07:11:50.036Z"),
+//   },
+//   {
+//     id: 4,
+//     userId: "1",
+//     messageId: 4,
+//     roomId: 1,
+//     createdAt: new Date("2021-04-29T07:11:50.036Z"),
+//     updatedAt: new Date("2021-04-29T07:11:50.036Z"),
+//   },
+// ];

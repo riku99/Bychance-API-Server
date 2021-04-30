@@ -2,7 +2,6 @@
 
 import Hapi from "@hapi/hapi";
 import AuthBearer from "hapi-auth-bearer-token";
-import Pino from "hapi-pino";
 
 import { rootPlugin } from "~/plugins/root";
 import { prismaPlugin } from "~/plugins/prisma";
