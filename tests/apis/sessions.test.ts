@@ -90,6 +90,7 @@ describe("sessions", () => {
                   headers: { Authorization: `Bearer ${lineId}` },
                 });
 
+                expect(res.statusCode).toEqual(200);
                 expect(JSON.parse(res.payload).user.name).toEqual(
                   "チェンソーマン"
                 ); // lineAPIからの戻り値ではなく既存データのもの
@@ -98,7 +99,6 @@ describe("sessions", () => {
                 expect(JSON.parse(res.payload).rooms).toEqual([]);
                 expect(JSON.parse(res.payload).messages).toEqual([]);
                 expect(JSON.parse(res.payload).chatPartners).toEqual([]);
-                expect(res.statusCode).toEqual(200);
               });
             });
 
@@ -109,8 +109,13 @@ describe("sessions", () => {
 
                 const res = await server.inject(requestSchema);
 
-                expect(JSON.parse(res.payload).name).toEqual("デンジ"); // lineAPIの戻り値のデータ(axios.postでモックしたデータ)
                 expect(res.statusCode).toEqual(200);
+                expect(JSON.parse(res.payload).user.name).toEqual("デンジ"); // lineAPIの戻り値のデータ(axios.postでモックしたデータ)
+                expect(JSON.parse(res.payload).posts).toEqual([]);
+                expect(JSON.parse(res.payload).flashes).toEqual([]);
+                expect(JSON.parse(res.payload).rooms).toEqual([]);
+                expect(JSON.parse(res.payload).messages).toEqual([]);
+                expect(JSON.parse(res.payload).chatPartners).toEqual([]);
               });
             });
           });
@@ -187,6 +192,14 @@ describe("sessions", () => {
                 });
 
                 expect(res.statusCode).toEqual(200);
+                expect(JSON.parse(res.payload).user.name).toEqual(
+                  testUser.name
+                );
+                expect(JSON.parse(res.payload).posts).toEqual([]);
+                expect(JSON.parse(res.payload).flashes).toEqual([]);
+                expect(JSON.parse(res.payload).rooms).toEqual([]);
+                expect(JSON.parse(res.payload).messages).toEqual([]);
+                expect(JSON.parse(res.payload).chatPartners).toEqual([]);
               });
             });
 

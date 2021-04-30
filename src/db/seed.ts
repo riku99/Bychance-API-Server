@@ -1,9 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 
-import { clientUserSelector } from "~/serializers/users";
 import { serializePost } from "~/serializers/posts";
 import { serializeTalkRoom } from "~/serializers/talkRoom";
-import { da } from "date-fns/locale";
 
 const prisma = new PrismaClient();
 

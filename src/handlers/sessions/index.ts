@@ -4,9 +4,10 @@ import { PrismaClient } from "@prisma/client";
 
 import { createHash, createRandomString } from "~/helpers/crypto";
 import { LineLoginHeaders } from "~/routes/sessions/validator";
-import { serializeUser } from "~/serializers/users";
 import { throwLoginError } from "~/helpers/errors";
 import { createClientData } from "~/helpers/clientData";
+import { userIncludes } from "~/prisma/includes/users";
+import { Artifacts } from "~/auth/bearer";
 
 const prisma = new PrismaClient();
 
@@ -57,14 +58,7 @@ const lineLogin = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       data: {
         accessToken: hashededAccessToken,
       },
-      include: {
-        posts: true,
-        flashes: true,
-        senderTalkRooms: true,
-        recipientTalkRooms: true,
-        talkRoomMessages: true,
-        readTalkRoomMessages: true,
-      },
+      include: userIncludes.createClient,
     });
 
     const {
@@ -79,7 +73,7 @@ const lineLogin = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
 
     const allTalkRooms = [...senderTalkRooms, ...recipientTalkRooms];
 
-    const r = createClientData({
+    const clientData = createClientData({
       user: rest,
       posts,
       flashes,
@@ -88,10 +82,7 @@ const lineLogin = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       readTalkRoomMessages,
     });
 
-    console.log("シリアライズ");
-    console.log(r);
-
-    return r;
+    return { ...clientData, token: accessToken };
   } else {
     // userが存在しない場合は登録
     const name = res!.data.name;
@@ -106,7 +97,16 @@ const lineLogin = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       },
     });
 
-    return serializeUser({ user: newUser });
+    const clientData = createClientData({
+      user: newUser,
+      posts: [],
+      flashes: [],
+      talkRooms: [],
+      talkRoomMessages: [],
+      readTalkRoomMessages: [],
+    });
+
+    return { ...clientData, token: accessToken };
   }
 };
 
@@ -114,10 +114,28 @@ export const sessionLogin = async (
   req: Hapi.Request,
   h: Hapi.ResponseToolkit
 ) => {
-  const user = req.auth.artifacts;
+  const user = req.auth.artifacts as Artifacts;
 
-  console.log(user);
-  return user;
+  const {
+    posts,
+    flashes,
+    senderTalkRooms,
+    recipientTalkRooms,
+    talkRoomMessages,
+    readTalkRoomMessages,
+    ...rest
+  } = user;
+
+  const allTalkRooms = [...senderTalkRooms, ...recipientTalkRooms];
+
+  return createClientData({
+    user: rest,
+    posts,
+    flashes,
+    talkRooms: allTalkRooms,
+    talkRoomMessages,
+    readTalkRoomMessages,
+  });
 };
 
 export const sessionsHandler = {

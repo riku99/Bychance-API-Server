@@ -13,12 +13,14 @@
     "crypto-js": "^4.0.0",
     "date-fns": "^2.21.1",
     "hapi-auth-bearer-token": "^8.0.0",
+    "hapi-pino": "^8.3.0",
     "joi": "^17.4.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@types/crypto-js": "^4.0.1",
     "@types/hapi-auth-bearer-token": "^6.1.2",
+    "@types/hapi-pino": "^8.0.1",
     "@types/hapi__hapi": "^20.0.7",
     "@types/hapi__joi": "^17.1.6",
     "@types/jest": "^26.0.22",

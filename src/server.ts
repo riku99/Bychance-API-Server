@@ -2,6 +2,7 @@
 
 import Hapi from "@hapi/hapi";
 import AuthBearer from "hapi-auth-bearer-token";
+import Pino from "hapi-pino";
 
 import { rootPlugin } from "~/plugins/root";
 import { prismaPlugin } from "~/plugins/prisma";
@@ -13,6 +14,7 @@ import { throwLoginError } from "~/helpers/errors";
 const server = Hapi.server({
   port: 4001,
   host: "localhost",
+  debug: false,
 });
 
 export const initializeServer = async () => {
@@ -25,6 +27,16 @@ export const initializeServer = async () => {
       // unauthorizedはtokenが存在しない場合、validateに渡した関数から{isValid: false}が返された場合に実行される
       console.log("認可失敗");
       throwLoginError();
+    },
+  });
+
+  await server.register({
+    plugin: require("hapi-pino"),
+    options: {
+      prettyPrint: true, // ログを整った形で出力する。本番環境ではfalseにする
+      redact: ["req.headers.authorization"],
+      logPayload: true, // ログにリクエストpayloadを出力
+      logQueryParams: true, // ログにクエリパラメータを出力
     },
   });
 
