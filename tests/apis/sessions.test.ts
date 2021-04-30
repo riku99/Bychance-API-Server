@@ -84,9 +84,20 @@ describe("sessions", () => {
                   },
                 });
 
-                const res = await server.inject(requestSchema);
+                const res = await server.inject({
+                  method: "POST",
+                  url,
+                  headers: { Authorization: `Bearer ${lineId}` },
+                });
 
-                expect(JSON.parse(res.payload).name).toEqual("チェンソーマン"); // lineAPIからの戻り値ではなく既存データのもの
+                expect(JSON.parse(res.payload).user.name).toEqual(
+                  "チェンソーマン"
+                ); // lineAPIからの戻り値ではなく既存データのもの
+                expect(JSON.parse(res.payload).posts).toEqual([]);
+                expect(JSON.parse(res.payload).flashes).toEqual([]);
+                expect(JSON.parse(res.payload).rooms).toEqual([]);
+                expect(JSON.parse(res.payload).messages).toEqual([]);
+                expect(JSON.parse(res.payload).chatPartners).toEqual([]);
                 expect(res.statusCode).toEqual(200);
               });
             });

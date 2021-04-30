@@ -6,6 +6,7 @@ import { createHash, createRandomString } from "~/helpers/crypto";
 import { LineLoginHeaders } from "~/routes/sessions/validator";
 import { serializeUser } from "~/serializers/users";
 import { throwLoginError } from "~/helpers/errors";
+import { createClientData } from "~/helpers/clientData";
 
 const prisma = new PrismaClient();
 
@@ -56,9 +57,41 @@ const lineLogin = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       data: {
         accessToken: hashededAccessToken,
       },
+      include: {
+        posts: true,
+        flashes: true,
+        senderTalkRooms: true,
+        recipientTalkRooms: true,
+        talkRoomMessages: true,
+        readTalkRoomMessages: true,
+      },
     });
 
-    return serializeUser({ user });
+    const {
+      posts,
+      flashes,
+      senderTalkRooms,
+      recipientTalkRooms,
+      talkRoomMessages,
+      readTalkRoomMessages,
+      ...rest
+    } = user;
+
+    const allTalkRooms = [...senderTalkRooms, ...recipientTalkRooms];
+
+    const r = createClientData({
+      user: rest,
+      posts,
+      flashes,
+      talkRooms: allTalkRooms,
+      talkRoomMessages,
+      readTalkRoomMessages,
+    });
+
+    console.log("シリアライズ");
+    console.log(r);
+
+    return r;
   } else {
     // userが存在しない場合は登録
     const name = res!.data.name;

@@ -1,9 +1,80 @@
-import { TalkRoom, TalkRoomMessage, ReadTalkRoomMessage } from "@prisma/client";
+import {
+  User,
+  Post,
+  Flash,
+  TalkRoom,
+  TalkRoomMessage,
+  ReadTalkRoomMessage,
+} from "@prisma/client";
 
-import { serializeTalkRoom } from "~/serializers/talkRoom";
-import { ClientTalkRoom } from "~/types/clientData";
+import {
+  ClientUser,
+  ClientPost,
+  ClientFlash,
+  ClientTalkRoom,
+  ClientTalkRoomMessage,
+} from "~/types/clientData";
 
-const talkRoom: TalkRoom = {
+export const user: User = {
+  id: "1",
+  lineId: "lineline",
+  name: "sutehage",
+  avatar: "ava",
+  introduce: "Hey!",
+  statusMessage: "hello",
+  display: true,
+  createdAt: new Date("2021-04-01"),
+  updatedAt: new Date("2021-04-01"),
+  accessToken: "token",
+  lat: "here",
+  lng: "here",
+};
+
+export const clientUser: ClientUser = {
+  id: "1",
+  name: "sutehage",
+  avatar: "ava",
+  introduce: "Hey!",
+  statusMessage: "hello",
+  display: true,
+  lat: "here",
+  lng: "here",
+};
+
+export const post: Post = {
+  id: 1,
+  image: "image",
+  text: "text",
+  createdAt: new Date("2021-04-29T07:11:50.036Z"),
+  updatedAt: new Date("2021-04-29T07:11:50.036Z"),
+  userId: "userId",
+};
+
+export const clientPost: ClientPost = {
+  id: 1,
+  image: "image",
+  text: "text",
+  userId: "userId",
+  date: "2021/4/29",
+};
+
+export const flash: Flash = {
+  id: 1,
+  source: "sourceURL",
+  sourceType: "image",
+  createdAt: new Date("2021-01-01"),
+  updatedAt: new Date("2021-01-01"),
+  userId: "1",
+};
+
+export const clientFlash: ClientFlash = {
+  id: 1,
+  source: "sourceURL",
+  sourceType: "image",
+  timeStamp: "timeStamp",
+};
+
+export const talkRoom: TalkRoom = {
   id: 1,
   createdAt: new Date("2021-04-29T07:11:50.036Z"),
   updatedAt: new Date("2021-04-29T07:11:50.036Z"),
@@ -11,7 +82,7 @@ const talkRoom: TalkRoom = {
   recipientId: "2",
 };
 
-const talkRoomMessages: TalkRoomMessage[] = [
+export const talkRoomMessages: TalkRoomMessage[] = [
   {
     id: 1,
     text: "久しぶり",
@@ -54,7 +125,7 @@ const talkRoomMessages: TalkRoomMessage[] = [
   },
 ];
 
-const readTalkRoomMessages: ReadTalkRoomMessage[] = [
+export const readTalkRoomMessages: ReadTalkRoomMessage[] = [
   {
     id: 1,
     userId: "2",
@@ -89,7 +160,7 @@ const readTalkRoomMessages: ReadTalkRoomMessage[] = [
   },
 ];
 
-const clientTalkRoom: ClientTalkRoom = {
+export const clientTalkRoom: ClientTalkRoom = {
   id: 1,
   partner: "1",
   messages: [1, 2, 3, 4, 5],
@@ -98,16 +169,19 @@ const clientTalkRoom: ClientTalkRoom = {
   timeStamp: "timeStamp",
 };
 
-describe("talkRoom serializer", () => {
-  test("clientTalkRoomを返す", () => {
-    const result = serializeTalkRoom({
-      talkRoom,
-      talkRoomMessages,
-      readTalkRoomMessages,
-      userId: "2",
-    });
-    result.timeStamp = "timeStamp";
+export const talkRoomMessage: TalkRoomMessage = {
+  id: 1,
+  userId: "1",
+  roomId: 1,
+  text: "Hey",
+  createdAt: new Date("2021-04-29T07:11:50.036Z"),
+  updatedAt: new Date("2021-04-29T07:11:50.036Z"),
+};
 
-    expect(result).toEqual(clientTalkRoom);
-  });
-});
+export const clietnTalkRoomMessage: ClientTalkRoomMessage = {
+  id: 1,
+  userId: "1",
+  roomId: 1,
+  text: "Hey",
+  timeStamp: "timeStamp",
+};

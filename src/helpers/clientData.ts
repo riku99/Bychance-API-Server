@@ -28,7 +28,7 @@ type Arg = {
   readTalkRoomMessages: ReadTalkRoomMessage[];
 };
 
-export const createClientData = ({ data }: { data: Arg }): ClientData => {
+export const createClientData = (data: Arg): ClientData => {
   const user = serializeUser({ user: data.user });
   const posts = data.posts.map((post) => serializePost({ post }));
   const notExpiredFlashes = data.flashes.filter(

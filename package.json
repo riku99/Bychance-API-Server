@@ -48,7 +48,7 @@
   },
   "jest": {
     "testMatch": [
-      "**/tests/**/*.ts"
+      "**/tests/**/*.test.ts"
     ],
     "transform": {
       "^.+\\.ts$": "ts-jest"
