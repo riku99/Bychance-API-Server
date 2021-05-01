@@ -1,8 +1,7 @@
 import Joi from "joi";
-import { User } from "@prisma/client";
 import Boom from "@hapi/boom";
 
-import { invalidErrorType } from "~/config/apis/errors";
+import { throwInvalidError } from "~/helpers/errors";
 
 export type UpdateUserPayload = {
   name: string;
@@ -23,10 +22,7 @@ const update = {
 };
 
 const updateFailAction = () => {
-  const error = Boom.badRequest();
-  error.output.payload.message = "無効なデータが含まれています";
-  error.output.payload.errorType = invalidErrorType;
-  throw error;
+  return throwInvalidError("無効なデータが含まれています");
 };
 
 export const updateUserValidator = {
@@ -45,13 +41,31 @@ const refresh = {
 };
 
 const refreshFailAction = () => {
-  const error = Boom.badRequest();
-  error.output.payload.message = "無効なリクエストです";
-  error.output.payload.errorType = invalidErrorType;
-  throw error;
+  return throwInvalidError();
 };
 
 export const refreshUserValidator = {
   validate: refresh,
   failAction: refreshFailAction,
+};
+
+export type UpdateLocationPayload = {
+  lat: number;
+  lng: number;
+};
+
+const location = {
+  payload: Joi.object<UpdateLocationPayload>({
+    lat: Joi.number().required(),
+    lng: Joi.number().required(),
+  }),
+};
+
+const locationFailAction = () => {
+  return throwInvalidError();
+};
+
+export const updateLocationValidator = {
+  validate: location,
+  failAction: locationFailAction,
 };

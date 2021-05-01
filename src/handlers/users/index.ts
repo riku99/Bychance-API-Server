@@ -6,10 +6,12 @@ import { Artifacts } from "~/auth/bearer";
 import {
   UpdateUserPayload,
   RefreshUserPayload,
+  UpdateLocationPayload,
 } from "~/routes/users/validator";
 import { serializeUser } from "~/serializers/users";
 import { createS3ObjectPath } from "~/helpers/aws";
-import { invalidErrorType } from "~/config/apis/errors";
+import { throwInvalidError } from "~/helpers/errors";
+import { handleUserLocationCrypt } from "~/helpers/crypto";
 
 const prisma = new PrismaClient();
 
@@ -57,10 +59,7 @@ const refreshUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   });
 
   if (!refreshedUser) {
-    const error = Boom.badRequest();
-    error.output.payload.message = "ユーザーが存在しません";
-    error.output.payload.errorType = invalidErrorType;
-    throw error;
+    return throwInvalidError("ユーザーが存在しません");
   }
 
   // リフレッシュの対象が自分か他のユーザーかで処理分ける
@@ -75,7 +74,26 @@ const refreshUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   }
 };
 
+const updateLocation = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
+  const user = req.auth.artifacts as Artifacts;
+  const payload = req.payload as UpdateLocationPayload;
+
+  const cryptedLocation = handleUserLocationCrypt(
+    payload.lat,
+    payload.lng,
+    "encrypt"
+  );
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: cryptedLocation,
+  });
+
+  return h.response().code(200);
+};
+
 export const usersHandler = {
   updateUser,
   refreshUser,
+  updateLocation,
 };

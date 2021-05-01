@@ -1,6 +1,10 @@
 import Hapi from "@hapi/hapi";
 
-import { updateUserValidator, refreshUserValidator } from "./validator";
+import {
+  updateUserValidator,
+  refreshUserValidator,
+  updateLocationValidator,
+} from "./validator";
 import { usersHandler } from "~/handlers/users";
 import { baseUrl } from "~/constants/url";
 
@@ -25,6 +29,17 @@ export const usersRoute = async (server: Hapi.Server) => {
         validate: {
           payload: refreshUserValidator.validate.payload,
           failAction: refreshUserValidator.failAction,
+        },
+      },
+    },
+    {
+      method: "PATCH",
+      path: `${baseUrl}/users/location`,
+      handler: usersHandler.updateLocation,
+      options: {
+        validate: {
+          payload: updateLocationValidator.validate.payload,
+          failAction: updateLocationValidator.failAction,
         },
       },
     },

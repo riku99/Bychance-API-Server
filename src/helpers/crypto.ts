@@ -18,3 +18,55 @@ export const createRandomString = () => {
 
   return result;
 };
+
+type HandleUserLocationCrypt = {
+  (lat: number, lng: number, mode: "encrypt"): {
+    lat: string;
+    lng: string;
+  };
+  (lat: string, lng: string, mode: "decrypt"): {
+    lat: number;
+    lng: number;
+  };
+};
+
+export const handleUserLocationCrypt: HandleUserLocationCrypt = (
+  lat: number | string,
+  lng: number | string,
+  mode: "encrypt" | "decrypt"
+): any => {
+  if (
+    typeof lat === "number" &&
+    typeof lng === "number" &&
+    mode === "encrypt"
+  ) {
+    const encryptedLat = CryptoJS.AES.encrypt(
+      String(lat),
+      process.env.USER_LOCATION_KEY as string
+    ).toString();
+    const encryptedLng = CryptoJS.AES.encrypt(
+      String(lng),
+      process.env.USER_LOCATION_KEY as string
+    ).toString();
+
+    return { lat: encryptedLat, lng: encryptedLng };
+  }
+
+  if (
+    typeof lat === "string" &&
+    typeof lng === "string" &&
+    mode === "decrypt"
+  ) {
+    const decryptedLat = CryptoJS.AES.decrypt(
+      String(lat),
+      process.env.USER_LOCATION_KEY as string
+    ).toString;
+
+    const decryptedLng = CryptoJS.AES.decrypt(
+      String(lng),
+      process.env.USER_LOCATION_KEY as string
+    ).toString;
+
+    return { lat: Number(decryptedLat), lng: Number(decryptedLng) };
+  }
+};
