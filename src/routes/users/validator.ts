@@ -1,5 +1,4 @@
 import Joi from "joi";
-import Boom from "@hapi/boom";
 
 import { throwInvalidError } from "~/helpers/errors";
 
@@ -68,4 +67,23 @@ const locationFailAction = () => {
 export const updateLocationValidator = {
   validate: location,
   failAction: locationFailAction,
+};
+
+export type ChangeUserDisplayPayload = {
+  display: boolean;
+};
+
+const displayValidation = {
+  payload: Joi.object<ChangeUserDisplayPayload>({
+    display: Joi.boolean().required(),
+  }),
+};
+
+const changeUserDisplayFailAction = () => {
+  return throwInvalidError();
+};
+
+export const changeUserDisplayValidator = {
+  validator: displayValidation,
+  failAction: changeUserDisplayFailAction,
 };

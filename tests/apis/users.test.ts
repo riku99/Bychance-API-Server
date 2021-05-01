@@ -6,6 +6,7 @@ import { baseUrl } from "~/constants/url";
 import { UpdateUserPayload } from "~/routes/users/validator";
 import { createHash } from "~/helpers/crypto";
 import { createS3ObjectPath } from "~/helpers/aws";
+import { serializeUser } from "~/serializers/users";
 
 const prisma = new PrismaClient();
 
@@ -17,7 +18,7 @@ jest.mock("~/helpers/aws");
 (createS3ObjectPath as any).mockResolvedValue("image url");
 
 const user = {
-  id: "user-id",
+  id: "1",
   lineId: "lineId",
   accessToken: hashedAccessToken,
   name: "name",
@@ -114,6 +115,72 @@ describe("users", () => {
       });
 
       expect(res.statusCode).toEqual(400);
+    });
+
+    describe("PATCH /users/refresh", () => {
+      describe("バリデーションが通る", () => {
+        describe("自分のデータに対して更新をかける", () => {
+          test("200とuserを返す", async () => {
+            const _user = await prisma.user.create({
+              data: user,
+            });
+
+            const res = await server.inject({
+              method: "PATCH",
+              url: `${baseUrl}/users/refresh?id=${user.id}`,
+              payload: { userId: "1" },
+              headers: { Authorization: `Bearer ${accessToken}` },
+            });
+
+            const expectedData = {
+              isMyData: true,
+              data: serializeUser({ user: _user }),
+            };
+
+            expect(res.statusCode).toEqual(200);
+            expect(JSON.parse(res.payload)).toEqual(expectedData);
+          });
+        });
+
+        describe("バリデーション失敗する", () => {
+          test("payloadにuserIdがないので400エラー", async () => {
+            await prisma.user.create({
+              data: user,
+            });
+            // payloadなし
+            const res = await server.inject({
+              method: "PATCH",
+              url: `${baseUrl}/users/refresh?id=${user.id}`,
+              headers: { Authorization: `Bearer ${accessToken}` },
+            });
+
+            expect(res.statusCode).toEqual(400);
+          });
+
+          test("payloadに不必要なデータが含まれている場合400エラー", async () => {
+            await prisma.user.create({
+              data: user,
+            });
+
+            const res = await server.inject({
+              method: "PATCH",
+              url: `${baseUrl}/users/refresh?id=${user.id}`,
+              payload: { userId: "1", accessToken: "1234" }, // いらないデータの追加
+              headers: { Authorization: `Bearer ${accessToken}` },
+            });
+
+            expect(res.statusCode).toEqual(400);
+          });
+        });
+      });
+    });
+
+    describe("PATCH /users/location", () => {
+      describe("バリデーションに通る", () => {
+        test("200を返す", async () => {});
+      });
+
+      describe("バリデーションに引っかかる", () => {});
     });
   });
 });
