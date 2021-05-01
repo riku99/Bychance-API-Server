@@ -1,17 +1,15 @@
 import Hapi from "@hapi/hapi";
 
 import { updateUserValidator } from "./validator";
+import { usersHandler } from "~/handlers/users";
 import { baseUrl } from "~/constants/url";
 
 export const usersRoute = async (server: Hapi.Server) => {
   server.route([
     {
-      method: "POST",
+      method: "PATCH",
       path: `${baseUrl}/users`,
-      handler: (req, h) => {
-        console.log("ok");
-        return h.response().code(200);
-      },
+      handler: usersHandler.updateUser,
       options: {
         validate: {
           ...updateUserValidator.validate,

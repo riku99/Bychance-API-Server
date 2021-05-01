@@ -2,10 +2,13 @@ import Joi from "joi";
 import { User } from "@prisma/client";
 import Boom from "@hapi/boom";
 
-export type UpdateUserPayload = Pick<
-  User,
-  "name" | "avatar" | "introduce" | "statusMessage"
-> & { deleteImage: boolean };
+export type UpdateUserPayload = {
+  name: string;
+  avatar?: string;
+  introduce: string;
+  statusMessage: string;
+  deleteImage: boolean;
+};
 
 const update = {
   payload: Joi.object<UpdateUserPayload>({

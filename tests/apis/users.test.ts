@@ -34,42 +34,33 @@ describe("users", () => {
     await prisma.user.deleteMany({});
   });
 
-  beforeEach(async () => {
-    await prisma.user.deleteMany({});
-  });
-
   afterAll(async () => {
     await prisma.user.deleteMany({});
   });
 
   describe("POST /users", () => {
-    test("payloadにnameがないと400エラーを返す", async () => {
-      await prisma.user.create({ data: user });
-
-      const { name, ...rest } = updatePayload;
-      const res = await server.inject({
-        method: "POST",
-        url: `${baseUrl}/users?id=${user.id}`,
-        payload: rest,
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
-
-      console.log(res.payload);
-      expect(res.statusCode).toEqual(400);
+    beforeEach(async () => {
+      await prisma.user.deleteMany({});
     });
 
-    test("許可されていないフィールドがあると400エラーを返す", async () => {
+    test("200返す", async () => {
       await prisma.user.create({ data: user });
 
       const res = await server.inject({
-        method: "POST",
+        method: "PATCH",
         url: `${baseUrl}/users?id=${user.id}`,
-        payload: { ...updatePayload, accessToken: "12345" }, // 許可されていないaccessTokenの追加
         headers: { Authorization: `Bearer ${accessToken}` },
+        payload: updatePayload,
       });
 
-      console.log(res.payload);
-      expect(res.statusCode).toEqual(400);
+      expect(res.statusCode).toEqual(200);
+      expect(JSON.parse(res.payload).name).toEqual(updatePayload.name);
+      expect(JSON.parse(res.payload).introduce).toEqual(
+        updatePayload.introduce
+      );
+      expect(JSON.parse(res.payload).statusMessage).toEqual(
+        updatePayload.statusMessage
+      );
     });
 
     test("avatarはなくてokだし、introduce、statusMessageは空文字でok", async () => {
@@ -77,7 +68,7 @@ describe("users", () => {
       await prisma.user.create({ data: user });
 
       const res = await server.inject({
-        method: "POST",
+        method: "PATCH",
         url: `${baseUrl}/users?id=${user.id}`,
         // avatarなし
         payload: {
@@ -89,8 +80,34 @@ describe("users", () => {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
 
-      console.log(res.payload);
       expect(res.statusCode).toEqual(200);
+    });
+
+    test("payloadにnameがないと400エラーを返す", async () => {
+      await prisma.user.create({ data: user });
+
+      const { name, ...rest } = updatePayload; // nameとる
+      const res = await server.inject({
+        method: "PATCH",
+        url: `${baseUrl}/users?id=${user.id}`,
+        payload: rest,
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+
+      expect(res.statusCode).toEqual(400);
+    });
+
+    test("許可されていないフィールドがあると400エラーを返す", async () => {
+      await prisma.user.create({ data: user });
+
+      const res = await server.inject({
+        method: "PATCH",
+        url: `${baseUrl}/users?id=${user.id}`,
+        payload: { ...updatePayload, accessToken: "12345" }, // 許可されていないaccessTokenの追加
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+
+      expect(res.statusCode).toEqual(400);
     });
   });
 });
