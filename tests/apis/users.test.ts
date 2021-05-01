@@ -23,6 +23,7 @@ const updatePayload: UpdateUserPayload = {
   introduce: "ワシが最強じゃ",
   statusMessage: "血をくれ",
   avatar: "url",
+  deleteImage: false,
 };
 
 describe("users", () => {
@@ -42,7 +43,7 @@ describe("users", () => {
   });
 
   describe("POST /users", () => {
-    test("payloadにnameがないと400エラー", async () => {
+    test("payloadにnameがないと400エラーを返す", async () => {
       await prisma.user.create({ data: user });
 
       const { name, ...rest } = updatePayload;
@@ -55,6 +56,41 @@ describe("users", () => {
 
       console.log(res.payload);
       expect(res.statusCode).toEqual(400);
+    });
+
+    test("許可されていないフィールドがあると400エラーを返す", async () => {
+      await prisma.user.create({ data: user });
+
+      const res = await server.inject({
+        method: "POST",
+        url: `${baseUrl}/users?id=${user.id}`,
+        payload: { ...updatePayload, accessToken: "12345" }, // 許可されていないaccessTokenの追加
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+
+      console.log(res.payload);
+      expect(res.statusCode).toEqual(400);
+    });
+
+    test("avatarはなくてokだし、introduce、statusMessageは空文字でok", async () => {
+      await prisma.user.deleteMany({});
+      await prisma.user.create({ data: user });
+
+      const res = await server.inject({
+        method: "POST",
+        url: `${baseUrl}/users?id=${user.id}`,
+        // avatarなし
+        payload: {
+          name: "riku",
+          introduce: "", // 空文字
+          statusMessage: "", // から文字
+          deleteImage: false,
+        },
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+
+      console.log(res.payload);
+      expect(res.statusCode).toEqual(200);
     });
   });
 });

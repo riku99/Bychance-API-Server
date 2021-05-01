@@ -8,8 +8,9 @@ export const usersRoute = async (server: Hapi.Server) => {
     {
       method: "POST",
       path: `${baseUrl}/users`,
-      handler: () => {
-        return;
+      handler: (req, h) => {
+        console.log("ok");
+        return h.response().code(200);
       },
       options: {
         validate: {

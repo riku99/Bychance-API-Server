@@ -5,14 +5,15 @@ import Boom from "@hapi/boom";
 export type UpdateUserPayload = Pick<
   User,
   "name" | "avatar" | "introduce" | "statusMessage"
->;
+> & { deleteImage: boolean };
 
 const update = {
   payload: Joi.object<UpdateUserPayload>({
     name: Joi.string().required(),
     avatar: Joi.string().optional(),
-    introduce: Joi.string().optional(),
-    statusMessage: Joi.string().optional(),
+    introduce: Joi.string().allow("").required(),
+    statusMessage: Joi.string().allow("").required(),
+    deleteImage: Joi.boolean().required(),
   }),
 };
 
