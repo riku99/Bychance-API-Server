@@ -4,7 +4,7 @@ import { PrismaClient } from "@prisma/client";
 import { initializeServer } from "~/server";
 import { baseUrl } from "~/constants/url";
 import { UpdateUserPayload } from "~/routes/users/validator";
-import { createHash, handleUserLocationCrypt } from "~/helpers/crypto";
+import { createHash } from "~/helpers/crypto";
 import { createS3ObjectPath } from "~/helpers/aws";
 import { serializeUser } from "~/serializers/users";
 
@@ -39,15 +39,15 @@ describe("users", () => {
     await prisma.user.deleteMany({});
   });
 
+  beforeEach(async () => {
+    await prisma.user.deleteMany({});
+  });
+
   afterAll(async () => {
     await prisma.user.deleteMany({});
   });
 
   describe("POST /users", () => {
-    beforeEach(async () => {
-      await prisma.user.deleteMany({});
-    });
-
     test("200返す", async () => {
       await prisma.user.create({ data: user });
 
@@ -115,103 +115,147 @@ describe("users", () => {
 
       expect(res.statusCode).toEqual(400);
     });
+  });
 
-    describe("PATCH /users/refresh", () => {
-      describe("バリデーションが通る", () => {
-        describe("自分のデータに対して更新をかける", () => {
-          test("200とuserを返す", async () => {
-            const _user = await prisma.user.create({
-              data: user,
-            });
-
-            const res = await server.inject({
-              method: "PATCH",
-              url: `${baseUrl}/users/refresh?id=${user.id}`,
-              payload: { userId: "1" },
-              headers: { Authorization: `Bearer ${accessToken}` },
-            });
-
-            const expectedData = {
-              isMyData: true,
-              data: serializeUser({ user: _user }),
-            };
-
-            expect(res.statusCode).toEqual(200);
-            expect(JSON.parse(res.payload)).toEqual(expectedData);
-          });
-        });
-
-        describe("バリデーション失敗する", () => {
-          test("payloadにuserIdがないので400エラー", async () => {
-            await prisma.user.create({
-              data: user,
-            });
-            // payloadなし
-            const res = await server.inject({
-              method: "PATCH",
-              url: `${baseUrl}/users/refresh?id=${user.id}`,
-              headers: { Authorization: `Bearer ${accessToken}` },
-            });
-
-            expect(res.statusCode).toEqual(400);
-          });
-
-          test("payloadに不必要なデータが含まれている場合400エラー", async () => {
-            await prisma.user.create({
-              data: user,
-            });
-
-            const res = await server.inject({
-              method: "PATCH",
-              url: `${baseUrl}/users/refresh?id=${user.id}`,
-              payload: { userId: "1", accessToken: "1234" }, // いらないデータの追加
-              headers: { Authorization: `Bearer ${accessToken}` },
-            });
-
-            expect(res.statusCode).toEqual(400);
-          });
-        });
-      });
-    });
-
-    describe("PATCH /users/location", () => {
-      beforeEach(async () => {
-        await prisma.user.deleteMany({});
-      });
-
-      describe("バリデーションに通る", () => {
-        test("200を返す", async () => {
-          await prisma.user.deleteMany({});
-          await prisma.user.create({
+  describe("PATCH /users/refresh", () => {
+    describe("バリデーションが通る", () => {
+      describe("自分のデータに対して更新をかける", () => {
+        test("200とuserを返す", async () => {
+          const _user = await prisma.user.create({
             data: user,
           });
 
           const res = await server.inject({
             method: "PATCH",
-            url: `${baseUrl}/users/location?id=${user.id}`,
-            payload: { lat: 10, lng: 15 },
+            url: `${baseUrl}/users/refresh?id=${user.id}`,
+            payload: { userId: "1" },
             headers: { Authorization: `Bearer ${accessToken}` },
           });
 
+          const expectedData = {
+            isMyData: true,
+            data: serializeUser({ user: _user }),
+          };
+
           expect(res.statusCode).toEqual(200);
+          expect(JSON.parse(res.payload)).toEqual(expectedData);
         });
       });
 
-      describe("バリデーションに引っかかる", () => {
-        test("payloadに必要なデータがないため400エラーを返す", async () => {
+      describe("バリデーション失敗する", () => {
+        test("payloadにuserIdがないので400エラー", async () => {
           await prisma.user.create({
             data: user,
           });
-
+          // payloadなし
           const res = await server.inject({
             method: "PATCH",
-            url: `${baseUrl}/users/location?id=${user.id}`,
-            payload: {}, // payloadに何も入れない
+            url: `${baseUrl}/users/refresh?id=${user.id}`,
             headers: { Authorization: `Bearer ${accessToken}` },
           });
 
           expect(res.statusCode).toEqual(400);
         });
+
+        test("payloadに不必要なデータが含まれている場合400エラー", async () => {
+          await prisma.user.create({
+            data: user,
+          });
+
+          const res = await server.inject({
+            method: "PATCH",
+            url: `${baseUrl}/users/refresh?id=${user.id}`,
+            payload: { userId: "1", accessToken: "1234" }, // いらないデータの追加
+            headers: { Authorization: `Bearer ${accessToken}` },
+          });
+
+          expect(res.statusCode).toEqual(400);
+        });
+      });
+    });
+  });
+
+  describe("PATCH /users/location", () => {
+    beforeEach(async () => {
+      await prisma.user.deleteMany({});
+    });
+
+    describe("バリデーションに通る", () => {
+      test("200を返す", async () => {
+        await prisma.user.deleteMany({});
+        await prisma.user.create({
+          data: user,
+        });
+
+        const res = await server.inject({
+          method: "PATCH",
+          url: `${baseUrl}/users/location?id=${user.id}`,
+          payload: { lat: 10, lng: 15 },
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+
+        expect(res.statusCode).toEqual(200);
+      });
+    });
+
+    describe("バリデーションに引っかかる", () => {
+      test("payloadに必要なデータがないため400エラーを返す", async () => {
+        await prisma.user.create({
+          data: user,
+        });
+
+        const res = await server.inject({
+          method: "PATCH",
+          url: `${baseUrl}/users/location?id=${user.id}`,
+          payload: {}, // payloadに何も入れない
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+
+        expect(res.statusCode).toEqual(400);
+      });
+    });
+  });
+
+  describe("PATCH /users/display", () => {
+    beforeEach(async () => {
+      await prisma.user.create({
+        data: user,
+      });
+    });
+    describe("バリデーションに通る", () => {
+      test("200を返す", async () => {
+        const res = await server.inject({
+          method: "PATCH",
+          url: `${baseUrl}/users/display?id=${user.id}`,
+          payload: { display: true },
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+
+        expect(res.statusCode).toEqual(200);
+      });
+    });
+
+    describe("バリデーションに引っかかる", () => {
+      test("displayがないため400エラー", async () => {
+        const res = await server.inject({
+          method: "PATCH",
+          url: `${baseUrl}/users/display?id=${user.id}`,
+          payload: {}, // displayなし
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+
+        expect(res.statusCode).toEqual(400);
+      });
+
+      test("余計なデータが存在するため400エラー", async () => {
+        const res = await server.inject({
+          method: "PATCH",
+          url: `${baseUrl}/users/display?id=${user.id}`,
+          payload: { accessToken: "acessToken" }, // 余計なデータ
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+
+        expect(res.statusCode).toEqual(400);
       });
     });
   });
