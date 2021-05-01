@@ -6,7 +6,7 @@ import { createHash, createRandomString } from "~/helpers/crypto";
 import { LineLoginHeaders } from "~/routes/sessions/validator";
 import { throwLoginError } from "~/helpers/errors";
 import { createClientData } from "~/helpers/clientData";
-import { userIncludes } from "~/prisma/includes/users";
+import { createClient } from "~/prisma/includes/sessions";
 import { Artifacts } from "~/auth/bearer";
 
 const prisma = new PrismaClient();
@@ -61,7 +61,7 @@ const lineLogin = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
         data: {
           accessToken: hashededAccessToken,
         },
-        include: userIncludes.createClient,
+        include: createClient,
       })
     : // 新規の場合は新たに作成
       await prisma.user.create({
@@ -71,7 +71,7 @@ const lineLogin = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
           name,
           avatar,
         },
-        include: userIncludes.createClient,
+        include: createClient,
       });
 
   const {

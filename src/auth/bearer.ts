@@ -10,7 +10,8 @@ import {
   ReadTalkRoomMessage,
 } from "@prisma/client";
 import { createHash } from "~/helpers/crypto";
-import { userIncludes } from "~/prisma/includes/users";
+import { sessionsInclude } from "~/prisma/includes/sessions";
+import { baseUrl } from "~/constants/url";
 
 const prisma = new PrismaClient();
 
@@ -31,18 +32,9 @@ type ReturnType =
   | {
       isValid: true;
       credentials: {};
-      artifacts: Artifacts;
+      // artifacts: Artifacts;
+      artifacts: any;
     };
-
-const accessToken = "生accessToken";
-const hashedAccessToken = createHash(accessToken);
-
-const _user = {
-  id: "user-id",
-  lineId: "lineId",
-  accessToken: hashedAccessToken,
-  name: "name",
-};
 
 // 認可が必要なAPIのAuthorizationヘッダ + クエリのidフィールドはこの認可プロセスで検証を行えるのでそのためのバリデーションは定義する必要ない
 export const checkBeareAccessToken = async (
@@ -60,7 +52,8 @@ export const checkBeareAccessToken = async (
 
   const user = await prisma.user.findUnique({
     where: { id },
-    include: userIncludes.createClient,
+    // 何をincludeするかはリクエストによって分ける
+    include: sessionsInclude(request.path) || null,
   });
 
   if (!user) {
