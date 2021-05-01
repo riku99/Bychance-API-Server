@@ -5,11 +5,16 @@ import { initializeServer } from "~/server";
 import { baseUrl } from "~/constants/url";
 import { UpdateUserPayload } from "~/routes/users/validator";
 import { createHash } from "~/helpers/crypto";
+import { createS3ObjectPath } from "~/helpers/aws";
 
 const prisma = new PrismaClient();
 
 const accessToken = "生accessToken";
 const hashedAccessToken = createHash(accessToken);
+
+jest.mock("~/helpers/aws");
+
+(createS3ObjectPath as any).mockResolvedValue("image url");
 
 const user = {
   id: "user-id",
@@ -61,6 +66,7 @@ describe("users", () => {
       expect(JSON.parse(res.payload).statusMessage).toEqual(
         updatePayload.statusMessage
       );
+      expect(JSON.parse(res.payload).avatar).toEqual("image url"); // creates3Objectが返した結果
     });
 
     test("avatarはなくてokだし、introduce、statusMessageは空文字でok", async () => {
