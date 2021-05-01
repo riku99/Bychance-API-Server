@@ -42,11 +42,11 @@ export const handleUserLocationCrypt: HandleUserLocationCrypt = (
   ) {
     const encryptedLat = CryptoJS.AES.encrypt(
       String(lat),
-      process.env.USER_LOCATION_KEY as string
+      (process.env.USER_LOCATION_KEY as string) || "testkey"
     ).toString();
     const encryptedLng = CryptoJS.AES.encrypt(
       String(lng),
-      process.env.USER_LOCATION_KEY as string
+      (process.env.USER_LOCATION_KEY as string) || "testkey"
     ).toString();
 
     return { lat: encryptedLat, lng: encryptedLng };
@@ -59,12 +59,12 @@ export const handleUserLocationCrypt: HandleUserLocationCrypt = (
   ) {
     const decryptedLat = CryptoJS.AES.decrypt(
       String(lat),
-      process.env.USER_LOCATION_KEY as string
+      (process.env.USER_LOCATION_KEY as string) || "testkey"
     ).toString;
 
     const decryptedLng = CryptoJS.AES.decrypt(
       String(lng),
-      process.env.USER_LOCATION_KEY as string
+      (process.env.USER_LOCATION_KEY as string) || "testkey"
     ).toString;
 
     return { lat: Number(decryptedLat), lng: Number(decryptedLng) };

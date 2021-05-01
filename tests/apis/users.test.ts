@@ -4,7 +4,7 @@ import { PrismaClient } from "@prisma/client";
 import { initializeServer } from "~/server";
 import { baseUrl } from "~/constants/url";
 import { UpdateUserPayload } from "~/routes/users/validator";
-import { createHash } from "~/helpers/crypto";
+import { createHash, handleUserLocationCrypt } from "~/helpers/crypto";
 import { createS3ObjectPath } from "~/helpers/aws";
 import { serializeUser } from "~/serializers/users";
 
@@ -14,7 +14,6 @@ const accessToken = "生accessToken";
 const hashedAccessToken = createHash(accessToken);
 
 jest.mock("~/helpers/aws");
-
 (createS3ObjectPath as any).mockResolvedValue("image url");
 
 const user = {
@@ -176,11 +175,44 @@ describe("users", () => {
     });
 
     describe("PATCH /users/location", () => {
-      describe("バリデーションに通る", () => {
-        test("200を返す", async () => {});
+      beforeEach(async () => {
+        await prisma.user.deleteMany({});
       });
 
-      describe("バリデーションに引っかかる", () => {});
+      describe("バリデーションに通る", () => {
+        test("200を返す", async () => {
+          await prisma.user.deleteMany({});
+          await prisma.user.create({
+            data: user,
+          });
+
+          const res = await server.inject({
+            method: "PATCH",
+            url: `${baseUrl}/users/location?id=${user.id}`,
+            payload: { lat: 10, lng: 15 },
+            headers: { Authorization: `Bearer ${accessToken}` },
+          });
+
+          expect(res.statusCode).toEqual(200);
+        });
+      });
+
+      describe("バリデーションに引っかかる", () => {
+        test("payloadに必要なデータがないため400エラーを返す", async () => {
+          await prisma.user.create({
+            data: user,
+          });
+
+          const res = await server.inject({
+            method: "PATCH",
+            url: `${baseUrl}/users/location?id=${user.id}`,
+            payload: {}, // payloadに何も入れない
+            headers: { Authorization: `Bearer ${accessToken}` },
+          });
+
+          expect(res.statusCode).toEqual(400);
+        });
+      });
     });
   });
 });
