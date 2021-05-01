@@ -104,6 +104,11 @@ export const sessionLogin = async (
 ) => {
   const user = req.auth.artifacts as Artifacts;
 
+  const data = await prisma.user.findUnique({
+    where: { id: user.id },
+    include: createClient,
+  });
+
   const {
     posts,
     flashes,
@@ -112,7 +117,7 @@ export const sessionLogin = async (
     talkRoomMessages,
     readTalkRoomMessages,
     ...rest
-  } = user;
+  } = data!;
 
   const allTalkRooms = [...senderTalkRooms, ...recipientTalkRooms];
 

@@ -1,5 +1,3 @@
-import { lineLoginPath, sessionLoginPath } from "~/routes/sessions";
-
 export const createClient = {
   posts: true,
   flashes: true,
@@ -7,10 +5,4 @@ export const createClient = {
   recipientTalkRooms: true,
   talkRoomMessages: true,
   readTalkRoomMessages: true,
-};
-
-export const sessionsInclude = (path: string) => {
-  if (path === sessionLoginPath) {
-    return createClient;
-  }
 };

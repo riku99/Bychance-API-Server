@@ -1,28 +1,11 @@
 import Hapi from "@hapi/hapi";
 
-import {
-  PrismaClient,
-  User,
-  Post,
-  Flash,
-  TalkRoom,
-  TalkRoomMessage,
-  ReadTalkRoomMessage,
-} from "@prisma/client";
+import { PrismaClient, User } from "@prisma/client";
 import { createHash } from "~/helpers/crypto";
-import { sessionsInclude } from "~/prisma/includes/sessions";
-import { baseUrl } from "~/constants/url";
 
 const prisma = new PrismaClient();
 
-export type Artifacts = User & {
-  posts: Post[];
-  flashes: Flash[];
-  senderTalkRooms: TalkRoom[];
-  recipientTalkRooms: TalkRoom[];
-  talkRoomMessages: TalkRoomMessage[];
-  readTalkRoomMessages: ReadTalkRoomMessage[];
-};
+export type Artifacts = User;
 
 type ReturnType =
   | {
@@ -32,8 +15,7 @@ type ReturnType =
   | {
       isValid: true;
       credentials: {};
-      // artifacts: Artifacts;
-      artifacts: any;
+      artifacts: Artifacts;
     };
 
 // 認可が必要なAPIのAuthorizationヘッダ + クエリのidフィールドはこの認可プロセスで検証を行えるのでそのためのバリデーションは定義する必要ない
@@ -52,8 +34,6 @@ export const checkBeareAccessToken = async (
 
   const user = await prisma.user.findUnique({
     where: { id },
-    // 何をincludeするかはリクエストによって分ける
-    include: sessionsInclude(request.path) || null,
   });
 
   if (!user) {
