@@ -16,7 +16,7 @@ export const postsRoute = async (server: Hapi.Server) => {
           failAction: createPostValidator.failAction,
         },
         payload: {
-          maxBytes: 1000 * 1000 * 100, // 許容データサイズの変更
+          maxBytes: 1000 * 1000 * 100, // 許容データサイズの変更 https://stackoverflow.com/questions/45627919/how-to-set-max-image-size-in-joi-hapi
         },
       },
     },
