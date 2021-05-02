@@ -1,5 +1,5 @@
 import AWS from "aws-sdk";
-import { da } from "date-fns/locale";
+import sharp from "sharp";
 
 import { createRandomString } from "~/helpers/crypto";
 
@@ -52,13 +52,15 @@ export const createS3ObjectPath = async ({
   const fileData = data.replace(/^data:\w+\/\w+;base64,/, ""); // 接頭語を取り出す
   const decodedData = Buffer.from(fileData, "base64");
 
+  const resizedData = await sharp(decodedData).resize(1000).toBuffer(); // 現在全てのデータに対してリサイズしているが、条件によって変えるかも
+
   const s3 = createS3Client();
-  const key = `${domain}/${id}/${fileName}.${ext}`;
+  const key = `${id}/${domain}/${fileName}.${ext || retrievedExt}`;
 
   const params = {
     Bucket: process.env.BUCKET_NAME as string,
     Key: key,
-    Body: decodedData,
+    Body: resizedData,
     ContentType: type!,
   };
 

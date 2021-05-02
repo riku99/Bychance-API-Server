@@ -33,15 +33,15 @@ export const initializeServer = async () => {
 
   server.auth.default("simple");
 
-  await server.register({
-    plugin: require("hapi-pino"),
-    options: {
-      prettyPrint: true, // ログを整った形で出力する。本番環境ではfalseにする
-      redact: ["req.headers.authorization"],
-      logPayload: true, // ログにリクエストpayloadを出力
-      logQueryParams: true, // ログにクエリパラメータを出力
-    },
-  });
+  // await server.register({
+  //   plugin: require("hapi-pino"),
+  //   options: {
+  //     prettyPrint: true, // ログを整った形で出力する。本番環境ではfalseにする
+  //     redact: ["req.headers.authorization"],
+  //     logPayload: true, // ログにリクエストpayloadを出力
+  //     logQueryParams: true, // ログにクエリパラメータを出力
+  //   },
+  // });
 
   await server.register([
     prismaPlugin,
