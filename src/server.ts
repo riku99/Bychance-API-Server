@@ -8,6 +8,7 @@ import { prismaPlugin } from "~/plugins/prisma";
 import { noncePlugin } from "~/plugins/nonce";
 import { sesisonsPlugin } from "~/plugins/sessions";
 import { usersPlugin } from "~/plugins/users";
+import { postsPlugin } from "~/plugins/posts";
 import { checkBeareAccessToken } from "~/auth/bearer";
 import { throwLoginError } from "~/helpers/errors";
 
@@ -48,6 +49,7 @@ export const initializeServer = async () => {
     rootPlugin,
     sesisonsPlugin,
     usersPlugin,
+    postsPlugin,
   ]);
 
   await server.initialize();

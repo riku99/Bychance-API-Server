@@ -1,4 +1,5 @@
 import AWS from "aws-sdk";
+import { da } from "date-fns/locale";
 
 import { createRandomString } from "~/helpers/crypto";
 
@@ -16,7 +17,7 @@ type CreateS3ObjPath = {
   data: string;
   domain: string;
   id: string;
-  ext: "mov" | "mp4" | "png" | "jpeg";
+  ext?: "mov" | "mp4" | "png" | "jpeg";
 };
 
 export const createS3ObjectPath = async ({
@@ -24,9 +25,15 @@ export const createS3ObjectPath = async ({
   domain,
   id,
   ext,
-}: CreateS3ObjPath): Promise<string | void> => {
+}: CreateS3ObjPath): Promise<string> => {
+  const retrievedExt = data
+    .toString()
+    .slice(data.indexOf("/") + 1, data.indexOf(";"));
+
   let type: string;
-  switch (ext) {
+
+  // 拡張子が渡される場合、渡されない場合あるのでどちらにも対応
+  switch (ext || retrievedExt) {
     case "mov":
       type = "video/quicktime";
       break;
@@ -39,8 +46,6 @@ export const createS3ObjectPath = async ({
     case "jpeg":
       type = "image/jpeg";
       break;
-    default:
-      type = "image/jpeg";
   }
 
   const fileName = createRandomString();
@@ -54,14 +59,17 @@ export const createS3ObjectPath = async ({
     Bucket: process.env.BUCKET_NAME as string,
     Key: key,
     Body: decodedData,
-    ContentType: type,
+    ContentType: type!,
   };
 
   const url = await s3
     .upload(params)
     .promise()
     .then((data) => data.Location)
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      console.log(err);
+      throw new Error();
+    });
 
   // とりあえずcluud flont導入していない
   return url;
