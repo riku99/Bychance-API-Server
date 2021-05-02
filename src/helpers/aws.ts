@@ -17,7 +17,7 @@ type CreateS3ObjPath = {
   data: string;
   domain: string;
   id: string;
-  ext?: "mov" | "mp4" | "png" | "jpeg";
+  ext?: string | null;
 };
 
 export const createS3ObjectPath = async ({
@@ -26,14 +26,18 @@ export const createS3ObjectPath = async ({
   id,
   ext,
 }: CreateS3ObjPath): Promise<string> => {
-  const retrievedExt = data
-    .toString()
-    .slice(data.indexOf("/") + 1, data.indexOf(";"));
+  let retrievedExt: string;
+
+  if (!ext) {
+    retrievedExt = data
+      .toString()
+      .slice(data.indexOf("/") + 1, data.indexOf(";"));
+  }
 
   let type: string;
 
   // 拡張子が渡される場合、渡されない場合あるのでどちらにも対応
-  switch (ext || retrievedExt) {
+  switch (ext || retrievedExt!) {
     case "mov":
       type = "video/quicktime";
       break;
@@ -56,7 +60,7 @@ export const createS3ObjectPath = async ({
   //const resizedData = await sharp(decodedData).resize(1000).toBuffer(); // 現在全てのデータに対してリサイズしているが、条件によって変えるかも
 
   const s3 = createS3Client();
-  const key = `${id}/${domain}/${fileName}.${ext || retrievedExt}`;
+  const key = `${id}/${domain}/${fileName}.${ext || retrievedExt!}`;
 
   const params = {
     Bucket: process.env.BUCKET_NAME as string,
@@ -64,7 +68,7 @@ export const createS3ObjectPath = async ({
     //Body: resizedData,
     Body: decodedData,
     ContentType: type!,
-    CacheControl: "max-age=30000",
+    //CacheControl: "max-age=30000",
   };
 
   const url = await s3

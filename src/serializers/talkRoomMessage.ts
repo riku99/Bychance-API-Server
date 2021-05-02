@@ -8,14 +8,14 @@ export const serializeTalkRoomMessage = ({
   talkRoomMessage: TalkRoomMessage;
 }): ClientTalkRoomMessage => {
   const { id, userId, roomId, text } = talkRoomMessage;
-  const timeStamp = talkRoomMessage.createdAt.toString();
+  const timestamp = talkRoomMessage.createdAt.toString();
 
   const clientMessage: ClientTalkRoomMessage = {
     id,
     userId,
     roomId,
     text,
-    timeStamp,
+    timestamp,
   };
 
   return clientMessage;

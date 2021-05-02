@@ -3,13 +3,13 @@ import { ClientFlash } from "~/types/clientData";
 
 export const serializeFlash = ({ flash }: { flash: Flash }): ClientFlash => {
   const { id, source, sourceType } = flash;
-  const timeStamp = flash.createdAt.toString();
+  const timestamp = new Date(flash.createdAt).toString();
 
   const clientFlash: ClientFlash = {
     id,
     source,
     sourceType,
-    timeStamp,
+    timestamp,
   };
 
   return clientFlash;

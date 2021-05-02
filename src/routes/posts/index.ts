@@ -3,6 +3,7 @@ import Hapi from "@hapi/hapi";
 import { baseUrl } from "~/constants/url";
 import { createPostValidator, deletePostValidator } from "./validator";
 import { postHandler } from "~/handlers/posts";
+import { maxBytes } from "~/config/apis/size";
 
 export const postsRoute = async (server: Hapi.Server) => {
   server.route([
@@ -16,7 +17,7 @@ export const postsRoute = async (server: Hapi.Server) => {
           failAction: createPostValidator.failAction,
         },
         payload: {
-          maxBytes: 1000 * 1000 * 100, // 許容データサイズの変更 https://stackoverflow.com/questions/45627919/how-to-set-max-image-size-in-joi-hapi
+          maxBytes,
         },
       },
     },

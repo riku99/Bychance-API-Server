@@ -9,6 +9,7 @@ import { noncePlugin } from "~/plugins/nonce";
 import { sesisonsPlugin } from "~/plugins/sessions";
 import { usersPlugin } from "~/plugins/users";
 import { postsPlugin } from "~/plugins/posts";
+import { flashesPlugin } from "~/plugins/flashes";
 import { checkBeareAccessToken } from "~/auth/bearer";
 import { throwLoginError } from "~/helpers/errors";
 
@@ -33,15 +34,15 @@ export const initializeServer = async () => {
 
   server.auth.default("simple");
 
-  // await server.register({
-  //   plugin: require("hapi-pino"),
-  //   options: {
-  //     prettyPrint: true, // ログを整った形で出力する。本番環境ではfalseにする
-  //     redact: ["req.headers.authorization"],
-  //     logPayload: true, // ログにリクエストpayloadを出力
-  //     logQueryParams: true, // ログにクエリパラメータを出力
-  //   },
-  // });
+  await server.register({
+    plugin: require("hapi-pino"),
+    options: {
+      prettyPrint: true, // ログを整った形で出力する。本番環境ではfalseにする
+      redact: ["req.headers.authorization"],
+      logPayload: false, // ログにリクエストpayloadを出力
+      logQueryParams: true, // ログにクエリパラメータを出力
+    },
+  });
 
   await server.register([
     prismaPlugin,
@@ -50,6 +51,7 @@ export const initializeServer = async () => {
     sesisonsPlugin,
     usersPlugin,
     postsPlugin,
+    flashesPlugin,
   ]);
 
   await server.initialize();

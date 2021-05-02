@@ -18,16 +18,16 @@ export type ClientTalkRoom = Pick<TalkRoom, "id"> & {
   messages: number[];
   unreadNumber: number;
   latestMessage: string | null;
-  timeStamp: string;
+  timestamp: string;
 };
 
 export type ClientTalkRoomMessage = Pick<
   TalkRoomMessage,
   "id" | "userId" | "roomId" | "text"
-> & { timeStamp: string };
+> & { timestamp: string };
 
 export type ClientFlash = Pick<Flash, "id" | "sourceType" | "source"> & {
-  timeStamp: string;
+  timestamp: string;
 };
 
 // 後々roomsをtalkRoomsに、messagesをtalkMessagesに変えたい

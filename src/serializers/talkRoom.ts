@@ -33,7 +33,7 @@ export const serializeTalkRoom = ({
     messages,
     unreadNumber,
     latestMessage,
-    timeStamp: talkRoom.updatedAt.toString(),
+    timestamp: talkRoom.updatedAt.toString(),
   };
 
   return clientTalkRoom;
