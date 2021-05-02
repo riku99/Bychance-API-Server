@@ -27,11 +27,7 @@ const createFlash = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     data: {
       source: url,
       sourceType: payload.sourceType,
-      user: {
-        connect: {
-          id: user.id,
-        },
-      },
+      userId: user.id,
     },
   });
 
