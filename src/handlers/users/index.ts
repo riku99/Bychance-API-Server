@@ -8,7 +8,7 @@ import {
   UpdateLocationPayload,
   ChangeUserDisplayPayload,
 } from "~/routes/users/validator";
-import { serializeUser } from "~/serializers/users";
+import { serializeUser } from "~/serializers/user";
 import { createS3ObjectPath } from "~/helpers/aws";
 import { throwInvalidError } from "~/helpers/errors";
 import { handleUserLocationCrypt } from "~/helpers/crypto";

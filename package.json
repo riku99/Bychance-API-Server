@@ -48,7 +48,7 @@
     "test:db:up": "docker-compose -f docker-compose.test.yml up -d bc_mysql_test",
     "test:db:migrate": "docker-compose -f docker-compose.test.yml run test_server yarn prisma migrate reset --force",
     "test:db:gene": "docker-compose -f docker-compose.test.yml run test_server yarn prisma generate",
-    "test:db:dev": "docker-compose -f docker-compose.test.yml run test_server npx prisma migrate dev --name update",
+    "test:db:dev": "docker-compose -f docker-compose.test.yml run test_server yarn prisma migrate dev --name update",
     "test:ci": "yarn test:build && yarn test:db:up && sleep 10 && yarn test:db:dev && yarn test:db:migrate && yarn test:db:gene && yarn test && yarn test:down",
     "db:seed": "ts-node --files -r tsconfig-paths/register ./src/db/seed.ts",
     "db:show": "yarn prisma studio"

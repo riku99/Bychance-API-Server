@@ -34,9 +34,9 @@ describe("create clientData", () => {
       readTalkRoomMessages: [readTalkRoomMessage],
     });
 
-    result.flashes[0].timeStamp = "timeStamp";
-    result.rooms[0].timeStamp = "timeStamp";
-    result.messages[0].timeStamp = "timeStamp";
+    result.flashes[0].timestamp = "timestamp";
+    result.rooms[0].timestamp = "timestamp";
+    result.messages[0].timestamp = "timestamp";
 
     console.log(result);
     expect(result).toEqual(clientData);

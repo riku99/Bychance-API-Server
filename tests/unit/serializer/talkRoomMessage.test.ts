@@ -4,7 +4,7 @@ import { talkRoomMessage, clietnTalkRoomMessage } from "../../data";
 describe("talkRoomMessage serializer", () => {
   test("lietnTalkRoomMessagを返す", () => {
     const result = serializeTalkRoomMessage({ talkRoomMessage });
-    result.timeStamp = "timeStamp";
+    result.timestamp = "timestamp";
 
     expect(result).toEqual(clietnTalkRoomMessage);
   });

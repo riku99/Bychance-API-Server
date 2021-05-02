@@ -1,5 +1,5 @@
 import Hapi from "@hapi/hapi";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Prisma } from "@prisma/client";
 
 import { Artifacts } from "~/auth/bearer";
 import { CreateViewedFlashPayload } from "~/routes/viewedFlashes/validator";
@@ -15,7 +15,7 @@ const createViewedFlash = async (
 
   const existing = await prisma.viewedFlash.findUnique({
     where: {
-      userId_flashId: {
+      userId_flashId_unique: {
         userId: user.id,
         flashId: payload.flashId,
       },

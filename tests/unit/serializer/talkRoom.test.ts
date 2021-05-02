@@ -14,7 +14,7 @@ describe("talkRoom serializer", () => {
       readTalkRoomMessages: [readTalkRoomMessage],
       userId: "1",
     });
-    result.timeStamp = "timeStamp";
+    result.timestamp = "timestamp";
 
     expect(result).toEqual(clientTalkRoom);
   });

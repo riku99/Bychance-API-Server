@@ -104,9 +104,9 @@ model viewedFlash {
   flash     Flash    @relation(fields: [flashId], references: [id])
   user      User     @relation(fields: [userId], references: [id])
 
-  @@unique([userId, flashId], name: "viewedFlash.userId_flashId_unique")
+  @@unique([userId, flashId], name: "userId_flashId_unique") // viewedFlash.userId_flashId_uniqueのように.つけて定義するとエラーになる
   @@index([flashId], name: "flashId")
-  @@index([userId, flashId], name: "viewedFlash.userId_flashId_index")
+  @@index([userId, flashId], name: "userId_flashId_index")
 }
 
 model ReadTalkRoomMessage {

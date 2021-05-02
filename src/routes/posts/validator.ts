@@ -10,7 +10,7 @@ export type CreatePostPayload = {
 const createValidation = {
   payload: Joi.object<CreatePostPayload>({
     text: Joi.string().allow("").required(),
-    image: Joi.string().allow("").required(),
+    image: Joi.string().required(),
   }),
 };
 

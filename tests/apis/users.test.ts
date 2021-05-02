@@ -6,7 +6,7 @@ import { baseUrl } from "~/constants/url";
 import { UpdateUserPayload } from "~/routes/users/validator";
 import { createHash } from "~/helpers/crypto";
 import { createS3ObjectPath } from "~/helpers/aws";
-import { serializeUser } from "~/serializers/users";
+import { serializeUser } from "~/serializers/user";
 
 const prisma = new PrismaClient();
 

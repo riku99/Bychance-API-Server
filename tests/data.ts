@@ -71,7 +71,7 @@ export const clientFlash: ClientFlash = {
   id: 1,
   source: "sourceURL",
   sourceType: "image",
-  timeStamp: "timeStamp",
+  timestamp: "timestamp",
 };
 
 export const talkRoom: TalkRoom = {
@@ -89,7 +89,7 @@ export const clientTalkRoom: ClientTalkRoom = {
   messages: [1],
   unreadNumber: 0,
   latestMessage: "Hey",
-  timeStamp: "timeStamp",
+  timestamp: "timestamp",
 };
 
 export const talkRoomMessage: TalkRoomMessage = {
@@ -106,7 +106,7 @@ export const clietnTalkRoomMessage: ClientTalkRoomMessage = {
   userId: "1",
   roomId: 1,
   text: "Hey",
-  timeStamp: "timeStamp",
+  timestamp: "timestamp",
 };
 
 export const readTalkRoomMessage: ReadTalkRoomMessage = {

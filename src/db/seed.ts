@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 
-import { serializePost } from "~/serializers/posts";
+import { serializePost } from "~/serializers/post";
 import { serializeTalkRoom } from "~/serializers/talkRoom";
 
 const prisma = new PrismaClient();

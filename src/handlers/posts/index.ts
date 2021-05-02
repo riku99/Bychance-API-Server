@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client";
 
 import { Artifacts } from "~/auth/bearer";
 import { CreatePostPayload, DeletePostPayload } from "~/routes/posts/validator";
-import { serializePost } from "~/serializers/posts";
+import { serializePost } from "~/serializers/post";
 import { createS3ObjectPath } from "~/helpers/aws";
 import { throwInvalidError } from "~/helpers/errors";
 

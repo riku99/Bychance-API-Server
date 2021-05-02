@@ -12,8 +12,8 @@ import {
   ClientTalkRoom,
   ClientTalkRoomMessage,
 } from "~/types/clientData";
-import { serializeUser } from "~/serializers/users";
-import { serializePost } from "~/serializers/posts";
+import { serializeUser } from "~/serializers/user";
+import { serializePost } from "~/serializers/post";
 import { serializeFlash } from "~/serializers/flash";
 import { serializeTalkRoom } from "~/serializers/talkRoom";
 import { dayMs } from "~/constants/date";

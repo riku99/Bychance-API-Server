@@ -1,4 +1,4 @@
-import { serializeUser } from "~/serializers/users";
+import { serializeUser } from "~/serializers/user";
 import { user, clientUser } from "../../data";
 
 describe("users serializer", () => {
