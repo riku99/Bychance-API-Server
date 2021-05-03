@@ -20,6 +20,13 @@ const user = {
   name: "name",
 };
 
+const flash = {
+  id: 1,
+  source: "url",
+  sourceType: "image" as const,
+  userId: "1",
+};
+
 const createS3ObjectPathResult = "image url";
 jest.mock("~/helpers/aws");
 (createS3ObjectPath as any).mockResolvedValue(createS3ObjectPathResult);
@@ -95,5 +102,69 @@ describe("flashes", () => {
     });
   });
 
-  describe("DELETE /flashes/{flashId}", () => {});
+  describe("DELETE /flashes/{flashId}", () => {
+    const successfulRequestSchema = {
+      method: "DELETE",
+      url: `${baseUrl}/flashes/1?id=${user.id}`,
+      headers: { Authorization: `Bearer ${accessToken}` },
+    };
+
+    describe("バリデーションに通る", () => {
+      describe("保存されているflashのuserIdと送られてきたidが一致", () => {
+        test("200を返す", async () => {
+          await prisma.flash.create({
+            data: flash,
+          });
+
+          const res = await server.inject(successfulRequestSchema);
+
+          expect(res.statusCode).toEqual(200);
+        });
+      });
+
+      describe("一致しない", () => {
+        test("400を返す", async () => {
+          await prisma.user.deleteMany({});
+          await prisma.user.create({
+            data: user,
+          });
+
+          // flashを作成するためのuserを作成
+          await prisma.user.create({
+            data: {
+              ...user,
+              id: "2",
+              lineId: "line2",
+              accessToken: "token2",
+            },
+          });
+
+          await prisma.flash.create({
+            data: {
+              ...flash,
+              userId: "2", // リクエストするuserIdとは違う値を指定
+            },
+          });
+
+          const res = await server.inject(successfulRequestSchema);
+
+          expect(res.statusCode).toEqual(400);
+          expect(JSON.parse(res.payload).errorType).toEqual(invalidErrorType);
+        });
+      });
+    });
+
+    // paramsなので指定しないとバリデーションエラーより先に404返される
+    // describe("バリデーションに引っかかる", () => {
+    //   test("paramsに必要なデータがないので400を返す", async () => {
+    //     const res = await server.inject({
+    //       ...successfulRequestSchema,
+    //       url: `${baseUrl}/flashes`,
+    //     });
+
+    //     expect(res.statusCode).toEqual(400);
+    //     expect(JSON.parse(res.payload).errorType).toEqual(invalidErrorType);
+    //   });
+    //});
+  });
 });
