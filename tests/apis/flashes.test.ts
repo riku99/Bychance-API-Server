@@ -52,6 +52,10 @@ describe("flashes", () => {
     await prisma.user.create({ data: user });
   });
 
+  afterAll(async () => {
+    await prisma.user.deleteMany({});
+  });
+
   describe("POST /flashes", () => {
     const successfulRequestSchema = {
       method: "POST",
