@@ -12,6 +12,7 @@ services:
       - ./src:/usr/src/app/src
       - ./tests:/usr/src/app/tests
       - ./package.json:/usr/src/app/package.json
+      - ./prisma:/usr/src/app/prisma
     networks:
       - bc_net_test
     depends_on:

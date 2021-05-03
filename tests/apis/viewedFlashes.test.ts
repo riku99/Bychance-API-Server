@@ -48,6 +48,10 @@ describe("viewedFlashes", () => {
     describe("バリデーションに通る", () => {
       describe("送信されたデータが新規のものである(ユニークである)", () => {
         test("作成し200を返す", async () => {
+          await prisma.viewedFlash.deleteMany({});
+          await prisma.flash.deleteMany({});
+          await prisma.user.deleteMany({});
+
           await prisma.user.create({ data: user });
           await prisma.flash.create({ data: flash });
 

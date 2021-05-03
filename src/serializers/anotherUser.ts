@@ -1,4 +1,4 @@
-import { User, Post, Flash } from "@prisma/client";
+import { User, Post, Flash, ViewedFlash } from "@prisma/client";
 
 import { serializeUser } from "./user";
 import { serializePost } from "./post";
@@ -9,6 +9,7 @@ type A = {
   user: User;
   posts: Post[];
   flashes: Flash[];
+  viewedFlashes: ViewedFlash[];
 };
 
 export const serializeAnotherUser = ({ user, posts, flashes }: A) => {

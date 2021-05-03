@@ -26,7 +26,7 @@ model User {
   recipientTalkRooms   TalkRoom[]            @relation("recipient")
   senderTalkRooms      TalkRoom[]            @relation("sender")
   talkRoomMessages     TalkRoomMessage[]
-  viewedFlashes        viewedFlash[]
+  viewedFlashes        ViewedFlash[]
 
   @@index([display], name: "User.display_index")
   @@index([lineId], name: "User.lineId_index")
@@ -52,7 +52,7 @@ model Flash {
   sourceType FlashSourceTypeRole
   userId     String
   user       User                @relation(fields: [userId], references: [id])
-  viewed     viewedFlash[]
+  viewed     ViewedFlash[]
 
   @@index([userId], name: "Flash.userId_index")
 }
@@ -95,7 +95,7 @@ model TalkRoomMessage {
   @@index([roomId], name: "roomId")
 }
 
-model viewedFlash {
+model ViewedFlash {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
