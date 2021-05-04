@@ -11,6 +11,7 @@ import { usersPlugin } from "~/plugins/users";
 import { postsPlugin } from "~/plugins/posts";
 import { flashesPlugin } from "~/plugins/flashes";
 import { viewedFlashesPlugin } from "~/plugins/viewedFlashes";
+import { nearbyUsersPlugin } from "~/plugins/nearbyUsers";
 import { checkBeareAccessToken } from "~/auth/bearer";
 import { throwLoginError } from "~/helpers/errors";
 
@@ -54,6 +55,7 @@ export const initializeServer = async () => {
     postsPlugin,
     flashesPlugin,
     viewedFlashesPlugin,
+    nearbyUsersPlugin,
   ]);
 
   await server.initialize();
