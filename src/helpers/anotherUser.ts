@@ -22,7 +22,9 @@ export const createAnotherUser = ({
 
   const serializedPosts = posts.map((post) => serializePost({ post }));
 
-  const viewedFlashIds = viewedFlashes.map((viewedFlash) => viewedFlash.id);
+  const viewedFlashIds = viewedFlashes.map(
+    (viewedFlash) => viewedFlash.flashId
+  );
 
   const alreadyViewedIds: number[] = [];
 
