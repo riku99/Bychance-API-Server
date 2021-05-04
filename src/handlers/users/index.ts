@@ -84,8 +84,6 @@ const updateLocation = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     "encrypt"
   );
 
-  console.log(cryptedLocation);
-
   await prisma.user.update({
     where: { id: user.id },
     data: cryptedLocation,

@@ -58,14 +58,14 @@ export const handleUserLocationCrypt: HandleUserLocationCrypt = (
     mode === "decrypt"
   ) {
     const decryptedLat = CryptoJS.AES.decrypt(
-      String(lat),
+      lat,
       (process.env.USER_LOCATION_KEY as string) || "testkey"
-    ).toString;
+    ).toString(CryptoJS.enc.Utf8); //CryptoJS.enc.Utf8ないと16進数で返っちゃう
 
     const decryptedLng = CryptoJS.AES.decrypt(
-      String(lng),
+      lng,
       (process.env.USER_LOCATION_KEY as string) || "testkey"
-    ).toString;
+    ).toString(CryptoJS.enc.Utf8);
 
     return { lat: Number(decryptedLat), lng: Number(decryptedLng) };
   }
