@@ -37,8 +37,8 @@ export const clientUser: ClientUser = {
   introduce: "Hey!",
   statusMessage: "hello",
   display: true,
-  lat: "here",
-  lng: "here",
+  lat: 1,
+  lng: 2,
 };
 
 export const post: Post = {

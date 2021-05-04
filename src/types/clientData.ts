@@ -4,10 +4,10 @@ import { TalkRoom } from "@prisma/client";
 import { Post } from "@prisma/client";
 import { Flash } from "@prisma/client";
 
-export type ClientUser = Omit<
+export type ClientUser = Pick<
   User,
-  "lineId" | "createdAt" | "updatedAt" | "accessToken"
->;
+  "id" | "name" | "avatar" | "introduce" | "statusMessage" | "display"
+> & { lat: number | null; lng: number | null };
 
 export type ClientPost = Pick<Post, "id" | "image" | "text" | "userId"> & {
   date: string;

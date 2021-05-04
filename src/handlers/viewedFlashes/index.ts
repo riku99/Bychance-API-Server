@@ -1,5 +1,5 @@
 import Hapi from "@hapi/hapi";
-import { PrismaClient, Prisma } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 
 import { Artifacts } from "~/auth/bearer";
 import { CreateViewedFlashPayload } from "~/routes/viewedFlashes/validator";
