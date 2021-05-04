@@ -32,6 +32,8 @@ const getNearbyUsers = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     },
   });
 
+  const allDistance: number[] = [];
+
   const nearbyUsers = displayedUsers.filter((user) => {
     if (!user.lat || !user.lng) {
       return false;
@@ -43,10 +45,30 @@ const getNearbyUsers = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       units: "kilometers",
     });
 
+    if (distanceResult < query.range) {
+      allDistance.push(distanceResult);
+    }
+
     return distanceResult < query.range;
   });
 
-  const returnData = nearbyUsers.map((user) => {
+  const sortedUsers = nearbyUsers.sort((a, b) => {
+    const locationA = handleUserLocationCrypt(a.lat!, a.lng!, "decrypt");
+    const locationB = handleUserLocationCrypt(b.lat!, b.lng!, "decrypt");
+
+    const distanceA = distance(
+      point([locationA.lng, locationA.lat]),
+      requestUserPoint
+    );
+    const distanceB = distance(
+      point([locationB.lng, locationB.lat]),
+      requestUserPoint
+    );
+
+    return distanceA < distanceB ? -1 : 1;
+  });
+
+  const returnData = sortedUsers.map((user) => {
     const { posts, flashes, ...userData } = user;
     return createAnotherUser({ user: userData, posts, flashes, viewedFlashes });
   });
