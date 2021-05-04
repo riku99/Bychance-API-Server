@@ -3,6 +3,7 @@ import { User, Post, Flash, ViewedFlash } from "@prisma/client";
 import { serializePost } from "~/serializers/post";
 import { serializeFlash } from "~/serializers/flash";
 import { dayMs } from "~/constants/date";
+import { AnotherUser } from "~/types/anotherUser";
 
 type Arg = {
   user: User;
@@ -16,7 +17,7 @@ export const createAnotherUser = ({
   posts,
   flashes,
   viewedFlashes,
-}: Arg) => {
+}: Arg): AnotherUser => {
   const { id, name, avatar, introduce, statusMessage } = user;
 
   const serializedPosts = posts.map((post) => serializePost({ post }));
@@ -42,7 +43,7 @@ export const createAnotherUser = ({
     notExpiredFlashes.length &&
     notExpiredFlashes[notExpiredFlashes.length - 1].id;
 
-  const isAllAlreadyViewed = alreadyViewedIds.includes(lastId) ? lastId : false;
+  const isAllAlreadyViewed = alreadyViewedIds.includes(lastId);
 
   const serializedFlashes = notExpiredFlashes.map((flash) =>
     serializeFlash({ flash })
