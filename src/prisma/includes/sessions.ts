@@ -5,4 +5,5 @@ export const createClient = {
   recipientTalkRooms: true,
   talkRoomMessages: true,
   readTalkRoomMessages: true,
+  viewedFlashes: true,
 };

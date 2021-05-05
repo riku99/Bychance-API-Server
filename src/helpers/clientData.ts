@@ -5,6 +5,7 @@ import {
   TalkRoom,
   TalkRoomMessage,
   ReadTalkRoomMessage,
+  ViewedFlash,
 } from "@prisma/client";
 
 import {
@@ -18,6 +19,7 @@ import { serializeFlash } from "~/serializers/flash";
 import { serializeTalkRoom } from "~/serializers/talkRoom";
 import { dayMs } from "~/constants/date";
 import { serializeTalkRoomMessage } from "~/serializers/talkRoomMessage";
+import { createAnotherUser } from "~/helpers/anotherUser";
 
 type Arg = {
   user: User;
@@ -26,6 +28,8 @@ type Arg = {
   talkRooms: TalkRoom[];
   talkRoomMessages: TalkRoomMessage[];
   readTalkRoomMessages: ReadTalkRoomMessage[];
+  chatPartners: (User & { posts: Post[]; flashes: Flash[] })[];
+  viewedFlashes: ViewedFlash[];
 };
 
 export const createClientData = (data: Arg): ClientData => {
@@ -64,13 +68,23 @@ export const createClientData = (data: Arg): ClientData => {
     talkRooms.push(serializedRoom);
   });
 
+  const chatPartners = data.chatPartners.map((user) => {
+    const { posts, flashes, ...restUserData } = user;
+    return createAnotherUser({
+      user: restUserData,
+      posts,
+      flashes,
+      viewedFlashes: data.viewedFlashes,
+    });
+  });
+
   const clietnData: ClientData = {
     user,
     posts,
     flashes,
     rooms: talkRooms,
     messages: talkRoomMessages,
-    chatPartners: [],
+    chatPartners,
   };
 
   return clietnData;

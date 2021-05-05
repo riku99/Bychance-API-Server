@@ -4,6 +4,8 @@ import { TalkRoom } from "@prisma/client";
 import { Post } from "@prisma/client";
 import { Flash } from "@prisma/client";
 
+import { AnotherUser } from "~/types/anotherUser";
+
 export type ClientUser = Pick<
   User,
   "id" | "name" | "avatar" | "introduce" | "statusMessage" | "display"
@@ -37,6 +39,5 @@ export type ClientData = {
   rooms: ClientTalkRoom[];
   messages: ClientTalkRoomMessage[];
   flashes: ClientFlash[];
-  //chatPartners: AnotherUser[]; AnotherUserを定義したらこちらに変更
-  chatPartners: [];
+  chatPartners: AnotherUser[];
 };

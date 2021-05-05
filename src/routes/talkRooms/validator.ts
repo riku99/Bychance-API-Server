@@ -6,7 +6,7 @@ export type CreateTalkRoomPayload = {
   partnerId: string;
 };
 
-const createValodation = {
+const createValidation = {
   payload: Joi.object<CreateTalkRoomPayload>({
     partnerId: Joi.string().required(),
   }),
@@ -15,6 +15,6 @@ const createValodation = {
 const createFailAction = () => throwInvalidError();
 
 export const createTalkRoomValidator = {
-  validate: createValodation,
+  validate: createValidation,
   failAction: createFailAction,
 };

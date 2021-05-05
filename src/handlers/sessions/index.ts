@@ -81,21 +81,23 @@ const lineLogin = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     recipientTalkRooms,
     talkRoomMessages,
     readTalkRoomMessages,
+    viewedFlashes,
     ...rest
   } = user;
 
   const allTalkRooms = [...senderTalkRooms, ...recipientTalkRooms];
 
-  const clientData = createClientData({
-    user: rest,
-    posts,
-    flashes,
-    talkRooms: allTalkRooms,
-    talkRoomMessages,
-    readTalkRoomMessages,
-  });
+  // const clientData = createClientData({
+  //   user: rest,
+  //   posts,
+  //   flashes,
+  //   talkRooms: allTalkRooms,
+  //   talkRoomMessages,
+  //   readTalkRoomMessages,
+  //   viewedFlashes,
+  // });
 
-  return { ...clientData, accessToken };
+  return { ...[], accessToken };
 };
 
 export const sessionLogin = async (
@@ -106,7 +108,23 @@ export const sessionLogin = async (
 
   const data = await prisma.user.findUnique({
     where: { id: user.id },
-    include: createClient,
+    include: {
+      ...createClient,
+      recipientTalkRooms: {
+        include: {
+          sender: {
+            include: { posts: true, flashes: true },
+          },
+        },
+      },
+      senderTalkRooms: {
+        include: {
+          recipient: {
+            include: { posts: true, flashes: true },
+          },
+        },
+      },
+    },
   });
 
   const {
@@ -116,10 +134,15 @@ export const sessionLogin = async (
     recipientTalkRooms,
     talkRoomMessages,
     readTalkRoomMessages,
+    viewedFlashes,
     ...rest
   } = data!;
 
   const allTalkRooms = [...senderTalkRooms, ...recipientTalkRooms];
+
+  const recipients = senderTalkRooms.map((talkRoom) => talkRoom.recipient);
+  const senders = recipientTalkRooms.map((talkRoom) => talkRoom.sender);
+  const chatPartners = [...recipients, ...senders];
 
   return createClientData({
     user: rest,
@@ -128,6 +151,8 @@ export const sessionLogin = async (
     talkRooms: allTalkRooms,
     talkRoomMessages,
     readTalkRoomMessages,
+    viewedFlashes,
+    chatPartners,
   });
 };
 
@@ -144,22 +169,26 @@ const sampleLogin = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     recipientTalkRooms,
     talkRoomMessages,
     readTalkRoomMessages,
+    viewedFlashes,
     ...rest
   } = data!;
 
   const allTalkRooms = [...senderTalkRooms, ...recipientTalkRooms];
 
-  const clientData = createClientData({
-    user: rest,
-    posts,
-    flashes,
-    talkRooms: allTalkRooms,
-    talkRoomMessages,
-    readTalkRoomMessages,
-  });
+  const chatPartners = await prisma.user.findMany({});
+
+  // const clientData = createClientData({
+  //   user: rest,
+  //   posts,
+  //   flashes,
+  //   talkRooms: allTalkRooms,
+  //   talkRoomMessages,
+  //   readTalkRoomMessages,
+  //   viewedFlashes,
+  // });
 
   return {
-    ...clientData,
+    ...[],
     accessToken: "denzi",
   };
 };
