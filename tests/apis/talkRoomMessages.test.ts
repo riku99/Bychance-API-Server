@@ -52,10 +52,31 @@ describe("talkRoomMessages", () => {
       headers: { Authorization: `Bearer ${accessToken}` },
     };
 
-    describe("バリデーションに通る", () => {});
+    describe("バリデーションに通る", () => {
+      test("TalkRoomMessageが作成され200を返す", async () => {
+        await prisma.user.deleteMany({});
+        await prisma.user.create({ data: user });
+        await prisma.user.create({ data: user2 });
+        await prisma.talkRoom.create({ data: talkRoom });
+
+        const res = await server.inject(successfulRequestSchema);
+
+        expect(res.statusCode).toEqual(200);
+
+        const message = await prisma.talkRoomMessage.findMany({
+          where: {
+            userId: user.id,
+          },
+        });
+
+        expect(message.length).toEqual(1);
+      });
+    });
 
     describe("バリデーションに引っかかる", () => {
       beforeEach(async () => {
+        await prisma.talkRoomMessage.deleteMany({});
+        await prisma.talkRoom.deleteMany({});
         await prisma.user.deleteMany({});
       });
 
