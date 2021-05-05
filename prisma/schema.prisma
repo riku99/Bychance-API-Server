@@ -75,8 +75,8 @@ model TalkRoom {
   readTalkRoomMessages ReadTalkRoomMessage[]
   messages             TalkRoomMessage[]
 
-  @@unique([senderId, recipientId], name: "TalkRoom.senderId_recipientId_unique")
-  @@index([senderId, recipientId], name: "TalkRoom.senderId_recipientId_index")
+  @@unique([senderId, recipientId], name: "senderId_recipientId_unique")
+  @@index([senderId, recipientId], name: "senderId_recipientId_index")
   @@index([recipientId], name: "recipientId")
 }
 

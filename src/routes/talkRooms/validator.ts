@@ -3,12 +3,12 @@ import Joi from "joi";
 import { throwInvalidError } from "~/helpers/errors";
 
 export type CreateTalkRoomPayload = {
-  partnerId: number;
+  partnerId: string;
 };
 
 const createValodation = {
   payload: Joi.object<CreateTalkRoomPayload>({
-    partnerId: Joi.number().required(),
+    partnerId: Joi.string().required(),
   }),
 };
 
