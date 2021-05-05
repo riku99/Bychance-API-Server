@@ -29,7 +29,9 @@ describe("create clientData", () => {
       user,
       posts: [post],
       flashes: [flash],
-      talkRooms: [talkRoom],
+      senderTalkRooms: [],
+      recipientTalkRooms: [],
+      viewedFlashes: [],
       talkRoomMessages: [talkRoomMessage],
       readTalkRoomMessages: [readTalkRoomMessage],
     });

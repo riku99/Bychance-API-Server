@@ -13,6 +13,7 @@ import { flashesPlugin } from "~/plugins/flashes";
 import { viewedFlashesPlugin } from "~/plugins/viewedFlashes";
 import { nearbyUsersPlugin } from "~/plugins/nearbyUsers";
 import { talkRoomsPlugin } from "~/plugins/talkRooms";
+import { talkRoomMessagesPlugin } from "~/plugins/talkRoomMessages";
 import { checkBeareAccessToken } from "~/auth/bearer";
 import { throwLoginError } from "~/helpers/errors";
 
@@ -58,6 +59,7 @@ export const initializeServer = async () => {
     viewedFlashesPlugin,
     nearbyUsersPlugin,
     talkRoomsPlugin,
+    talkRoomMessagesPlugin,
   ]);
 
   await server.initialize();

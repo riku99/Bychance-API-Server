@@ -25,6 +25,7 @@ type Arg = {
   user: User;
   posts: Post[];
   flashes: Flash[];
+  // includeされたデータなのでTalkRoom[]だけでなくrecipientなど他のデータもくっついてくる
   senderTalkRooms: (TalkRoom & {
     recipient: User & {
       flashes: Flash[];
