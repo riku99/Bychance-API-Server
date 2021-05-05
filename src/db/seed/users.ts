@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 
-import { handleUserLocationCrypt } from "~/helpers/crypto";
+import { handleUserLocationCrypt, createHash } from "~/helpers/crypto";
 
 const prisma = new PrismaClient();
 
@@ -26,8 +26,8 @@ const アキ = {
 
 const デンジ = {
   name: "デンジ",
-  lineId: "denzi",
-  accessToken: "denzi",
+  lineId: createHash("denzi"),
+  accessToken: createHash("denzi"), // このユーザーにログインできるようにしたいのでハッシュ化して保存
   ...銀座シックス,
 };
 

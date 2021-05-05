@@ -30,5 +30,13 @@ export const sessionsRoute = async (server: Hapi.Server) => {
       path: sessionLoginPath,
       handler: sessionsHandler.sessionLogin,
     },
+    {
+      method: "GET",
+      path: `${baseUrl}/sampleLogin`,
+      handler: sessionsHandler.sampleLogin,
+      options: {
+        auth: false,
+      },
+    },
   ]);
 };

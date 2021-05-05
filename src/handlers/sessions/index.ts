@@ -131,7 +131,41 @@ export const sessionLogin = async (
   });
 };
 
+const sampleLogin = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
+  const data = await prisma.user.findUnique({
+    where: { lineId: createHash("denzi") },
+    include: createClient,
+  });
+
+  const {
+    posts,
+    flashes,
+    senderTalkRooms,
+    recipientTalkRooms,
+    talkRoomMessages,
+    readTalkRoomMessages,
+    ...rest
+  } = data!;
+
+  const allTalkRooms = [...senderTalkRooms, ...recipientTalkRooms];
+
+  const clientData = createClientData({
+    user: rest,
+    posts,
+    flashes,
+    talkRooms: allTalkRooms,
+    talkRoomMessages,
+    readTalkRoomMessages,
+  });
+
+  return {
+    ...clientData,
+    accessToken: "denzi",
+  };
+};
+
 export const sessionsHandler = {
   lineLogin,
   sessionLogin,
+  sampleLogin,
 };
