@@ -57,7 +57,7 @@ export const createS3ObjectPath = async ({
   const decodedData = Buffer.from(fileData, "base64");
 
   // react-native-fast-imageを使ったところ大きいデータも音速で出せるようになったのでいったんリサイズ止める
-  //const resizedData = await sharp(decodedData).resize(1000).toBuffer(); // 現在全てのデータに対してリサイズしているが、条件によって変えるかも
+  const resizedData = await sharp(decodedData).resize(1000).toBuffer(); // 現在全てのデータに対してリサイズしているが、条件によって変えるかも
 
   const s3 = createS3Client();
   const key = `${id}/${domain}/${fileName}.${ext || retrievedExt!}`;
@@ -66,7 +66,7 @@ export const createS3ObjectPath = async ({
     Bucket: process.env.BUCKET_NAME as string,
     Key: key,
     //Body: resizedData,
-    Body: decodedData,
+    Body: resizedData,
     ContentType: type!,
     //CacheControl: "max-age=30000",
   };
