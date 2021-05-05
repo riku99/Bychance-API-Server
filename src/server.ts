@@ -12,6 +12,7 @@ import { postsPlugin } from "~/plugins/posts";
 import { flashesPlugin } from "~/plugins/flashes";
 import { viewedFlashesPlugin } from "~/plugins/viewedFlashes";
 import { nearbyUsersPlugin } from "~/plugins/nearbyUsers";
+import { talkRoomsPlugin } from "~/plugins/talkRooms";
 import { checkBeareAccessToken } from "~/auth/bearer";
 import { throwLoginError } from "~/helpers/errors";
 
@@ -56,6 +57,7 @@ export const initializeServer = async () => {
     flashesPlugin,
     viewedFlashesPlugin,
     nearbyUsersPlugin,
+    talkRoomsPlugin,
   ]);
 
   await server.initialize();
