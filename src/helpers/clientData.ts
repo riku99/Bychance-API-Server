@@ -25,10 +25,20 @@ type Arg = {
   user: User;
   posts: Post[];
   flashes: Flash[];
-  talkRooms: TalkRoom[];
+  senderTalkRooms: (TalkRoom & {
+    recipient: User & {
+      flashes: Flash[];
+      posts: Post[];
+    };
+  })[];
+  recipientTalkRooms: (TalkRoom & {
+    sender: User & {
+      posts: Post[];
+      flashes: Flash[];
+    };
+  })[];
   talkRoomMessages: TalkRoomMessage[];
   readTalkRoomMessages: ReadTalkRoomMessage[];
-  chatPartners: (User & { posts: Post[]; flashes: Flash[] })[];
   viewedFlashes: ViewedFlash[];
 };
 
@@ -44,7 +54,9 @@ export const createClientData = (data: Arg): ClientData => {
   let talkRooms: ClientTalkRoom[] = [];
   let talkRoomMessages: ClientTalkRoomMessage[] = [];
 
-  data.talkRooms.forEach((talkRoom) => {
+  const allTalkRooms = [...data.senderTalkRooms, ...data.recipientTalkRooms];
+
+  allTalkRooms.forEach((talkRoom) => {
     const relatedMessages = data.talkRoomMessages.filter(
       (message) => message.roomId === talkRoom.id
     );
@@ -68,7 +80,11 @@ export const createClientData = (data: Arg): ClientData => {
     talkRooms.push(serializedRoom);
   });
 
-  const chatPartners = data.chatPartners.map((user) => {
+  const recipients = data.senderTalkRooms.map((talkRoom) => talkRoom.recipient);
+  const senders = data.recipientTalkRooms.map((talkRoom) => talkRoom.sender);
+  const recipientsAndSenders = [...recipients, ...senders];
+
+  const chatPartners = recipientsAndSenders.map((user) => {
     const { posts, flashes, ...restUserData } = user;
     return createAnotherUser({
       user: restUserData,

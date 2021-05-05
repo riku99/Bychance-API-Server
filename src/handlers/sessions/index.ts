@@ -6,7 +6,7 @@ import { createHash, createRandomString } from "~/helpers/crypto";
 import { LineLoginHeaders } from "~/routes/sessions/validator";
 import { throwLoginError } from "~/helpers/errors";
 import { createClientData } from "~/helpers/clientData";
-import { createClient } from "~/prisma/includes/sessions";
+import { userIncludes } from "~/prisma/includes/users";
 import { Artifacts } from "~/auth/bearer";
 
 const prisma = new PrismaClient();
@@ -61,7 +61,7 @@ const lineLogin = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
         data: {
           accessToken: hashededAccessToken,
         },
-        include: createClient,
+        include: userIncludes.forCreateClient,
       })
     : // 新規の場合は新たに作成
       await prisma.user.create({
@@ -71,7 +71,7 @@ const lineLogin = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
           name,
           avatar,
         },
-        include: createClient,
+        include: userIncludes.forCreateClient,
       });
 
   const {
@@ -85,19 +85,18 @@ const lineLogin = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     ...rest
   } = user;
 
-  const allTalkRooms = [...senderTalkRooms, ...recipientTalkRooms];
+  const clientData = createClientData({
+    user: rest,
+    posts,
+    flashes,
+    talkRoomMessages,
+    readTalkRoomMessages,
+    viewedFlashes,
+    senderTalkRooms,
+    recipientTalkRooms,
+  });
 
-  // const clientData = createClientData({
-  //   user: rest,
-  //   posts,
-  //   flashes,
-  //   talkRooms: allTalkRooms,
-  //   talkRoomMessages,
-  //   readTalkRoomMessages,
-  //   viewedFlashes,
-  // });
-
-  return { ...[], accessToken };
+  return { ...clientData, accessToken };
 };
 
 export const sessionLogin = async (
@@ -108,23 +107,7 @@ export const sessionLogin = async (
 
   const data = await prisma.user.findUnique({
     where: { id: user.id },
-    include: {
-      ...createClient,
-      recipientTalkRooms: {
-        include: {
-          sender: {
-            include: { posts: true, flashes: true },
-          },
-        },
-      },
-      senderTalkRooms: {
-        include: {
-          recipient: {
-            include: { posts: true, flashes: true },
-          },
-        },
-      },
-    },
+    include: userIncludes.forCreateClient,
   });
 
   const {
@@ -137,30 +120,26 @@ export const sessionLogin = async (
     viewedFlashes,
     ...rest
   } = data!;
-
-  const allTalkRooms = [...senderTalkRooms, ...recipientTalkRooms];
-
-  const recipients = senderTalkRooms.map((talkRoom) => talkRoom.recipient);
-  const senders = recipientTalkRooms.map((talkRoom) => talkRoom.sender);
-  const chatPartners = [...recipients, ...senders];
 
   return createClientData({
     user: rest,
     posts,
     flashes,
-    talkRooms: allTalkRooms,
     talkRoomMessages,
     readTalkRoomMessages,
     viewedFlashes,
-    chatPartners,
+    senderTalkRooms,
+    recipientTalkRooms,
   });
 };
 
 const sampleLogin = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const data = await prisma.user.findUnique({
-    where: { lineId: createHash("denzi") },
-    include: createClient,
+    where: { id: "5b9a9b57-d497-4dd5-b257-cd5d10c2ea40" },
+    include: userIncludes.forCreateClient,
   });
+
+  console.log(data);
 
   const {
     posts,
@@ -173,22 +152,19 @@ const sampleLogin = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     ...rest
   } = data!;
 
-  const allTalkRooms = [...senderTalkRooms, ...recipientTalkRooms];
-
-  const chatPartners = await prisma.user.findMany({});
-
-  // const clientData = createClientData({
-  //   user: rest,
-  //   posts,
-  //   flashes,
-  //   talkRooms: allTalkRooms,
-  //   talkRoomMessages,
-  //   readTalkRoomMessages,
-  //   viewedFlashes,
-  // });
+  const clientData = createClientData({
+    user: rest,
+    posts,
+    flashes,
+    talkRoomMessages,
+    readTalkRoomMessages,
+    viewedFlashes,
+    senderTalkRooms,
+    recipientTalkRooms,
+  });
 
   return {
-    ...[],
+    ...clientData,
     accessToken: "denzi",
   };
 };
