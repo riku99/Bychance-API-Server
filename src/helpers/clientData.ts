@@ -27,18 +27,19 @@ type Arg = {
   flashes: Flash[];
   // includeされたデータなのでTalkRoom[]だけでなくrecipientなど他のデータもくっついてくる
   senderTalkRooms: (TalkRoom & {
+    messages: TalkRoomMessage[];
     recipient: User & {
       flashes: Flash[];
       posts: Post[];
     };
   })[];
   recipientTalkRooms: (TalkRoom & {
+    messages: TalkRoomMessage[];
     sender: User & {
       posts: Post[];
       flashes: Flash[];
     };
   })[];
-  talkRoomMessages: TalkRoomMessage[];
   readTalkRoomMessages: ReadTalkRoomMessage[];
   viewedFlashes: ViewedFlash[];
 };
@@ -58,11 +59,7 @@ export const createClientData = (data: Arg): ClientData => {
   const allTalkRooms = [...data.senderTalkRooms, ...data.recipientTalkRooms];
 
   allTalkRooms.forEach((talkRoom) => {
-    const relatedMessages = data.talkRoomMessages.filter(
-      (message) => message.roomId === talkRoom.id
-    );
-
-    relatedMessages.forEach((talkRoomMessage) => {
+    talkRoom.messages.forEach((talkRoomMessage) => {
       const serializedMessage = serializeTalkRoomMessage({ talkRoomMessage });
       talkRoomMessages.push(serializedMessage);
     });
@@ -73,7 +70,7 @@ export const createClientData = (data: Arg): ClientData => {
 
     const serializedRoom = serializeTalkRoom({
       talkRoom,
-      talkRoomMessages: relatedMessages,
+      talkRoomMessages: talkRoom.messages,
       readTalkRoomMessages,
       userId: data.user.id,
     });
