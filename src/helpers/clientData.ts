@@ -20,7 +20,6 @@ import { serializeTalkRoom } from "~/serializers/talkRoom";
 import { dayMs } from "~/constants/date";
 import { serializeTalkRoomMessage } from "~/serializers/talkRoomMessage";
 import { createAnotherUser } from "~/helpers/anotherUser";
-import { talkRoomMessage } from "~/../tests/data";
 
 type Arg = {
   user: User;
@@ -60,23 +59,37 @@ export const createClientData = (data: Arg): ClientData => {
   const allTalkRooms = [...data.senderTalkRooms, ...data.recipientTalkRooms];
 
   allTalkRooms.forEach((talkRoom) => {
+    // トークルームは存在しても作成相手からメッセージがきてない場合はrecipient側にはそのトークルームは表示させない。それを判断するために使うデータ
+    let dataToBeDisplayed = false;
+
+    // トークルームを作った側(sender側)ならその時点で表示させることを決定
+    if (talkRoom.senderId === user.id) {
+      dataToBeDisplayed = true;
+    }
+
     talkRoom.messages.forEach((talkRoomMessage) => {
+      // そのルームの受け取り側(recipient)でも相手からのメッセージが既に存在する場合は表示させることを決定
+      if (!dataToBeDisplayed && talkRoomMessage.userId !== user.id) {
+        dataToBeDisplayed = true;
+      }
       const serializedMessage = serializeTalkRoomMessage({ talkRoomMessage });
       talkRoomMessages.push(serializedMessage);
     });
 
-    const readTalkRoomMessages = data.readTalkRoomMessages.filter(
-      (readMessage) => readMessage.roomId === talkRoom.id
-    );
+    if (dataToBeDisplayed) {
+      const readTalkRoomMessages = data.readTalkRoomMessages.filter(
+        (readMessage) => readMessage.roomId === talkRoom.id
+      );
 
-    const serializedRoom = serializeTalkRoom({
-      talkRoom,
-      talkRoomMessages: talkRoom.messages,
-      readTalkRoomMessages,
-      userId: data.user.id,
-    });
+      const serializedRoom = serializeTalkRoom({
+        talkRoom,
+        talkRoomMessages: talkRoom.messages,
+        readTalkRoomMessages,
+        userId: data.user.id,
+      });
 
-    talkRooms.push(serializedRoom);
+      talkRooms.push(serializedRoom);
+    }
   });
 
   const recipients = data.senderTalkRooms.map((talkRoom) => talkRoom.recipient);
