@@ -2,6 +2,7 @@
 
 import Hapi from "@hapi/hapi";
 import AuthBearer from "hapi-auth-bearer-token";
+import socketio from "socket.io";
 
 import { rootPlugin } from "~/plugins/root";
 import { prismaPlugin } from "~/plugins/prisma";
@@ -20,8 +21,14 @@ import { throwLoginError } from "~/helpers/errors";
 
 const server = Hapi.server({
   port: 4001,
-  host: "localhost",
-  debug: false,
+  // host: "localhost",
+  // debug: false,
+});
+
+const io = new socketio.Server(server.listener);
+
+io.on("connection", (socket) => {
+  console.log("start connection");
 });
 
 export const initializeServer = async () => {
