@@ -6,6 +6,7 @@ export type CreateTalkRoomMessagePayload = {
   talkRoomId: number;
   partnerId: string;
   text: string;
+  isFirstMessage: boolean;
 };
 
 const createValidation = {
@@ -13,6 +14,7 @@ const createValidation = {
     talkRoomId: Joi.number().required(),
     text: Joi.string().required(),
     partnerId: Joi.string().required(),
+    isFirstMessage: Joi.boolean().required(),
   }),
 };
 

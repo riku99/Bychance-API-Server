@@ -15,7 +15,7 @@ export const serializeTalkRoom = ({
 }): ClientTalkRoom => {
   const partner =
     talkRoom.senderId === userId ? talkRoom.recipientId : talkRoom.senderId;
-  const messages = talkRoomMessages.map((message) => message.id).reverse();
+  const messages = talkRoomMessages.map((message) => message.id).reverse(); // メッセージの表示の関係で新しいやつ順にする
   const messagesWithoutMine = talkRoomMessages.filter(
     (message) => message.userId !== userId
   );

@@ -19,7 +19,7 @@ const createReadTalkRoomMessage = async (
       userId: payload.partnerId, // 自分のメッセージではなくて相手のメッセージが必要
     },
     skip: 0,
-    take: -payload.unreadNumber, // 未読分を取り出す
+    take: -payload.unreadNumber, // 未読分を取り出す。後ろから(新しいものから)とり出したいのでマイナスつける
   });
 
   const promise: Promise<any>[] = [];
