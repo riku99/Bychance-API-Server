@@ -32,7 +32,6 @@ describe("create clientData", () => {
       senderTalkRooms: [],
       recipientTalkRooms: [],
       viewedFlashes: [],
-      talkRoomMessages: [talkRoomMessage],
       readTalkRoomMessages: [readTalkRoomMessage],
     });
 

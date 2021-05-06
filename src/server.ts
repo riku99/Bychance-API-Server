@@ -14,6 +14,7 @@ import { viewedFlashesPlugin } from "~/plugins/viewedFlashes";
 import { nearbyUsersPlugin } from "~/plugins/nearbyUsers";
 import { talkRoomsPlugin } from "~/plugins/talkRooms";
 import { talkRoomMessagesPlugin } from "~/plugins/talkRoomMessages";
+import { readTalkRoomMessagesPlugin } from "~/plugins/readTalkRoomMessages";
 import { checkBeareAccessToken } from "~/auth/bearer";
 import { throwLoginError } from "~/helpers/errors";
 
@@ -60,6 +61,7 @@ export const initializeServer = async () => {
     nearbyUsersPlugin,
     talkRoomsPlugin,
     talkRoomMessagesPlugin,
+    readTalkRoomMessagesPlugin,
   ]);
 
   await server.initialize();
