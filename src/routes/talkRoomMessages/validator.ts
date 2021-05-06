@@ -4,6 +4,7 @@ import { throwInvalidError } from "~/helpers/errors";
 
 export type CreateTalkRoomMessagePayload = {
   talkRoomId: number;
+  partnerId: string;
   text: string;
 };
 
@@ -11,6 +12,7 @@ const createValidation = {
   payload: Joi.object<CreateTalkRoomMessagePayload>({
     talkRoomId: Joi.number().required(),
     text: Joi.string().required(),
+    partnerId: Joi.string().required(),
   }),
 };
 

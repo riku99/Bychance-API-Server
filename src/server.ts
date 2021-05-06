@@ -25,10 +25,10 @@ const server = Hapi.server({
   // debug: false,
 });
 
-const io = new socketio.Server(server.listener);
+export const io = new socketio.Server(server.listener);
 
 io.on("connection", (socket) => {
-  console.log("start connection");
+  socket.join(socket.handshake.query.id as string); // ユーザーのidでソケット通信ができるようにjoinしてroomを作成
 });
 
 export const initializeServer = async () => {

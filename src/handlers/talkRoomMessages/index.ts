@@ -4,6 +4,7 @@ import { PrismaClient } from "@prisma/client";
 import { Artifacts } from "~/auth/bearer";
 import { CreateTalkRoomMessagePayload } from "~/routes/talkRoomMessages/validator";
 import { serializeTalkRoomMessage } from "~/serializers/talkRoomMessage";
+import { io } from "~/server";
 
 const prisma = new PrismaClient();
 
@@ -22,7 +23,11 @@ const createTalkRoomMessage = async (
     },
   });
 
-  return serializeTalkRoomMessage({ talkRoomMessage });
+  const clientData = serializeTalkRoomMessage({ talkRoomMessage });
+
+  io.to(payload.partnerId).emit("recieveTalkRoomMessage", clientData); // 相手にメッセージの送信
+
+  return clientData;
 };
 
 export const talkRoomMessagesHandler = {

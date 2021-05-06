@@ -48,7 +48,7 @@ describe("talkRoomMessages", () => {
     const successfulRequestSchema = {
       method: "POST",
       url: `${baseUrl}/talkRoomMessages?id=${user.id}`,
-      payload: { talkRoomId: 1, text: "Hey!!" },
+      payload: { talkRoomId: 1, text: "Hey!!", partnerId: "2" },
       headers: { Authorization: `Bearer ${accessToken}` },
     };
 
