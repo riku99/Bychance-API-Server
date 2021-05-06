@@ -39,6 +39,7 @@ const createTalkRoomMessage = async (
 
     const ioData = {
       isFirstMessage: false,
+      roomId: payload.talkRoomId,
       message: clientMessage,
       sender: {
         avatar: sender.avatar,
