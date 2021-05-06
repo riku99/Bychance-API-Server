@@ -4,7 +4,10 @@ import { PrismaClient } from "@prisma/client";
 import { Artifacts } from "~/auth/bearer";
 import { CreateTalkRoomMessagePayload } from "~/routes/talkRoomMessages/validator";
 import { serializeTalkRoomMessage } from "~/serializers/talkRoomMessage";
+import { serializeTalkRoom } from "~/serializers/talkRoom";
 import { io } from "~/server";
+import { throwInvalidError } from "~/helpers/errors";
+import { createAnotherUser } from "~/helpers/anotherUser";
 
 const prisma = new PrismaClient();
 
@@ -23,11 +26,55 @@ const createTalkRoomMessage = async (
     },
   });
 
-  const clientData = serializeTalkRoomMessage({ talkRoomMessage });
+  const room = await prisma.talkRoom.findUnique({
+    where: { id: payload.talkRoomId },
+    include: { messages: true },
+  });
 
-  io.to(payload.partnerId).emit("recieveTalkRoomMessage", clientData); // 相手にメッセージの送信
+  if (!room) {
+    return throwInvalidError();
+  }
 
-  return clientData;
+  const { messages, ...restRoomData } = room;
+
+  const readTalkRoomMessages = await prisma.readTalkRoomMessage.findMany({
+    where: {
+      userId: payload.partnerId,
+    },
+  });
+
+  const sender = await prisma.user.findUnique({
+    where: { id: user.id },
+    include: { posts: true, flashes: true, viewedFlashes: true },
+  });
+
+  if (!sender) {
+    return throwInvalidError("ユーザーが存在しません");
+  }
+
+  const { posts, flashes, viewedFlashes, ...restSenderData } = sender;
+
+  const clientMessage = serializeTalkRoomMessage({ talkRoomMessage });
+
+  const ioData = {
+    room: serializeTalkRoom({
+      talkRoom: restRoomData,
+      talkRoomMessages: messages,
+      readTalkRoomMessages,
+      userId: payload.partnerId,
+    }),
+    sender: createAnotherUser({
+      user: restSenderData,
+      posts,
+      flashes,
+      viewedFlashes,
+    }),
+    message: clientMessage,
+  };
+
+  //io.to(payload.partnerId).emit("recieveTalkRoomMessage", ioData); // 相手にメッセージの送信
+
+  return clientMessage;
 };
 
 export const talkRoomMessagesHandler = {

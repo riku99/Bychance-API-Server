@@ -20,6 +20,7 @@ import { serializeTalkRoom } from "~/serializers/talkRoom";
 import { dayMs } from "~/constants/date";
 import { serializeTalkRoomMessage } from "~/serializers/talkRoomMessage";
 import { createAnotherUser } from "~/helpers/anotherUser";
+import { talkRoomMessage } from "~/../tests/data";
 
 type Arg = {
   user: User;
