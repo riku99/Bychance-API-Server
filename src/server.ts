@@ -4,6 +4,8 @@ import Hapi from "@hapi/hapi";
 import AuthBearer from "hapi-auth-bearer-token";
 import socketio from "socket.io";
 
+import { checkBeareAccessToken } from "~/auth/bearer";
+import { throwLoginError } from "~/helpers/errors";
 import { rootPlugin } from "~/plugins/root";
 import { prismaPlugin } from "~/plugins/prisma";
 import { noncePlugin } from "~/plugins/nonce";
@@ -16,12 +18,11 @@ import { nearbyUsersPlugin } from "~/plugins/nearbyUsers";
 import { talkRoomsPlugin } from "~/plugins/talkRooms";
 import { talkRoomMessagesPlugin } from "~/plugins/talkRoomMessages";
 import { readTalkRoomMessagesPlugin } from "~/plugins/readTalkRoomMessages";
-import { checkBeareAccessToken } from "~/auth/bearer";
-import { throwLoginError } from "~/helpers/errors";
+import { deleteTalkRoomsPlugin } from "~/plugins/deleteTalkRooms";
 
 const server = Hapi.server({
   port: 4001,
-  // host: "localhost",
+  // host: "localhost", // このコメントされてる2つ含めるとwsがうまく動かないのでいったん外す
   // debug: false,
 });
 
@@ -69,6 +70,7 @@ export const initializeServer = async () => {
     talkRoomsPlugin,
     talkRoomMessagesPlugin,
     readTalkRoomMessagesPlugin,
+    deleteTalkRoomsPlugin,
   ]);
 
   await server.initialize();

@@ -27,6 +27,7 @@ model User {
   senderTalkRooms      TalkRoom[]            @relation("sender")
   talkRoomMessages     TalkRoomMessage[]
   viewedFlashes        ViewedFlash[]
+  deleteTalkRooms DeleteTalkRoom[]
 
   @@index([display], name: "User.display_index")
   @@index([lineId], name: "User.lineId_index")
@@ -74,6 +75,7 @@ model TalkRoom {
   sender               User                  @relation("sender", fields: [senderId], references: [id])
   readTalkRoomMessages ReadTalkRoomMessage[]
   messages             TalkRoomMessage[]
+  deleteTalkRooms DeleteTalkRoom[]
 
   @@unique([senderId, recipientId], name: "senderId_recipientId_unique")
   @@index([senderId, recipientId], name: "senderId_recipientId_index")
@@ -124,6 +126,16 @@ model ReadTalkRoomMessage {
   @@index([userId, messageId, roomId], name: "ReadTalkRoomMessage.userId_messageId_roomId_index")
   @@index([messageId], name: "messageId")
   @@index([roomId], name: "roomId")
+}
+
+model DeleteTalkRoom {
+  id Int @id @default(autoincrement())
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  userId    String
+  talkRoomId Int
+  user User @relation(fields: [userId], references: [id])
+  talkRoom TalkRoom @relation(fields: [talkRoomId], references: [id])
 }
 
 enum FlashSourceTypeRole {
