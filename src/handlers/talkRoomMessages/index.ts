@@ -28,6 +28,20 @@ const createTalkRoomMessage = async (
 
   const clientMessage = serializeTalkRoomMessage({ talkRoomMessage });
 
+  const deletedTalkRoom = await prisma.deleteTalkRoom.findUnique({
+    where: {
+      userId_talkRoomId: {
+        userId: payload.partnerId, // 相手がこのルームを削除したかどうかを知りたいのでpartnerのidを指定する
+        talkRoomId: payload.talkRoomId,
+      },
+    },
+  });
+
+  // トーク相手がルームを削除していた場合はその時点でリターン。(ioでプッシュしない)
+  if (deletedTalkRoom) {
+    return clientMessage;
+  }
+
   if (!payload.isFirstMessage) {
     const sender = await prisma.user.findUnique({
       where: { id: user.id },

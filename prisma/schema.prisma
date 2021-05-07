@@ -122,8 +122,8 @@ model ReadTalkRoomMessage {
   room      TalkRoom        @relation(fields: [roomId], references: [id])
   user      User            @relation(fields: [userId], references: [id])
 
-  @@unique([userId, messageId, roomId], name: "ReadTalkRoomMessage.userId_messageId_roomId_unique")
-  @@index([userId, messageId, roomId], name: "ReadTalkRoomMessage.userId_messageId_roomId_index")
+  @@unique([userId, messageId, roomId], name: "userId_messageId_roomId_unique")
+  @@index([userId, messageId, roomId], name: "userId_messageId_roomId_index")
   @@index([messageId], name: "messageId")
   @@index([roomId], name: "roomId")
 }
@@ -136,6 +136,8 @@ model DeleteTalkRoom {
   talkRoomId Int
   user User @relation(fields: [userId], references: [id])
   talkRoom TalkRoom @relation(fields: [talkRoomId], references: [id])
+  @@index([userId, talkRoomId])
+  @@unique([userId, talkRoomId])
 }
 
 enum FlashSourceTypeRole {
