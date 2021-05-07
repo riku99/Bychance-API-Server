@@ -9,7 +9,7 @@ export const deleteTalkRoomsRoute = (server: Hapi.Server) => {
   server.route([
     {
       method: "POST",
-      path: `${baseUrl}/deleteTalkRoom`,
+      path: `${baseUrl}/deleteTalkRooms`,
       handler: deleteTalkRoomsHandler.createDeleteTalkRoom,
       options: {
         validate: {

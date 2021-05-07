@@ -82,6 +82,7 @@ const lineLogin = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     talkRoomMessages,
     readTalkRoomMessages,
     viewedFlashes,
+    deleteTalkRooms,
     ...rest
   } = user;
 
@@ -93,6 +94,7 @@ const lineLogin = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     viewedFlashes,
     senderTalkRooms,
     recipientTalkRooms,
+    deleteTalkRooms,
   });
 
   return { ...clientData, accessToken };
@@ -117,6 +119,7 @@ export const sessionLogin = async (
     talkRoomMessages,
     readTalkRoomMessages,
     viewedFlashes,
+    deleteTalkRooms,
     ...rest
   } = data!;
 
@@ -128,6 +131,7 @@ export const sessionLogin = async (
     viewedFlashes,
     senderTalkRooms,
     recipientTalkRooms,
+    deleteTalkRooms,
   });
 };
 
@@ -147,6 +151,7 @@ const sampleLogin = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     talkRoomMessages,
     readTalkRoomMessages,
     viewedFlashes,
+    deleteTalkRooms,
     ...rest
   } = data!;
 
@@ -158,6 +163,7 @@ const sampleLogin = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     viewedFlashes,
     senderTalkRooms,
     recipientTalkRooms,
+    deleteTalkRooms,
   });
 
   return {

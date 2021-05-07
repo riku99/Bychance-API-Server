@@ -6,6 +6,7 @@ import {
   TalkRoomMessage,
   ReadTalkRoomMessage,
   ViewedFlash,
+  DeleteTalkRoom,
 } from "@prisma/client";
 
 import {
@@ -42,6 +43,7 @@ type Arg = {
   })[];
   readTalkRoomMessages: ReadTalkRoomMessage[];
   viewedFlashes: ViewedFlash[];
+  deleteTalkRooms: (DeleteTalkRoom & { talkRoom: TalkRoom })[];
 };
 
 export const createClientData = (data: Arg): ClientData => {
@@ -55,10 +57,14 @@ export const createClientData = (data: Arg): ClientData => {
 
   let talkRooms: ClientTalkRoom[] = [];
   let talkRoomMessages: ClientTalkRoomMessage[] = [];
-
   const allTalkRooms = [...data.senderTalkRooms, ...data.recipientTalkRooms];
+  const deletedTalkRoomIds = data.deleteTalkRooms.map((d) => d.talkRoomId);
 
   allTalkRooms.forEach((talkRoom) => {
+    // 論理的に削除されている(DBには残っている)データの場合その時点でリターン。
+    if (deletedTalkRoomIds.includes(talkRoom.id)) {
+      return;
+    }
     // トークルームは存在しても作成相手からメッセージがきてない場合はrecipient側にはそのトークルームは表示させない。それを判断するために使うデータ
     let dataToBeDisplayed = false;
 
@@ -95,8 +101,17 @@ export const createClientData = (data: Arg): ClientData => {
   const recipients = data.senderTalkRooms.map((talkRoom) => talkRoom.recipient);
   const senders = data.recipientTalkRooms.map((talkRoom) => talkRoom.sender);
   const recipientsAndSenders = [...recipients, ...senders];
+  const deletedTalkRoomPartnerIds = data.deleteTalkRooms.map((deletedRooms) => {
+    const senderId = deletedRooms.talkRoom.senderId;
+    const recipientId = deletedRooms.talkRoom.recipientId;
+    return senderId !== data.user.id ? senderId : recipientId;
+  });
+  // 削除登録されているルームのパートナーはデータから抜く
+  const filterdPartners = recipientsAndSenders.filter(
+    (partner) => !deletedTalkRoomPartnerIds.includes(partner.id)
+  );
 
-  const chatPartners = recipientsAndSenders.map((user) => {
+  const chatPartners = filterdPartners.map((user) => {
     const { posts, flashes, ...restUserData } = user;
     return createAnotherUser({
       user: restUserData,

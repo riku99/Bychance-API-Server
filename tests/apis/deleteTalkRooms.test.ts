@@ -43,7 +43,7 @@ describe("deleteTalkRoom", () => {
   describe("POST /deleteTalkRooms", () => {
     const successfulRequestSchema = {
       method: "POST",
-      url: `${baseUrl}/deleteTalkRoom?id=${user.id}`,
+      url: `${baseUrl}/deleteTalkRooms?id=${user.id}`,
       payload: { talkRoomId: 1 },
       headers: { Authorization: `Bearer ${accessToken}` },
     };
