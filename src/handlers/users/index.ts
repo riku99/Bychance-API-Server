@@ -45,6 +45,7 @@ const updateUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     }
   }
 
+  // backGroundItemが存在するということは更新することを表す。もし存在しない場合は更新しない。
   if (userData.backGroundItem) {
     const result = await createS3ObjectPath({
       data: userData.backGroundItem,
@@ -58,10 +59,13 @@ const updateUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       ? userData.backGroundItemType
       : null;
   } else {
+    // backGroundItemが存在しない場合は「削除する」と「変更なし」の2種類がある。この判断はdeleteBackGroundItemで行う
     if (deleteBackGroundItem) {
+      // 削除の場合nullを代入
       newBackGroundItem = null;
       newBackGroundItemType = null;
     } else {
+      // 変更なしの場合現在のデータを指定
       newBackGroundItem = user.backGroundItem;
       newBackGroundItemType = user.backGroundItemType;
     }
@@ -93,16 +97,13 @@ const refreshUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     return throwInvalidError("ユーザーが存在しません");
   }
 
-  // リフレッシュの対象が自分か他のユーザーかで処理分ける
-  if (user.id === payload.userId) {
-    const data = serializeUser({ user: refreshedUser });
-    return {
-      isMyData: true,
-      data,
-    };
-  } else {
-    // 他のユーザーの場合の処理
-  }
+  const isMyData = user.id === payload.userId;
+  const data = serializeUser({ user: refreshedUser });
+
+  return {
+    isMyData,
+    data,
+  };
 };
 
 const updateLocation = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
