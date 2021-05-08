@@ -9,5 +9,11 @@ type AnotherUserFlashData = {
 
 export type AnotherUser = Pick<
   User,
-  "id" | "name" | "avatar" | "introduce" | "statusMessage"
+  | "id"
+  | "name"
+  | "avatar"
+  | "introduce"
+  | "statusMessage"
+  | "backGroundItem"
+  | "backGroundItemType"
 > & { posts: ClientPost[] } & { flashes: AnotherUserFlashData };

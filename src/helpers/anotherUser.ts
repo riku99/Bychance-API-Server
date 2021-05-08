@@ -18,7 +18,15 @@ export const createAnotherUser = ({
   flashes,
   viewedFlashes,
 }: Arg): AnotherUser => {
-  const { id, name, avatar, introduce, statusMessage } = user;
+  const {
+    id,
+    name,
+    avatar,
+    introduce,
+    statusMessage,
+    backGroundItem,
+    backGroundItemType,
+  } = user;
 
   const serializedPosts = posts.map((post) => serializePost({ post }));
 
@@ -63,6 +71,8 @@ export const createAnotherUser = ({
     avatar,
     introduce,
     statusMessage,
+    backGroundItem,
+    backGroundItemType,
     posts: serializedPosts,
     flashes: flashesData,
   };
