@@ -17,9 +17,16 @@ const prisma = new PrismaClient();
 
 const updateUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const user = req.auth.artifacts as Artifacts;
-  const { deleteImage, ...userData } = req.payload as UpdateUserPayload;
+  const {
+    deleteAvatar,
+    deleteBackGroundItem,
+    backGroundItemExt,
+    ...userData
+  } = req.payload as UpdateUserPayload;
 
   let newAvatar: string | null;
+  let newBackGroundItem: string | null;
+  let newBackGroundItemType: "image" | "video" | null;
 
   if (userData.avatar) {
     const result = await createS3ObjectPath({
@@ -31,10 +38,32 @@ const updateUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
 
     newAvatar = result ? result : user.avatar;
   } else {
-    if (deleteImage) {
+    if (deleteAvatar) {
       newAvatar = null;
     } else {
       newAvatar = user.avatar;
+    }
+  }
+
+  if (userData.backGroundItem) {
+    const result = await createS3ObjectPath({
+      data: userData.backGroundItem,
+      domain: "backGroundItem",
+      id: user.id,
+      ext: backGroundItemExt,
+    });
+
+    newBackGroundItem = result;
+    newBackGroundItemType = userData.backGroundItemType
+      ? userData.backGroundItemType
+      : null;
+  } else {
+    if (deleteBackGroundItem) {
+      newBackGroundItem = null;
+      newBackGroundItemType = null;
+    } else {
+      newBackGroundItem = user.backGroundItem;
+      newBackGroundItemType = user.backGroundItemType;
     }
   }
 
@@ -44,6 +73,8 @@ const updateUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       ...user,
       ...userData,
       avatar: newAvatar,
+      backGroundItem: newBackGroundItem,
+      backGroundItemType: newBackGroundItemType,
     },
   });
 

@@ -50,6 +50,9 @@ export const createS3ObjectPath = async ({
     case "jpeg":
       type = "image/jpeg";
       break;
+    case "jpg":
+      type = "image/jpeg";
+      break;
   }
 
   const fileName = createRandomString();
@@ -65,10 +68,8 @@ export const createS3ObjectPath = async ({
   const params = {
     Bucket: process.env.BUCKET_NAME as string,
     Key: key,
-    //Body: resizedData,
     Body: resizedData,
     ContentType: type!,
-    //CacheControl: "max-age=30000",
   };
 
   const url = await s3
@@ -80,6 +81,6 @@ export const createS3ObjectPath = async ({
       throw new Error();
     });
 
-  // とりあえずcluud flont導入していない
+  // とりあえずcloud flont導入していない
   return url;
 };

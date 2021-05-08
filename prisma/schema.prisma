@@ -20,6 +20,8 @@ model User {
   accessToken          String                @unique
   lat                  String?
   lng                  String?
+  backGroundItem String?
+  backGroundItemType BackGroundItemTypeRole?
   flashes              Flash[]
   posts                Post[]
   readTalkRoomMessages ReadTalkRoomMessage[]
@@ -141,6 +143,11 @@ model DeleteTalkRoom {
 }
 
 enum FlashSourceTypeRole {
+  image
+  video
+}
+
+enum BackGroundItemTypeRole {
   image
   video
 }

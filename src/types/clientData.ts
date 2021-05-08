@@ -8,7 +8,14 @@ import { AnotherUser } from "~/types/anotherUser";
 
 export type ClientUser = Pick<
   User,
-  "id" | "name" | "avatar" | "introduce" | "statusMessage" | "display"
+  | "id"
+  | "name"
+  | "avatar"
+  | "introduce"
+  | "statusMessage"
+  | "display"
+  | "backGroundItem"
+  | "backGroundItemType"
 > & { lat: number | null; lng: number | null };
 
 export type ClientPost = Pick<Post, "id" | "image" | "text" | "userId"> & {

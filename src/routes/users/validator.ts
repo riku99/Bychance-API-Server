@@ -1,4 +1,5 @@
 import Joi from "joi";
+import { User } from "@prisma/client";
 
 import { throwInvalidError } from "~/helpers/errors";
 
@@ -7,7 +8,11 @@ export type UpdateUserPayload = {
   avatar?: string;
   introduce: string;
   statusMessage: string;
-  deleteImage: boolean;
+  deleteAvatar: boolean;
+  backGroundItem?: string;
+  backGroundItemType?: "image" | "video";
+  deleteBackGroundItem: boolean;
+  backGroundItemExt?: string;
 };
 
 const update = {
@@ -16,7 +21,11 @@ const update = {
     avatar: Joi.string().optional(),
     introduce: Joi.string().allow("").required(),
     statusMessage: Joi.string().allow("").required(),
-    deleteImage: Joi.boolean().required(),
+    deleteAvatar: Joi.boolean().required(),
+    backGroundItem: Joi.string().optional(),
+    backGroundItemType: Joi.string().valid("image", "video").optional(),
+    deleteBackGroundItem: Joi.boolean().required(),
+    backGroundItemExt: Joi.string().optional(),
   }),
 };
 
