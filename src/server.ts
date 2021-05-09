@@ -3,7 +3,7 @@
 import Hapi from "@hapi/hapi";
 import AuthBearer from "hapi-auth-bearer-token";
 import socketio from "socket.io";
-import * as admin from "firebase-admin";
+import admin, { messaging } from "firebase-admin";
 
 import { checkBeareAccessToken } from "~/auth/bearer";
 import { throwLoginError } from "~/helpers/errors";
@@ -20,6 +20,7 @@ import { talkRoomsPlugin } from "~/plugins/talkRooms";
 import { talkRoomMessagesPlugin } from "~/plugins/talkRoomMessages";
 import { readTalkRoomMessagesPlugin } from "~/plugins/readTalkRoomMessages";
 import { deleteTalkRoomsPlugin } from "~/plugins/deleteTalkRooms";
+import { pushNotification } from "~/helpers/pushNotification";
 
 const server = Hapi.server({
   port: 4001,
@@ -41,15 +42,13 @@ console.log(c);
 // サーバーからFCMを動かすためのデモ
 const pushFromServer = async () => {
   const deviceToken = process.env.MY_DEVICE_TOKEN as string;
-  const r = await admin.messaging().send({
+  await pushNotification({
     token: deviceToken,
     notification: {
       body: "返信しよう!",
       title: "メッセージを受け取りました",
     },
   });
-  console.log(r);
-  console.log("end");
 };
 pushFromServer();
 
