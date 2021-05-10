@@ -30,6 +30,7 @@ model User {
   talkRoomMessages     TalkRoomMessage[]
   viewedFlashes        ViewedFlash[]
   deleteTalkRooms DeleteTalkRoom[]
+  deviceToken DeviceToken[]
 
   @@index([display], name: "User.display_index")
   @@index([lineId], name: "User.lineId_index")
@@ -140,6 +141,20 @@ model DeleteTalkRoom {
   talkRoom TalkRoom @relation(fields: [talkRoomId], references: [id])
   @@index([userId, talkRoomId])
   @@unique([userId, talkRoomId])
+}
+
+// https://rnfirebase.io/messaging/server-integration
+// A user can have more than one token (for example using 2 devices) so it's important to ensure that we store all tokens in the database.
+// 上記URLにこういうこと書いてあり、複数のトークンを持つ可能性があることからUserの属性として持たせるのではなく、別のテーブルとして管理
+model DeviceToken {
+  id Int @id @default(autoincrement())
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  token String
+  userId    String
+  user User @relation(fields: [userId], references: [id])
+  @@index([token])
+  @@unique([token])
 }
 
 enum FlashSourceTypeRole {

@@ -8,6 +8,7 @@ import { serializeTalkRoom } from "~/serializers/talkRoom";
 import { io } from "~/server";
 import { throwInvalidError } from "~/helpers/errors";
 import { createAnotherUser } from "~/helpers/anotherUser";
+import { pushNotificationToMany } from "~/helpers/pushNotification";
 
 const prisma = new PrismaClient();
 
@@ -41,6 +42,20 @@ const createTalkRoomMessage = async (
   if (deletedTalkRoom) {
     return clientMessage;
   }
+
+  const tokenData = await prisma.deviceToken.findMany({
+    where: {
+      userId: payload.partnerId,
+    },
+  });
+  const tokens = tokenData.map((t) => t.token);
+
+  pushNotificationToMany({
+    tokens,
+    notification: {
+      title: "メッセージが届きました",
+    },
+  });
 
   if (!payload.isFirstMessage) {
     const sender = await prisma.user.findUnique({
