@@ -43,19 +43,7 @@ const createTalkRoomMessage = async (
     return clientMessage;
   }
 
-  const tokenData = await prisma.deviceToken.findMany({
-    where: {
-      userId: payload.partnerId,
-    },
-  });
-  const tokens = tokenData.map((t) => t.token);
-
-  pushNotificationToMany({
-    tokens,
-    notification: {
-      title: "メッセージが届きました",
-    },
-  });
+  let sendData: any; // push通知(io使う場合はioでも)でのpayloadに使う
 
   if (!payload.isFirstMessage) {
     const sender = await prisma.user.findUnique({
@@ -65,6 +53,16 @@ const createTalkRoomMessage = async (
     if (!sender) {
       return throwInvalidError();
     }
+
+    sendData = {
+      isFirstMessage: false,
+      roomId: payload.talkRoomId,
+      message: clientMessage,
+      sender: {
+        avatar: sender.avatar,
+        name: sender.name,
+      },
+    };
 
     const ioData = {
       isFirstMessage: false,
@@ -77,7 +75,7 @@ const createTalkRoomMessage = async (
     };
     // トークルームが新規のものでなく既に存在している場合はメッセージのみをwsで送れば良い
     io.to(payload.partnerId).emit("recieveTalkRoomMessage", ioData);
-    return clientMessage;
+    //return clientMessage;
   } else {
     const sender = await prisma.user.findUnique({
       where: { id: user.id },
@@ -107,6 +105,23 @@ const createTalkRoomMessage = async (
 
     const { posts, flashes, viewedFlashes, ...restSenderData } = sender;
 
+    sendData = {
+      isFirstMessage: true,
+      room: serializeTalkRoom({
+        talkRoom: restRoomData,
+        talkRoomMessages: messages,
+        readTalkRoomMessages,
+        userId: payload.partnerId,
+      }),
+      sender: createAnotherUser({
+        user: restSenderData,
+        posts,
+        flashes,
+        viewedFlashes,
+      }),
+      message: clientMessage,
+    };
+
     const ioData = {
       isFirstMessage: true,
       room: serializeTalkRoom({
@@ -127,8 +142,34 @@ const createTalkRoomMessage = async (
     // トークルームが新規のものの場合は相手にメッセージ + トークルームと送信したユーザーのデータも送る
     io.to(payload.partnerId).emit("recieveTalkRoomMessage", ioData);
 
-    return clientMessage;
+    //return clientMessage;
   }
+
+  // push通知のためのトークンを取得
+  const tokenData = await prisma.deviceToken.findMany({
+    where: {
+      userId: payload.partnerId,
+    },
+  });
+  const tokens = tokenData.map((t) => t.token);
+
+  // 通知先のユーザー自体は1人だが、複数のデバイスがあるかつ今後複数人にする可能性もあるのでtoMany
+  pushNotificationToMany({
+    tokens,
+    notification: {
+      title: "メッセージが届きました",
+    },
+    apns: {
+      payload: {
+        aps: {
+          contentAvailable: true, // これつけないとネイティブ側のsetBackgroundMessageHandlerが発火しない
+        },
+        ...sendData,
+      },
+    },
+  });
+
+  return clientMessage;
 };
 
 export const talkRoomMessagesHandler = {
