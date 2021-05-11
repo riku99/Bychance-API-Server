@@ -75,7 +75,6 @@ const createTalkRoomMessage = async (
     };
     // トークルームが新規のものでなく既に存在している場合はメッセージのみをwsで送れば良い
     io.to(payload.partnerId).emit("recieveTalkRoomMessage", ioData);
-    //return clientMessage;
   } else {
     const sender = await prisma.user.findUnique({
       where: { id: user.id },
@@ -141,8 +140,6 @@ const createTalkRoomMessage = async (
 
     // トークルームが新規のものの場合は相手にメッセージ + トークルームと送信したユーザーのデータも送る
     io.to(payload.partnerId).emit("recieveTalkRoomMessage", ioData);
-
-    //return clientMessage;
   }
 
   // push通知のためのトークンを取得

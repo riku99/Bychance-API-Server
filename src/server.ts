@@ -30,26 +30,13 @@ const server = Hapi.server({
 
 export const io = new socketio.Server(server.listener);
 
-io.on("connection", (socket) => {
-  socket.join(socket.handshake.query.id as string); // ユーザーのidでソケット通信ができるようにjoinしてroomを作成
+io.on("connection", async (socket) => {
+  await socket.join(socket.handshake.query.id as string); // ユーザーのidでソケット通信ができるようにjoinしてroomを作成
 });
 
 admin.initializeApp({
   credential: admin.credential.applicationDefault(),
 });
-
-// サーバーからFCMを動かすためのデモ
-// const pushFromServer = async () => {
-//   const deviceToken = process.env.MY_DEVICE_TOKEN as string;
-//   await pushNotification({
-//     token: deviceToken,
-//     notification: {
-//       body: "返信しよう!",
-//       title: "メッセージを受け取りました",
-//     },
-//   });
-// };
-// pushFromServer();
 
 export const initializeServer = async () => {
   // @ts-ignore
