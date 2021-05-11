@@ -12,6 +12,7 @@ import { serializeUser } from "~/serializers/user";
 import { createS3ObjectPath } from "~/helpers/aws";
 import { throwInvalidError } from "~/helpers/errors";
 import { handleUserLocationCrypt } from "~/helpers/crypto";
+import { createAnotherUser } from "~/helpers/anotherUser";
 
 const prisma = new PrismaClient();
 
@@ -89,21 +90,46 @@ const refreshUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const user = req.auth.artifacts as Artifacts;
   const payload = req.payload as RefreshUserPayload;
 
+  const isMyData = user.id === payload.userId;
+
   const refreshedUser = await prisma.user.findUnique({
     where: { id: payload.userId },
+    include: {
+      posts: isMyData ? false : true,
+      flashes: isMyData ? false : true,
+    },
   });
 
   if (!refreshedUser) {
     return throwInvalidError("ユーザーが存在しません");
   }
 
-  const isMyData = user.id === payload.userId;
-  const data = serializeUser({ user: refreshedUser });
+  if (isMyData) {
+    const data = serializeUser({ user: refreshedUser });
 
-  return {
-    isMyData,
-    data,
-  };
+    return {
+      isMyData,
+      data,
+    };
+  } else {
+    const viewedFlashes = await prisma.viewedFlash.findMany({
+      where: {
+        userId: user.id,
+      },
+    });
+    const { posts, flashes, ...userData } = refreshedUser;
+    const data = createAnotherUser({
+      user: userData,
+      posts,
+      flashes,
+      viewedFlashes,
+    });
+
+    return {
+      isMyData,
+      data,
+    };
+  }
 };
 
 const updateLocation = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
