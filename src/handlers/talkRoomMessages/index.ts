@@ -5,11 +5,10 @@ import { Artifacts } from "~/auth/bearer";
 import { CreateTalkRoomMessagePayload } from "~/routes/talkRoomMessages/validator";
 import { serializeTalkRoomMessage } from "~/serializers/talkRoomMessage";
 import { serializeTalkRoom } from "~/serializers/talkRoom";
-import { io } from "~/server";
+import { talkRoomMessageNameSpace } from "~/server";
 import { throwInvalidError } from "~/helpers/errors";
 import { createAnotherUser } from "~/helpers/anotherUser";
 import { pushNotificationToMany } from "~/helpers/pushNotification";
-import { AnotherUser } from "~/types/anotherUser";
 
 const prisma = new PrismaClient();
 
@@ -117,7 +116,9 @@ const createTalkRoomMessage = async (
     };
   }
 
-  io.to(payload.partnerId).emit("recieveTalkRoomMessage", ioData);
+  talkRoomMessageNameSpace
+    .to(payload.partnerId)
+    .emit("recieveTalkRoomMessage", ioData);
 
   const tokenData = await prisma.deviceToken.findMany({
     where: {

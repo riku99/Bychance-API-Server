@@ -30,7 +30,8 @@ const server = Hapi.server({
 
 export const io = new socketio.Server(server.listener);
 
-io.on("connection", async (socket) => {
+export const talkRoomMessageNameSpace = io.of("/talkRoomMessages");
+talkRoomMessageNameSpace.on("connection", async (socket) => {
   await socket.join(socket.handshake.query.id as string); // ユーザーのidでソケット通信ができるようにjoinしてroomを作成
 });
 
