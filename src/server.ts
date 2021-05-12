@@ -7,6 +7,7 @@ import admin from "firebase-admin";
 
 import { checkBeareAccessToken } from "~/auth/bearer";
 import { throwLoginError } from "~/helpers/errors";
+import { setupSocketIo } from "~/sokcetIo";
 import { rootPlugin } from "~/plugins/root";
 import { prismaPlugin } from "~/plugins/prisma";
 import { noncePlugin } from "~/plugins/nonce";
@@ -29,11 +30,8 @@ const server = Hapi.server({
 });
 
 export const io = new socketio.Server(server.listener);
-
 export const talkRoomMessageNameSpace = io.of("/talkRoomMessages");
-talkRoomMessageNameSpace.on("connection", async (socket) => {
-  await socket.join(socket.handshake.query.id as string); // ユーザーのidでソケット通信ができるようにjoinしてroomを作成
-});
+setupSocketIo();
 
 admin.initializeApp({
   credential: admin.credential.applicationDefault(),
