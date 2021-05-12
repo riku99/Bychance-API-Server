@@ -44,7 +44,6 @@ const createTalkRoomMessage = async (
   }
 
   let ioData: any;
-  let pushData: any;
 
   if (!payload.isFirstMessage) {
     const sender = await prisma.user.findUnique({
@@ -66,8 +65,6 @@ const createTalkRoomMessage = async (
         name: sender.name,
       },
     };
-
-    pushData = ioData;
   } else {
     const sender = await prisma.user.findUnique({
       where: { id: user.id },
@@ -105,63 +102,46 @@ const createTalkRoomMessage = async (
     });
 
     const clientSenderData = createAnotherUser({
-        user: restSenderData,
-        posts,
-        flashes,
-        viewedFlashes,
-      }),
-      // トークルームが新規のものの場合は相手にメッセージ + トークルームと送信したユーザーのデータも送る
-      ioData = {
-        isFirstMessage: true,
-        room: serializeedRoom,
-        message: clientMessage,
-        sender: clientSenderData,
-      };
+      user: restSenderData,
+      posts,
+      flashes,
+      viewedFlashes,
+    });
 
-    // push通知用のデータは4kb以上になると送れないので、最低限のもののみ送る
-    const pushSenderData: AnotherUser = {
-      ...clientSenderData,
-      posts: [],
-      flashes: {
-        entities: [],
-        alreadyViewed: [],
-        isAllAlreadyViewed: false,
-      },
-    };
-
-    pushData = {
+    // トークルームが新規のものの場合は相手にメッセージ + トークルームと送信したユーザーのデータも送る
+    ioData = {
       isFirstMessage: true,
       room: serializeedRoom,
       message: clientMessage,
-      sender: pushSenderData,
+      sender: clientSenderData,
     };
+  }
 
-    io.to(payload.partnerId).emit("recieveTalkRoomMessage", ioData);
+  io.to(payload.partnerId).emit("recieveTalkRoomMessage", ioData);
 
-    const tokenData = await prisma.deviceToken.findMany({
-      where: {
-        userId: payload.partnerId,
-      },
-    });
-    const tokens = tokenData.map((data) => data.token);
+  const tokenData = await prisma.deviceToken.findMany({
+    where: {
+      userId: payload.partnerId,
+    },
+  });
+  const tokens = tokenData.map((data) => data.token);
 
-    pushNotificationToMany({
-      tokens,
-      notification: {
-        title: "メッセージが届きました",
-      },
-      apns: {
-        payload: {
-          aps: {
-            contentAvailable: true, // これつけないとネイティブ側のsetBackgroundMessageHandlerが発火しない
-          },
-          ...pushData!,
+  pushNotificationToMany({
+    tokens,
+    notification: {
+      title: "メッセージが届きました",
+    },
+    apns: {
+      payload: {
+        aps: {
+          sound: "default",
+          contentAvailable: true,
         },
       },
-    });
+    },
+  });
 
-    return clientMessage;
-  }
+  return clientMessage;
 };
 
 export const talkRoomMessagesHandler = {
