@@ -43,6 +43,7 @@ const createTalkRoomMessage = async (
   }
 
   let ioData: any;
+  let talkRoomId: number;
 
   if (!payload.isFirstMessage) {
     const sender = await prisma.user.findUnique({
@@ -131,6 +132,11 @@ const createTalkRoomMessage = async (
     tokens,
     notification: {
       title: "メッセージが届きました",
+    },
+    data: {
+      type: "talkRoomMessages",
+      talkRoomId: String(payload.talkRoomId),
+      partnerId: user.id, // 送信相手から見たパートナー(リクエストしたユーザー)
     },
     apns: {
       payload: {
