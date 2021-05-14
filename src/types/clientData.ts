@@ -16,6 +16,10 @@ export type ClientUser = Pick<
   | "display"
   | "backGroundItem"
   | "backGroundItemType"
+  | "instagram"
+  | "twitter"
+  | "youtube"
+  | "tiktok"
 > & { lat: number | null; lng: number | null };
 
 export type ClientPost = Pick<Post, "id" | "image" | "text" | "userId"> & {

@@ -20,7 +20,11 @@ model User {
   accessToken          String                @unique
   lat                  String?
   lng                  String?
-  backGroundItem String?
+  backGroundItem       String?
+  instagram            String?
+  twitter              String?
+  youtube              String?
+  tiktok               String?
   backGroundItemType BackGroundItemTypeRole?
   flashes              Flash[]
   posts                Post[]

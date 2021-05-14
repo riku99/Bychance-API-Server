@@ -3,6 +3,7 @@ import { User } from "@prisma/client";
 import { ClientUser } from "~/types/clientData";
 import { handleUserLocationCrypt } from "~/helpers/crypto";
 
+// Userはprismaにより定義されたDBに関連するデータで、ClientUserはクライアント側に返すデータ
 export const serializeUser = ({ user }: { user: User }): ClientUser => {
   const { lineId, createdAt, updatedAt, accessToken, ...clientData } = user;
 
