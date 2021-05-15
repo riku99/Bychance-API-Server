@@ -13,6 +13,10 @@ export type UpdateUserPayload = {
   backGroundItemType?: "image" | "video";
   deleteBackGroundItem: boolean;
   backGroundItemExt?: string;
+  instagram: string | null;
+  twitter: string | null;
+  youtube: string | null;
+  tiktok: string | null;
 };
 
 const update = {
@@ -26,6 +30,10 @@ const update = {
     backGroundItemType: Joi.string().valid("image", "video").optional(),
     deleteBackGroundItem: Joi.boolean().required(),
     backGroundItemExt: Joi.string().optional(),
+    instagram: Joi.string().allow(null),
+    twitter: Joi.string().allow(null),
+    youtube: Joi.string().allow(null),
+    tiktok: Joi.string().allow(null),
   }),
 };
 
