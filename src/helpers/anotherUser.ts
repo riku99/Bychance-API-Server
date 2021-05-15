@@ -41,16 +41,19 @@ export const createAnotherUser = ({
   const alreadyViewedIds: number[] = [];
 
   const notExpiredFlashes = flashes.filter((flash) => {
-    if (viewedFlashIds.includes(flash.id)) {
-      alreadyViewedIds.push(flash.id);
+    // 作成してから1日以内の物を取り出す
+    // あとでcreateClientDataのものとまとめる
+    // DBから取り出す段階で指定できそう
+    const include =
+      (new Date().getTime() - new Date(flash.createdAt).getTime()) / dayMs < 1;
+
+    if (include) {
+      if (viewedFlashIds.includes(flash.id)) {
+        alreadyViewedIds.push(flash.id);
+      }
     }
 
-    return (
-      // 作成してから2日以内の物を取り出す
-      // あとでcreateClientDataのものとまとめる
-      // DBから取り出す段階で指定できそう
-      (new Date().getTime() - new Date(flash.createdAt).getTime()) / dayMs < 2
-    );
+    return include;
   });
 
   const lastId =
