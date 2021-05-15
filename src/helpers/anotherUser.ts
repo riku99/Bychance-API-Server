@@ -26,6 +26,10 @@ export const createAnotherUser = ({
     statusMessage,
     backGroundItem,
     backGroundItemType,
+    instagram,
+    twitter,
+    youtube,
+    tiktok,
   } = user;
 
   const serializedPosts = posts.map((post) => serializePost({ post }));
@@ -72,6 +76,10 @@ export const createAnotherUser = ({
     introduce,
     statusMessage,
     backGroundItem,
+    instagram,
+    twitter,
+    youtube,
+    tiktok,
     backGroundItemType,
     posts: serializedPosts,
     flashes: flashesData,

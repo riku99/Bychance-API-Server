@@ -16,4 +16,8 @@ export type AnotherUser = Pick<
   | "statusMessage"
   | "backGroundItem"
   | "backGroundItemType"
+  | "instagram"
+  | "twitter"
+  | "youtube"
+  | "tiktok"
 > & { posts: ClientPost[] } & { flashes: AnotherUserFlashData };
