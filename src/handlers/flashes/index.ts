@@ -38,6 +38,12 @@ const deleteFlash = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const user = req.auth.artifacts as Artifacts;
   const params = req.params as DeleteFlashParams;
 
+  await prisma.viewedFlash.deleteMany({
+    where: {
+      flashId: Number(params.flashId),
+    },
+  });
+
   const result = await prisma.flash.deleteMany({
     where: {
       id: Number(params.flashId),

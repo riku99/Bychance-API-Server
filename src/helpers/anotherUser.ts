@@ -2,8 +2,8 @@ import { User, Post, Flash, ViewedFlash } from "@prisma/client";
 
 import { serializePost } from "~/serializers/post";
 import { serializeFlash } from "~/serializers/flash";
-import { dayMs } from "~/constants/date";
 import { AnotherUser } from "~/types/anotherUser";
+import { filterByDayDiff } from "~/helpers/clientData";
 
 type Arg = {
   user: User;
@@ -41,11 +41,7 @@ export const createAnotherUser = ({
   const alreadyViewedIds: number[] = [];
 
   const notExpiredFlashes = flashes.filter((flash) => {
-    // 作成してから1日以内の物を取り出す
-    // あとでcreateClientDataのものとまとめる
-    // DBから取り出す段階で指定できそう
-    const include =
-      (new Date().getTime() - new Date(flash.createdAt).getTime()) / dayMs < 1;
+    const include = filterByDayDiff(flash.createdAt);
 
     if (include) {
       if (viewedFlashIds.includes(flash.id)) {

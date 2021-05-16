@@ -22,6 +22,9 @@ import { dayMs } from "~/constants/date";
 import { serializeTalkRoomMessage } from "~/serializers/talkRoomMessage";
 import { createAnotherUser } from "~/helpers/anotherUser";
 
+export const filterByDayDiff = (timestamp: Date) =>
+  (new Date().getTime() - new Date(timestamp).getTime()) / dayMs < 1; // 作成してから1日以内の物を取り出す
+
 type Arg = {
   user: User;
   posts: Post[];
@@ -49,9 +52,8 @@ type Arg = {
 export const createClientData = (data: Arg): ClientData => {
   const user = serializeUser({ user: data.user });
   const posts = data.posts.map((post) => serializePost({ post }));
-  const notExpiredFlashes = data.flashes.filter(
-    (flash) =>
-      (new Date().getTime() - new Date(flash.createdAt).getTime()) / dayMs < 2 // 作成してから2日以内の物を取り出す
+  const notExpiredFlashes = data.flashes.filter((flash) =>
+    filterByDayDiff(flash.createdAt)
   );
   const flashes = notExpiredFlashes.map((flash) => serializeFlash({ flash }));
 
