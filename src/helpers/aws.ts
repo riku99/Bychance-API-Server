@@ -3,6 +3,26 @@ import sharp from "sharp";
 
 import { createRandomString } from "~/helpers/crypto";
 
+const getResizeNumber = (domain: string) => {
+  switch (domain) {
+    case "post":
+      return {
+        width: 650,
+        height: 650,
+      };
+    case "flash":
+      return {
+        width: 1080,
+        height: 1920,
+      };
+    default:
+      return {
+        width: null,
+        height: null,
+      };
+  }
+};
+
 const createS3Client = () => {
   const s3Client = new AWS.S3({
     accessKeyId: process.env.AWS_KEY,
@@ -59,8 +79,9 @@ export const createS3ObjectPath = async ({
   const fileData = data.replace(/^data:\w+\/\w+;base64,/, ""); // 接頭語を取り出す
   const decodedData = Buffer.from(fileData, "base64");
 
-  // react-native-fast-imageを使ったところ大きいデータも音速で出せるようになったのでいったんリサイズ止める
-  const resizedData = await sharp(decodedData).resize(1000).toBuffer(); // 現在全てのデータに対してリサイズしているが、条件によって変えるかも
+  const { width, height } = getResizeNumber(domain);
+
+  const resizedData = await sharp(decodedData).resize(width, height).toBuffer();
 
   const s3 = createS3Client();
   const key = `${id}/${domain}/${fileName}.${ext || retrievedExt!}`;
