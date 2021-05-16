@@ -18,6 +18,7 @@ export const postsRoute = async (server: Hapi.Server) => {
         },
         payload: {
           maxBytes,
+          timeout: 20000,
         },
       },
     },
