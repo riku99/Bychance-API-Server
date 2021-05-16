@@ -1,7 +1,11 @@
 import { Prisma } from "@prisma/client";
 
 const forCreateClient = {
-  posts: true,
+  posts: {
+    orderBy: {
+      createdAt: "desc" as const,
+    },
+  },
   flashes: true,
   talkRoomMessages: true,
   readTalkRoomMessages: true,
@@ -12,7 +16,14 @@ const forCreateClient = {
       messages: true,
       // TalkRoomにはsenderとrecipientの2つのユーザーデータが保存されている。相手のデータを取得したいのでsenedrのリレーションでTalkRoomを取得した場合はrecipientをincludeする
       recipient: {
-        include: { posts: true, flashes: true },
+        include: {
+          posts: {
+            orderBy: {
+              createdAt: "desc" as const,
+            },
+          },
+          flashes: true,
+        },
       },
     },
   },
@@ -20,7 +31,14 @@ const forCreateClient = {
     include: {
       messages: true,
       sender: {
-        include: { posts: true, flashes: true },
+        include: {
+          posts: {
+            orderBy: {
+              createdAt: "desc" as const,
+            },
+          },
+          flashes: true,
+        },
       },
     },
   },

@@ -27,7 +27,11 @@ const getNearbyUsers = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       display: true,
     },
     include: {
-      posts: true,
+      posts: {
+        orderBy: {
+          createdAt: "desc",
+        },
+      },
       flashes: true,
     },
   });
