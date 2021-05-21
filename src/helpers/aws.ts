@@ -12,8 +12,8 @@ const getResizeNumber = (domain: string) => {
       };
     case "flash":
       return {
-        width: 1080,
-        height: 1920,
+        width: 720,
+        height: 1280,
       };
     default:
       return {
@@ -77,7 +77,7 @@ export const createS3ObjectPath = async ({
   }
 
   const randomString = createRandomString();
-  const fileName = randomString.replace(/\//g, ""); // / を全て取り出す
+  const fileName = randomString.replace(/\//g, "w"); // / を全て変換。ファイル名をランダムな文字列にすることでなるべくセキュアにする
   const fileData = data.replace(/^data:\w+\/\w+;base64,/, ""); // 接頭語を取り出す
   const decodedData = Buffer.from(fileData, "base64");
 
