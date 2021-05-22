@@ -25,6 +25,7 @@ model User {
   twitter              String?
   youtube              String?
   tiktok               String?
+  videoEditDescription Boolean @default(false)
   backGroundItemType BackGroundItemTypeRole?
   flashes              Flash[]
   posts                Post[]

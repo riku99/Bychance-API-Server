@@ -7,6 +7,9 @@ import { handleUserLocationCrypt } from "~/helpers/crypto";
 export const serializeUser = ({ user }: { user: User }): ClientUser => {
   const { lineId, createdAt, updatedAt, accessToken, ...clientData } = user;
 
+  console.log(user);
+  console.log(clientData);
+
   let decryptedLat: number | null = null;
   let decryptedLng: number | null = null;
 
