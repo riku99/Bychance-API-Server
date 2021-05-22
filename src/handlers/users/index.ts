@@ -7,6 +7,7 @@ import {
   RefreshUserPayload,
   UpdateLocationPayload,
   ChangeUserDisplayPayload,
+  ChangeVideoEditDescriptionPayload,
 } from "~/routes/users/validator";
 import { serializeUser } from "~/serializers/user";
 import { createS3ObjectPath } from "~/helpers/aws";
@@ -170,9 +171,31 @@ const changeDisplay = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   return h.response().code(200);
 };
 
+const changeVideoEditDescription = async (
+  req: Hapi.Request,
+  h: Hapi.ResponseToolkit
+) => {
+  const user = req.auth.artifacts as Artifacts;
+  const payload = req.payload as ChangeVideoEditDescriptionPayload;
+
+  try {
+    await prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        videoEditDescription: payload.videoEditDescription,
+      },
+    });
+  } catch {}
+
+  return h.response().code(200);
+};
+
 export const usersHandler = {
   updateUser,
   refreshUser,
   updateLocation,
   changeDisplay,
+  changeVideoEditDescription,
 };

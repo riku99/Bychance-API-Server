@@ -1,4 +1,4 @@
-import Joi from "joi";
+import Joi, { boolean } from "joi";
 import { User } from "@prisma/client";
 
 import { throwInvalidError } from "~/helpers/errors";
@@ -103,4 +103,21 @@ const changeUserDisplayFailAction = () => {
 export const changeUserDisplayValidator = {
   validator: displayValidation,
   failAction: changeUserDisplayFailAction,
+};
+
+export type ChangeVideoEditDescriptionPayload = {
+  videoEditDescription: boolean;
+};
+
+const videoEditDesctiptionValidation = {
+  payload: Joi.object<ChangeVideoEditDescriptionPayload>({
+    videoEditDescription: Joi.boolean().required(),
+  }),
+};
+
+const videoEditDescriptionFailAction = () => throwInvalidError();
+
+export const changeVideoEditDescriptionValidator = {
+  validator: videoEditDesctiptionValidation,
+  failAction: videoEditDescriptionFailAction,
 };
