@@ -21,6 +21,7 @@ const createFlash = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     domain: "flash",
     id: user.id,
     ext: payload.ext,
+    sourceType: payload.sourceType,
   });
 
   const flash = await prisma.flash.create({

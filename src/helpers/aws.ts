@@ -3,7 +3,7 @@ import sharp from "sharp";
 
 import { createRandomString } from "~/helpers/crypto";
 
-const getResizeNumber = (domain: string) => {
+const getResizeNumber = (domain: string, sourceType: "image" | "video") => {
   switch (domain) {
     case "post":
       return {
@@ -11,10 +11,17 @@ const getResizeNumber = (domain: string) => {
         height: 1350,
       };
     case "flash":
-      return {
-        width: 720,
-        height: 1280,
-      };
+      if (sourceType === "image") {
+        return {
+          width: 720,
+          height: 1280,
+        };
+      } else {
+        return {
+          width: 1080,
+          height: 1920,
+        };
+      }
     default:
       return {
         width: null,
@@ -38,6 +45,7 @@ type CreateS3ObjPath = {
   domain: string;
   id: string;
   ext?: string | null;
+  sourceType?: "image" | "video";
 };
 
 export const createS3ObjectPath = async ({
@@ -45,6 +53,7 @@ export const createS3ObjectPath = async ({
   domain,
   id,
   ext,
+  sourceType = "image",
 }: CreateS3ObjPath): Promise<string> => {
   let retrievedExt: string;
 
@@ -81,12 +90,21 @@ export const createS3ObjectPath = async ({
   const fileData = data.replace(/^data:\w+\/\w+;base64,/, ""); // 接頭語を取り出す
   const decodedData = Buffer.from(fileData, "base64");
 
-  const { width, height } = getResizeNumber(domain);
+  console.log("デコードパス");
 
-  const resizedData = await sharp(decodedData)
-    .resize(width, height)
-    .webp()
-    .toBuffer();
+  const { width, height } = getResizeNumber(domain, sourceType);
+
+  let resizedData: Buffer;
+  if (sourceType === "image") {
+    resizedData = await sharp(decodedData)
+      .resize(width, height)
+      .webp()
+      .toBuffer();
+  } else {
+    //resizedData = await sharp(decodedData).resize(width, height).toBuffer();
+  }
+
+  console.log("リサイズパス");
 
   const s3 = createS3Client();
 
@@ -102,7 +120,7 @@ export const createS3ObjectPath = async ({
   const params = {
     Bucket: process.env.BUCKET_NAME as string,
     Key: key,
-    Body: resizedData,
+    Body: decodedData,
     ContentType: type!,
   };
 
