@@ -56,6 +56,10 @@ const updateUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       ext: backGroundItemExt,
     });
 
+    if (!result) {
+      throw new Error();
+    }
+
     newBackGroundItem = result;
     newBackGroundItemType = userData.backGroundItemType
       ? userData.backGroundItemType

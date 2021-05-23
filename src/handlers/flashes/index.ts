@@ -24,6 +24,12 @@ const createFlash = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     sourceType: payload.sourceType,
   });
 
+  console.log(url);
+
+  if (!url) {
+    return throwInvalidError();
+  }
+
   const flash = await prisma.flash.create({
     data: {
       source: url,

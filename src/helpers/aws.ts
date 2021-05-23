@@ -1,9 +1,13 @@
 import AWS from "aws-sdk";
 import sharp from "sharp";
+import fs from "fs";
+import ffmpeg from "fluent-ffmpeg";
+import util from "util";
 
 import { createRandomString } from "~/helpers/crypto";
+import { throwInvalidError } from "./errors";
 
-const getResizeNumber = (domain: string, sourceType: "image" | "video") => {
+const getResizeNumber = (domain: string) => {
   switch (domain) {
     case "post":
       return {
@@ -11,17 +15,10 @@ const getResizeNumber = (domain: string, sourceType: "image" | "video") => {
         height: 1350,
       };
     case "flash":
-      if (sourceType === "image") {
-        return {
-          width: 720,
-          height: 1280,
-        };
-      } else {
-        return {
-          width: 1080,
-          height: 1920,
-        };
-      }
+      return {
+        width: 720,
+        height: 1280,
+      };
     default:
       return {
         width: null,
@@ -48,13 +45,25 @@ type CreateS3ObjPath = {
   sourceType?: "image" | "video";
 };
 
+const s3 = createS3Client();
+const upload = async (params: AWS.S3.PutObjectRequest) => {
+  return await s3
+    .upload(params)
+    .promise()
+    .then((data) => data.Location)
+    .catch((err) => {
+      console.log(err);
+      throw new Error();
+    });
+};
+
 export const createS3ObjectPath = async ({
   data,
   domain,
   id,
   ext,
   sourceType = "image",
-}: CreateS3ObjPath): Promise<string> => {
+}: CreateS3ObjPath): Promise<string | void> => {
   let retrievedExt: string;
 
   if (!ext) {
@@ -85,54 +94,86 @@ export const createS3ObjectPath = async ({
       break;
   }
 
-  const randomString = createRandomString();
-  const fileName = randomString.replace(/\//g, "w"); // / を全て変換。ファイル名をランダムな文字列にすることでなるべくセキュアにする
-  const fileData = data.replace(/^data:\w+\/\w+;base64,/, ""); // 接頭語を取り出す
-  const decodedData = Buffer.from(fileData, "base64");
-
-  console.log("デコードパス");
-
-  const { width, height } = getResizeNumber(domain, sourceType);
-
-  let resizedData: Buffer;
-  if (sourceType === "image") {
-    resizedData = await sharp(decodedData)
-      .resize(width, height)
-      .webp()
-      .toBuffer();
-  } else {
-    //resizedData = await sharp(decodedData).resize(width, height).toBuffer();
-  }
-
-  console.log("リサイズパス");
-
-  const s3 = createS3Client();
-
   let finalExt: string;
   if (type! === "image/webp") {
     finalExt = "webp";
   } else {
-    finalExt = ext || retrievedExt!;
+    finalExt = "mp4";
   }
+  const { width, height } = getResizeNumber(domain);
 
+  const randomString = createRandomString();
+  const fileName = randomString.replace(/\//g, "w"); // / を全て変換。ファイル名をランダムな文字列にすることでなるべくセキュアにする
   const key = `${id}/${domain}/${fileName}.${finalExt}`;
+  const fileData = data.replace(/^data:\w+\/\w+;base64,/, ""); // 接頭語を取り出す
+  const decodedData = Buffer.from(fileData, "base64");
 
-  const params = {
+  const paramsWithputBody = {
     Bucket: process.env.BUCKET_NAME as string,
     Key: key,
-    Body: decodedData,
-    ContentType: type!,
+    // Body: decodedData,
+    // ContentType: type!,
+    ContentType: "video/mp4",
   };
 
-  const url = await s3
-    .upload(params)
-    .promise()
-    .then((data) => data.Location)
-    .catch((err) => {
-      console.log(err);
-      throw new Error();
-    });
+  if (sourceType === "image") {
+    const resizedData = await sharp(decodedData)
+      .resize(width, height)
+      .webp()
+      .toBuffer();
 
-  // とりあえずcloud flont導入していない
-  return url;
+    const params = {
+      ...paramsWithputBody,
+      Body: resizedData,
+    };
+
+    const url = await upload(params);
+
+    return url;
+  } else {
+    const writeFile = util.promisify(fs.writeFile);
+    const deleteFile = util.promisify(fs.unlink);
+    const readFile = util.promisify(fs.readFile);
+    const inputFileName = createRandomString().replace(/\//g, "");
+    const outputFileName = createRandomString().replace(/\//g, "");
+    const inputFilePath = `./tmp/"${inputFileName}.mov`;
+    const outputFilePath = `./tmp/"${outputFileName}.${finalExt}`;
+
+    fs.writeFile(inputFilePath, decodedData, (err) => {
+      if (err) {
+        // エラー処理
+        console.log(err);
+        fs.unlink(inputFilePath, () => {});
+        fs.unlink(outputFilePath, () => {});
+        throw err;
+      } else {
+        ffmpeg(inputFilePath)
+          .size("1080x1920")
+          .videoCodec("libx264")
+          .toFormat("mp4")
+          .save(outputFilePath)
+          .on("end", () => {
+            console.log("変換完了");
+            fs.readFile(outputFilePath, async (err, data) => {
+              fs.unlink(inputFilePath, () => {});
+              //fs.unlink(outputFilePath, () => {});
+              if (err) {
+                throw err;
+              } else {
+                console.log("buffer読み取り完了");
+
+                const params = {
+                  ...paramsWithputBody,
+                  Body: data,
+                };
+
+                const url = await upload(params);
+
+                return url;
+              }
+            });
+          });
+      }
+    });
+  }
 };

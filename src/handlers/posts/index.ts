@@ -19,6 +19,10 @@ const createPost = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     id: user.id,
   });
 
+  if (!imageUrl) {
+    throw new Error();
+  }
+
   const post = await prisma.post.create({
     data: {
       image: imageUrl,
