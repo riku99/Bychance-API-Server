@@ -59,7 +59,7 @@ const convertVideo = (
 ): Promise<Buffer> => {
   return new Promise(async (resolve) => {
     ffmpeg(inputFilePath)
-      .size("1080x1920")
+      .size("720x1280")
       .videoCodec("libx264")
       .toFormat("mp4")
       .save(outputFilePath)
@@ -86,14 +86,6 @@ export const createS3ObjectPath = async ({
   id,
   sourceType = "image",
 }: CreateS3ObjPath): Promise<string | void> => {
-  // let retrievedExt: string;
-
-  // if (!ext) {
-  //   retrievedExt = data
-  //     .toString()
-  //     .slice(data.indexOf("/") + 1, data.indexOf(";"));
-  // }
-
   let type: string;
 
   switch (sourceType) {
