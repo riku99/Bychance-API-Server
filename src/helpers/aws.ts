@@ -90,7 +90,8 @@ const createThumbnail = (inputFilePath: string): Promise<Buffer> => {
         })
         .on("end", async () => {
           const data = await readFile(outputFilePath);
-          resolve(data);
+          const webpData = await sharp(data).webp().toBuffer();
+          resolve(webpData);
           await deleteFile(outputFilePath);
         });
     } catch {
@@ -107,12 +108,17 @@ type CreateS3ObjPath = {
   sourceType?: "image" | "video";
 };
 
+type UrlData = {
+  source: string;
+  thumbnail?: string;
+};
+
 export const createS3ObjectPath = async ({
   data,
   domain,
   id,
   sourceType = "image",
-}: CreateS3ObjPath): Promise<string | void> => {
+}: CreateS3ObjPath): Promise<UrlData | void> => {
   let type: string;
 
   switch (sourceType) {
@@ -143,10 +149,12 @@ export const createS3ObjectPath = async ({
     Key: key,
     ContentType: type!,
   };
-  let bufferData: Buffer;
+
+  let sourceBufferData: Buffer;
+  let thumbnailBufferData: Buffer | undefined;
 
   if (sourceType === "image") {
-    bufferData = await sharp(decodedData)
+    sourceBufferData = await sharp(decodedData)
       .resize(width, height)
       .webp()
       .toBuffer();
@@ -160,7 +168,8 @@ export const createS3ObjectPath = async ({
         convertVideo(inputFilePath, ext),
         createThumbnail(inputFilePath),
       ]);
-      bufferData = result[0];
+      sourceBufferData = result[0];
+      thumbnailBufferData = result[1];
       await deleteFile(inputFilePath);
     } catch {
       await deleteFile(inputFilePath);
@@ -169,10 +178,33 @@ export const createS3ObjectPath = async ({
 
   const params = {
     ...paramsWithputBody,
-    Body: bufferData!,
+    Body: sourceBufferData!,
   };
 
-  const url = await upload(params);
+  let thumbnailParams: AWS.S3.PutObjectRequest | undefined;
+  if (thumbnailBufferData) {
+    thumbnailParams = {
+      Bucket: process.env.BUCKET_NAME as string,
+      Key: `${id}/${domain}/${fileName}_thumbnail.webp`,
+      ContentType: "image/webp",
+      Body: thumbnailBufferData,
+    };
+  }
 
-  return url;
+  let urlData: UrlData;
+
+  if (thumbnailParams) {
+    const result = await Promise.all([upload(params), upload(thumbnailParams)]);
+    urlData = {
+      source: result[0],
+      thumbnail: result[1],
+    };
+  } else {
+    const url = await upload(params);
+    urlData = {
+      source: url,
+    };
+  }
+
+  return urlData!;
 };

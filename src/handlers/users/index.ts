@@ -38,7 +38,7 @@ const updateUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       ext: "jpeg",
     });
 
-    newAvatar = result ? result : user.avatar;
+    newAvatar = result ? result.source : user.avatar;
   } else {
     if (deleteAvatar) {
       newAvatar = null;
@@ -60,7 +60,7 @@ const updateUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       throw new Error();
     }
 
-    newBackGroundItem = result;
+    newBackGroundItem = result.source;
     newBackGroundItemType = userData.backGroundItemType
       ? userData.backGroundItemType
       : null;

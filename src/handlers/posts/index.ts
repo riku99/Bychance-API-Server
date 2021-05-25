@@ -25,7 +25,7 @@ const createPost = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
 
   const post = await prisma.post.create({
     data: {
-      image: imageUrl,
+      image: imageUrl.source,
       text: payload.text,
       user: {
         connect: { id: user.id },

@@ -60,6 +60,7 @@ model Flash {
   updatedAt  DateTime            @updatedAt
   sourceType FlashSourceTypeRole
   userId     String
+  thumbnail String? // sourceTypeがimageの場合は必要ない
   user       User                @relation(fields: [userId], references: [id])
   viewed     ViewedFlash[]
 

@@ -39,7 +39,10 @@ export type ClientTalkRoomMessage = Pick<
   "id" | "userId" | "roomId" | "text"
 > & { timestamp: string };
 
-export type ClientFlash = Pick<Flash, "id" | "sourceType" | "source"> & {
+export type ClientFlash = Pick<
+  Flash,
+  "id" | "sourceType" | "source" | "thumbnail"
+> & {
   timestamp: string;
 };
 

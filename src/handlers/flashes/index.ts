@@ -30,9 +30,10 @@ const createFlash = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
 
   const flash = await prisma.flash.create({
     data: {
-      source: url,
+      source: url.source,
       sourceType: payload.sourceType,
       userId: user.id,
+      thumbnail: url.thumbnail,
     },
   });
 
