@@ -35,7 +35,6 @@ const updateUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       data: userData.avatar,
       domain: "avatar",
       id: user.id,
-      ext: "jpeg",
     });
 
     newAvatar = result ? result.source : user.avatar;
@@ -53,7 +52,7 @@ const updateUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       data: userData.backGroundItem,
       domain: "backGroundItem",
       id: user.id,
-      ext: backGroundItemExt,
+      sourceType: userData.backGroundItemType,
     });
 
     if (!result) {

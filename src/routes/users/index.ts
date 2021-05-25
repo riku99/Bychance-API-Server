@@ -9,6 +9,7 @@ import {
 } from "./validator";
 import { usersHandler } from "~/handlers/users";
 import { baseUrl } from "~/constants/url";
+import { maxBytes } from "~/config/apis/size";
 
 export const usersRoute = async (server: Hapi.Server) => {
   server.route([
@@ -20,6 +21,9 @@ export const usersRoute = async (server: Hapi.Server) => {
         validate: {
           ...updateUserValidator.validate,
           failAction: updateUserValidator.failAction,
+        },
+        payload: {
+          maxBytes,
         },
       },
     },
