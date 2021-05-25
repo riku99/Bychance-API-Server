@@ -53,22 +53,49 @@ const upload = async (params: AWS.S3.PutObjectRequest) => {
     });
 };
 
-const convertVideo = (
-  inputFilePath: string,
-  outputFilePath: string
-): Promise<Buffer> => {
+const convertVideo = (inputFilePath: string, ext: string): Promise<Buffer> => {
+  const outputFileName = createRandomString().replace(/\//g, "");
+  const outputFilePath = `./tmp/video/"${outputFileName}.${ext}`;
   return new Promise(async (resolve) => {
-    ffmpeg(inputFilePath)
-      .size("720x1280")
-      .videoCodec("libx264")
-      .toFormat("mp4")
-      .save(outputFilePath)
-      .on("end", async () => {
-        const data = await readFile(outputFilePath);
-        await deleteFile(inputFilePath);
-        await deleteFile(outputFilePath);
-        resolve(data);
-      });
+    try {
+      ffmpeg(inputFilePath)
+        .size("720x1280")
+        .videoCodec("libx264")
+        .toFormat("mp4")
+        .save(outputFilePath)
+        .on("end", async () => {
+          console.log("end");
+          const data = await readFile(outputFilePath);
+          resolve(data);
+          await deleteFile(outputFilePath);
+        });
+    } catch {
+      await deleteFile(outputFilePath);
+    }
+  });
+};
+
+const createThumbnail = (inputFilePath: string): Promise<Buffer> => {
+  const outputFileName = createRandomString().replace(/\//g, "");
+  const outputFilePath = `./tmp/thumbnails/${outputFileName}.png`;
+  return new Promise(async (resolve) => {
+    try {
+      ffmpeg(inputFilePath)
+        .screenshots({
+          count: 1,
+          timestamps: [0.0],
+          size: "720x1280",
+          folder: "./tmp/thumbnails",
+          filename: `${outputFileName}.png`,
+        })
+        .on("end", async () => {
+          const data = await readFile(outputFilePath);
+          resolve(data);
+          await deleteFile(outputFilePath);
+        });
+    } catch {
+      await deleteFile(outputFilePath);
+    }
   });
 };
 
@@ -125,16 +152,18 @@ export const createS3ObjectPath = async ({
       .toBuffer();
   } else {
     const inputFileName = createRandomString().replace(/\//g, "");
-    const outputFileName = createRandomString().replace(/\//g, "");
-    const inputFilePath = `./tmp/"${inputFileName}.mov`;
-    const outputFilePath = `./tmp/"${outputFileName}.${ext}`;
+    const inputFilePath = `./tmp/video/"${inputFileName}.mov`;
 
     try {
       await writeFile(inputFilePath, decodedData);
-      bufferData = await convertVideo(inputFilePath, outputFilePath);
+      const result = await Promise.all([
+        convertVideo(inputFilePath, ext),
+        createThumbnail(inputFilePath),
+      ]);
+      bufferData = result[0];
+      await deleteFile(inputFilePath);
     } catch {
       await deleteFile(inputFilePath);
-      await deleteFile(outputFilePath);
     }
   }
 
