@@ -22,6 +22,7 @@ const updateUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const {
     deleteAvatar,
     deleteBackGroundItem,
+    avatarExt,
     backGroundItemExt,
     ...userData
   } = req.payload as UpdateUserPayload;
@@ -30,12 +31,12 @@ const updateUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   let newBackGroundItem: string | null;
   let newBackGroundItemType: "image" | "video" | null;
 
-  if (userData.avatar && userData.avatarExt) {
+  if (userData.avatar && avatarExt && !deleteAvatar) {
     const result = await createS3ObjectPath({
       data: userData.avatar,
       domain: "avatar",
       id: user.id,
-      ext: userData.avatarExt,
+      ext: avatarExt,
     });
 
     newAvatar = result ? result.source : user.avatar;
@@ -48,13 +49,13 @@ const updateUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   }
 
   // backGroundItemが存在するということは更新することを表す。もし存在しない場合は更新しない。
-  if (userData.backGroundItem && userData.avatarExt) {
+  if (userData.backGroundItem && backGroundItemExt && !deleteBackGroundItem) {
     const result = await createS3ObjectPath({
       data: userData.backGroundItem,
       domain: "backGroundItem",
       id: user.id,
       sourceType: userData.backGroundItemType,
-      ext: userData.avatarExt,
+      ext: backGroundItemExt,
     });
 
     if (!result) {

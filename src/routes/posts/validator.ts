@@ -17,7 +17,6 @@ const createValidation = {
 };
 
 const createFailAction = () => {
-  console.log("not pass");
   return throwInvalidError();
 };
 
