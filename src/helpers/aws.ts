@@ -53,9 +53,9 @@ const upload = async (params: AWS.S3.PutObjectRequest) => {
     });
 };
 
-const convertVideo = (inputFilePath: string, ext: string): Promise<Buffer> => {
+const convertVideo = (inputFilePath: string): Promise<Buffer> => {
   const outputFileName = createRandomString().replace(/\//g, "");
-  const outputFilePath = `./tmp/video/"${outputFileName}.${ext}`;
+  const outputFilePath = `./tmp/video/"${outputFileName}.mp4`;
   return new Promise(async (resolve) => {
     try {
       ffmpeg(inputFilePath)
@@ -64,7 +64,6 @@ const convertVideo = (inputFilePath: string, ext: string): Promise<Buffer> => {
         .toFormat("mp4")
         .save(outputFilePath)
         .on("end", async () => {
-          console.log("end");
           const data = await readFile(outputFilePath);
           resolve(data);
           await deleteFile(outputFilePath);
@@ -104,7 +103,7 @@ type CreateS3ObjPath = {
   data: string;
   domain: string;
   id: string;
-  ext?: string | null;
+  ext: string;
   sourceType?: "image" | "video";
 };
 
@@ -118,36 +117,35 @@ export const createS3ObjectPath = async ({
   domain,
   id,
   sourceType = "image",
+  ext,
 }: CreateS3ObjPath): Promise<UrlData | void> => {
-  let type: string;
+  let contentType: string; // s3に保存する際に指定するタイプ
+  let s3Ext: string; // 最終的にs3で保存する際に使う拡張子
 
+  // contentTypeは画像ならimage/webpに、動画ならvideo/mp4に統一される
   switch (sourceType) {
     case "image":
-      type = "image/webp";
+      contentType = "image/webp";
+      s3Ext = "webp";
       break;
     case "video":
-      type = "video/mp4";
+      contentType = "video/mp4";
+      s3Ext = "mp4";
       break;
   }
 
-  let ext: string;
-  if (type! === "image/webp") {
-    ext = "webp";
-  } else {
-    ext = "mp4";
-  }
   const { width, height } = getResizeNumber(domain);
 
   const randomString = createRandomString();
   const fileName = randomString.replace(/\//g, "w"); // / を全て変換。ファイル名をランダムな文字列にすることでなるべくセキュアにする
-  const key = `${id}/${domain}/${fileName}.${ext}`;
+  const key = `${id}/${domain}/${fileName}.${s3Ext}`; // s3内のパス
   const fileData = data.replace(/^data:\w+\/\w+;base64,/, ""); // 接頭語を取り出す
   const decodedData = Buffer.from(fileData, "base64");
 
   const paramsWithputBody = {
     Bucket: process.env.BUCKET_NAME as string,
     Key: key,
-    ContentType: type!,
+    ContentType: contentType!,
   };
 
   let sourceBufferData: Buffer;
@@ -160,12 +158,12 @@ export const createS3ObjectPath = async ({
       .toBuffer();
   } else {
     const inputFileName = createRandomString().replace(/\//g, "");
-    const inputFilePath = `./tmp/video/"${inputFileName}.mov`;
+    const inputFilePath = `./tmp/video/"${inputFileName}.${ext}`;
 
     try {
       await writeFile(inputFilePath, decodedData);
       const result = await Promise.all([
-        convertVideo(inputFilePath, ext),
+        convertVideo(inputFilePath),
         createThumbnail(inputFilePath),
       ]);
       sourceBufferData = result[0];

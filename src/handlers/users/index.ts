@@ -30,11 +30,12 @@ const updateUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   let newBackGroundItem: string | null;
   let newBackGroundItemType: "image" | "video" | null;
 
-  if (userData.avatar) {
+  if (userData.avatar && userData.avatarExt) {
     const result = await createS3ObjectPath({
       data: userData.avatar,
       domain: "avatar",
       id: user.id,
+      ext: userData.avatarExt,
     });
 
     newAvatar = result ? result.source : user.avatar;
@@ -47,12 +48,13 @@ const updateUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   }
 
   // backGroundItemが存在するということは更新することを表す。もし存在しない場合は更新しない。
-  if (userData.backGroundItem) {
+  if (userData.backGroundItem && userData.avatarExt) {
     const result = await createS3ObjectPath({
       data: userData.backGroundItem,
       domain: "backGroundItem",
       id: user.id,
       sourceType: userData.backGroundItemType,
+      ext: userData.avatarExt,
     });
 
     if (!result) {

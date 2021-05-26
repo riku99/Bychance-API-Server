@@ -5,14 +5,14 @@ import { throwInvalidError } from "~/helpers/errors";
 export type CreateFlashPayload = {
   source: string;
   sourceType: "image" | "video";
-  ext: string | null;
+  ext: string;
 };
 
 const createValidation = {
   payload: Joi.object<CreateFlashPayload>({
     source: Joi.string().required(),
     sourceType: Joi.string().valid("image", "video").required(),
-    ext: Joi.string().allow(null),
+    ext: Joi.string().required(),
   }),
 };
 

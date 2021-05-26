@@ -14,9 +14,10 @@ const createPost = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const payload = req.payload as CreatePostPayload;
 
   const imageUrl = await createS3ObjectPath({
-    data: payload.image,
+    data: payload.source,
     domain: "post",
     id: user.id,
+    ext: payload.ext,
   });
 
   if (!imageUrl) {

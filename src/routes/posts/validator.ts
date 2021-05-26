@@ -4,17 +4,20 @@ import { throwInvalidError } from "~/helpers/errors";
 
 export type CreatePostPayload = {
   text: string;
-  image: string;
+  source: string;
+  ext: string;
 };
 
 const createValidation = {
   payload: Joi.object<CreatePostPayload>({
     text: Joi.string().allow("").required(),
-    image: Joi.string().required(),
+    source: Joi.string().required(),
+    ext: Joi.string().required(),
   }),
 };
 
 const createFailAction = () => {
+  console.log("not pass");
   return throwInvalidError();
 };
 
