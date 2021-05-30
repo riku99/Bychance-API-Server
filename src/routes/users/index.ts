@@ -75,7 +75,7 @@ export const usersRoute = async (server: Hapi.Server) => {
     {
       method: "PATCH",
       path: `${baseUrl}/users/talkRoomMessageReceipt`,
-      handler: () => {},
+      handler: usersHandler.changeTalkRoomMessageReceipt,
       options: {
         validate: {
           payload: changeTalkRoomMessageReceiptValidator.validator.payload,
