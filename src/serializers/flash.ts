@@ -14,7 +14,7 @@ export const serializeFlash = ({
     source,
     sourceType,
     timestamp,
-    viewNumber: viewed.length,
+    viewsNumber: viewed.length,
   };
 
   return clientFlash;

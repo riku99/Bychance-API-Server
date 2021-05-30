@@ -41,7 +41,7 @@ export type ClientTalkRoomMessage = Pick<
 
 export type ClientFlash = Pick<Flash, "id" | "sourceType" | "source"> & {
   timestamp: string;
-  viewNumber: number;
+  viewsNumber: number;
 };
 
 // 後々roomsをtalkRoomsに、messagesをtalkMessagesに変えたい
