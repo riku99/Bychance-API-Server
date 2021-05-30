@@ -23,17 +23,17 @@ import { serializeTalkRoomMessage } from "~/serializers/talkRoomMessage";
 import { createAnotherUser } from "~/helpers/anotherUser";
 
 export const filterByDayDiff = (timestamp: Date) =>
-  (new Date().getTime() - new Date(timestamp).getTime()) / dayMs < 2; // 作成してから1日以内の物を取り出す
+  (new Date().getTime() - new Date(timestamp).getTime()) / dayMs < 3; // 作成してから1日以内の物を取り出す
 
 type Arg = {
   user: User;
   posts: Post[];
-  flashes: Flash[];
+  flashes: (Flash & { viewed: ViewedFlash[] })[];
   // includeされたデータなのでTalkRoom[]だけでなくrecipientなど他のデータもくっついてくる
   senderTalkRooms: (TalkRoom & {
     messages: TalkRoomMessage[];
     recipient: User & {
-      flashes: Flash[];
+      flashes: (Flash & { viewed: ViewedFlash[] })[];
       posts: Post[];
     };
   })[];
@@ -41,7 +41,7 @@ type Arg = {
     messages: TalkRoomMessage[];
     sender: User & {
       posts: Post[];
-      flashes: Flash[];
+      flashes: (Flash & { viewed: ViewedFlash[] })[];
     };
   })[];
   readTalkRoomMessages: ReadTalkRoomMessage[];
@@ -50,6 +50,7 @@ type Arg = {
 };
 
 export const createClientData = (data: Arg): ClientData => {
+  console.log(data.flashes);
   const user = serializeUser({ user: data.user });
   const posts = data.posts.map((post) => serializePost({ post }));
   const notExpiredFlashes = data.flashes.filter((flash) =>

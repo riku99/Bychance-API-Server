@@ -102,14 +102,16 @@ const refreshUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const refreshedUser = await prisma.user.findUnique({
     where: { id: payload.userId },
     include: {
-      posts: isMyData
-        ? false
-        : {
-            orderBy: {
-              createdAt: "desc",
-            },
-          },
-      flashes: isMyData ? false : true,
+      posts: {
+        orderBy: {
+          createdAt: "desc",
+        },
+      },
+      flashes: {
+        include: {
+          viewed: true,
+        },
+      },
     },
   });
 

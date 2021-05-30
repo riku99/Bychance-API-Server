@@ -32,7 +32,11 @@ const getNearbyUsers = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
           createdAt: "desc",
         },
       },
-      flashes: true,
+      flashes: {
+        include: {
+          viewed: true,
+        },
+      },
     },
   });
 

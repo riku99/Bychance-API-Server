@@ -6,7 +6,11 @@ const forCreateClient = {
       createdAt: "desc" as const,
     },
   },
-  flashes: true,
+  flashes: {
+    include: {
+      viewed: true,
+    },
+  },
   talkRoomMessages: true,
   readTalkRoomMessages: true,
   viewedFlashes: true,
@@ -22,7 +26,11 @@ const forCreateClient = {
               createdAt: "desc" as const,
             },
           },
-          flashes: true,
+          flashes: {
+            include: {
+              viewed: true,
+            },
+          },
         },
       },
     },
@@ -37,7 +45,11 @@ const forCreateClient = {
               createdAt: "desc" as const,
             },
           },
-          flashes: true,
+          flashes: {
+            include: {
+              viewed: true,
+            },
+          },
         },
       },
     },

@@ -33,7 +33,9 @@ const createFlash = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       source: url.source,
       sourceType: payload.sourceType,
       userId: user.id,
-      thumbnail: url.thumbnail,
+    },
+    include: {
+      viewed: true,
     },
   });
 

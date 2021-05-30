@@ -1,8 +1,12 @@
-import { Flash } from "@prisma/client";
+import { Flash, ViewedFlash } from "@prisma/client";
 import { ClientFlash } from "~/types/clientData";
 
-export const serializeFlash = ({ flash }: { flash: Flash }): ClientFlash => {
-  const { id, source, sourceType } = flash;
+export const serializeFlash = ({
+  flash,
+}: {
+  flash: Flash & { viewed: ViewedFlash[] };
+}): ClientFlash => {
+  const { id, source, sourceType, viewed } = flash;
   const timestamp = new Date(flash.createdAt).toString();
 
   const clientFlash: ClientFlash = {
@@ -10,6 +14,7 @@ export const serializeFlash = ({ flash }: { flash: Flash }): ClientFlash => {
     source,
     sourceType,
     timestamp,
+    viewNumber: viewed.length,
   };
 
   return clientFlash;

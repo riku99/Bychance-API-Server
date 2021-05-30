@@ -68,7 +68,15 @@ const createTalkRoomMessage = async (
   } else {
     const sender = await prisma.user.findUnique({
       where: { id: user.id },
-      include: { posts: true, flashes: true, viewedFlashes: true },
+      include: {
+        posts: true,
+        flashes: {
+          include: {
+            viewed: true,
+          },
+        },
+        viewedFlashes: true,
+      },
     });
 
     const room = await prisma.talkRoom.findUnique({

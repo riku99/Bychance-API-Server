@@ -8,7 +8,7 @@ import { filterByDayDiff } from "~/helpers/clientData";
 type Arg = {
   user: User;
   posts: Post[];
-  flashes: Flash[];
+  flashes: (Flash & { viewed: ViewedFlash[] })[];
   viewedFlashes: ViewedFlash[]; // 返すユーザーではなく、自分(リクエストした側)のものを渡す
 };
 
