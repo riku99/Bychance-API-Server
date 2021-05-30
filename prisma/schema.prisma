@@ -25,7 +25,8 @@ model User {
   twitter              String?
   youtube              String?
   tiktok               String?
-  videoEditDescription Boolean @default(false)
+  videoEditDescription Boolean                @default(false)
+  talkRoomMessageReceipt Boolean              @default(true)
   backGroundItemType BackGroundItemTypeRole?
   flashes              Flash[]
   posts                Post[]
@@ -97,6 +98,7 @@ model TalkRoomMessage {
   updatedAt            DateTime              @updatedAt
   userId               String
   roomId               Int
+  receipt              Boolean               @default(true)
   room                 TalkRoom              @relation(fields: [roomId], references: [id])
   user                 User                  @relation(fields: [userId], references: [id])
   readTalkRoomMessages ReadTalkRoomMessage[]

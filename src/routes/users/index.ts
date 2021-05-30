@@ -6,6 +6,7 @@ import {
   updateLocationValidator,
   changeUserDisplayValidator,
   changeVideoEditDescriptionValidator,
+  changeTalkRoomMessageReceiptValidator,
 } from "./validator";
 import { usersHandler } from "~/handlers/users";
 import { baseUrl } from "~/constants/url";
@@ -68,6 +69,17 @@ export const usersRoute = async (server: Hapi.Server) => {
         validate: {
           payload: changeVideoEditDescriptionValidator.validator.payload,
           failAction: changeVideoEditDescriptionValidator.failAction,
+        },
+      },
+    },
+    {
+      method: "PATCH",
+      path: `${baseUrl}/users/talkRoomMessageReceipt`,
+      handler: () => {},
+      options: {
+        validate: {
+          payload: changeTalkRoomMessageReceiptValidator.validator.payload,
+          failAction: changeTalkRoomMessageReceiptValidator.failAction,
         },
       },
     },

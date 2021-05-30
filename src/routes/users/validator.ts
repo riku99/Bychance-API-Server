@@ -123,3 +123,20 @@ export const changeVideoEditDescriptionValidator = {
   validator: videoEditDesctiptionValidation,
   failAction: videoEditDescriptionFailAction,
 };
+
+export type ChangeTalkRoomMessageReceipt = {
+  receipt: boolean;
+};
+
+const talkRoomMessageReceiptValidation = {
+  payload: Joi.object<ChangeTalkRoomMessageReceipt>({
+    receipt: Joi.boolean().required(),
+  }),
+};
+
+const talkRoomMessageReceiptFailAction = () => throwInvalidError();
+
+export const changeTalkRoomMessageReceiptValidator = {
+  validator: talkRoomMessageReceiptValidation,
+  failAction: talkRoomMessageReceiptFailAction,
+};
