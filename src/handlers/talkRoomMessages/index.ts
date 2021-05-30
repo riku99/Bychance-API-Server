@@ -19,14 +19,34 @@ const createTalkRoomMessage = async (
   const user = req.auth.artifacts as Artifacts;
   const payload = req.payload as CreateTalkRoomMessagePayload;
 
+  const partner = await prisma.user.findUnique({
+    where: {
+      id: payload.partnerId,
+    },
+    include: {
+      readTalkRoomMessages: true,
+    },
+  });
+
+  if (!partner) {
+    return throwInvalidError("ユーザーが存在しません");
+  }
+
   const talkRoomMessage = await prisma.talkRoomMessage.create({
     data: {
       userId: user.id,
       roomId: payload.talkRoomId,
       text: payload.text,
+      receipt: partner.talkRoomMessageReceipt, // 送信相手のtalkRoomMessageReceiptがfalseなら「受け取られない」という意味でrecieptがfalseになる
     },
   });
+
   const clientMessage = serializeTalkRoomMessage({ talkRoomMessage });
+
+  // 送信相手がメッセージを受け取らない設定にしている場合はこの時点でリターン。push通知もsocketのイベントも起こさない
+  if (!partner.talkRoomMessageReceipt) {
+    return clientMessage;
+  }
 
   const deletedTalkRoom = await prisma.deleteTalkRoom.findUnique({
     where: {
@@ -43,8 +63,8 @@ const createTalkRoomMessage = async (
   }
 
   let ioData: any;
-  let talkRoomId: number;
 
+  // このメッセージが送信相手との初めてのメッセージか否かで処理分ける
   if (!payload.isFirstMessage) {
     const sender = await prisma.user.findUnique({
       where: { id: user.id },
@@ -102,7 +122,7 @@ const createTalkRoomMessage = async (
 
     const { posts, flashes, viewedFlashes, ...restSenderData } = sender;
 
-    const serializeedRoom = serializeTalkRoom({
+    const serializedRoom = serializeTalkRoom({
       talkRoom: restRoomData,
       talkRoomMessages: messages,
       readTalkRoomMessages,
@@ -119,7 +139,7 @@ const createTalkRoomMessage = async (
     // トークルームが新規のものの場合は相手にメッセージ + トークルームと送信したユーザーのデータも送る
     ioData = {
       isFirstMessage: true,
-      room: serializeedRoom,
+      room: serializedRoom,
       message: clientMessage,
       sender: clientSenderData,
     };
