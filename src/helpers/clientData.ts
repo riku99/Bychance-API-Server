@@ -23,7 +23,7 @@ import { serializeTalkRoomMessage } from "~/serializers/talkRoomMessage";
 import { createAnotherUser } from "~/helpers/anotherUser";
 
 export const filterByDayDiff = (timestamp: Date) =>
-  (new Date().getTime() - new Date(timestamp).getTime()) / dayMs < 1; // 作成してから1日以内の物を取り出す
+  (new Date().getTime() - new Date(timestamp).getTime()) / dayMs < 2; // 作成してから1日以内の物を取り出す
 
 type Arg = {
   user: User;
