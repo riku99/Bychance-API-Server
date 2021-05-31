@@ -2,7 +2,10 @@ import Hapi from "@hapi/hapi";
 import { PrismaClient } from "@prisma/client";
 
 import { Artifacts } from "~/auth/bearer";
-import { CreateTalkRoomPayload } from "~/routes/talkRooms/validator";
+import {
+  CreateTalkRoomPayload,
+  DeleteTalkRoomParams,
+} from "~/routes/talkRooms/validator";
 
 const prisma = new PrismaClient();
 
@@ -28,11 +31,22 @@ const createTalkRoom = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const existingTalkRoom = talkRooms.length ? talkRooms[0] : null;
 
   if (existingTalkRoom) {
-    return {
-      presence: true,
-      roomId: existingTalkRoom.id,
-      timestamp: existingTalkRoom.updatedAt.toString(),
-    };
+    const deleteData = await prisma.deleteTalkRoom.findUnique({
+      where: {
+        userId_talkRoomId: {
+          userId: user.id,
+          talkRoomId: existingTalkRoom.id,
+        },
+      },
+    });
+
+    if (!deleteData) {
+      return {
+        presence: true,
+        roomId: existingTalkRoom.id,
+        timestamp: existingTalkRoom.updatedAt.toString(),
+      };
+    }
   }
 
   const newTalkRoom = await prisma.talkRoom.create({
@@ -49,6 +63,35 @@ const createTalkRoom = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   };
 };
 
+const deleteTalkRoom = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
+  const params = req.params as DeleteTalkRoomParams;
+  console.log(params);
+
+  await prisma.readTalkRoomMessage.deleteMany({
+    where: {
+      roomId: params.talkRoomId,
+    },
+  });
+
+  await prisma.talkRoomMessage.deleteMany({
+    where: {
+      roomId: params.talkRoomId,
+    },
+  });
+
+  // トークルームを削除しようとした時点で相手がその前に削除していた場合このprismaによるdeletrはエラーになる。なのでtryでエスケープする
+  try {
+    await prisma.talkRoom.delete({
+      where: {
+        id: params.talkRoomId,
+      },
+    });
+  } catch {}
+
+  return h.response().code(200);
+};
+
 export const talkRoomsHandler = {
   createTalkRoom,
+  deleteTalkRoom,
 };

@@ -18,3 +18,20 @@ export const createTalkRoomValidator = {
   validate: createValidation,
   failAction: createFailAction,
 };
+
+export type DeleteTalkRoomParams = {
+  talkRoomId: number;
+};
+
+const deleteValidation = {
+  params: Joi.object<DeleteTalkRoomParams>({
+    talkRoomId: Joi.number().required(),
+  }),
+};
+
+const deleteFailAction = () => throwInvalidError();
+
+export const deleteTalkRoomValidator = {
+  validate: deleteValidation,
+  failAction: deleteFailAction,
+};
