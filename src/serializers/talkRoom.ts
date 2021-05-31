@@ -1,4 +1,5 @@
 import { TalkRoom, TalkRoomMessage, ReadTalkRoomMessage } from "@prisma/client";
+import { talkRoomMessage } from "~/../tests/data";
 
 import { ClientTalkRoom } from "~/types/clientData";
 
@@ -15,24 +16,24 @@ export const serializeTalkRoom = ({
 }): ClientTalkRoom => {
   const partner =
     talkRoom.senderId === userId ? talkRoom.recipientId : talkRoom.senderId;
-  const messages = talkRoomMessages.map((message) => message.id).reverse(); // メッセージの表示の関係で新しいやつ順にする
+  const messageIds = talkRoomMessages.map((message) => message.id).reverse(); // メッセージの表示の関係で新しいやつ順にする
   const messagesWithoutMine = talkRoomMessages.filter(
-    (message) => message.userId !== userId
+    (message) => message.userId !== userId && message.receipt // message.recieptによりメッセージを受け取らない状態の時に相手が送信したものは含めない(receiptがfalse)。これないと未読数のデータに本来受け取らないはずのデータが入ってしまいおかしくなる
   );
   const readMessages = readTalkRoomMessages.filter(
     (data) => data.userId === userId
   );
   const unreadNumber = messagesWithoutMine.length - readMessages.length;
-  const latestMessage = talkRoomMessages.length
-    ? talkRoomMessages[talkRoomMessages.length - 1].text
-    : null;
+  const latestMessage = talkRoomMessages
+    .reverse()
+    .find((m) => m.userId === userId || m.receipt);
 
   const clientTalkRoom: ClientTalkRoom = {
     id: talkRoom.id,
     partner,
-    messages,
+    messages: messageIds,
     unreadNumber,
-    latestMessage,
+    latestMessage: latestMessage ? latestMessage.text : null,
     timestamp: talkRoom.updatedAt.toString(),
   };
 

@@ -50,7 +50,6 @@ type Arg = {
 };
 
 export const createClientData = (data: Arg): ClientData => {
-  console.log(data.flashes);
   const user = serializeUser({ user: data.user });
   const posts = data.posts.map((post) => serializePost({ post }));
   const notExpiredFlashes = data.flashes.filter((flash) =>
@@ -81,8 +80,12 @@ export const createClientData = (data: Arg): ClientData => {
       if (!dataToBeDisplayed && talkRoomMessage.userId !== user.id) {
         dataToBeDisplayed = true;
       }
-      const serializedMessage = serializeTalkRoomMessage({ talkRoomMessage });
-      talkRoomMessages.push(serializedMessage);
+
+      // talkRoomMessageのrecieptがfalseでも送ったのが自分の場合は追加する。falseでかつ相手から送られてきたものの場合表示させないので追加しない
+      if (talkRoomMessage.receipt || talkRoomMessage.userId === data.user.id) {
+        const serializedMessage = serializeTalkRoomMessage({ talkRoomMessage });
+        talkRoomMessages.push(serializedMessage);
+      }
     });
 
     if (dataToBeDisplayed) {
