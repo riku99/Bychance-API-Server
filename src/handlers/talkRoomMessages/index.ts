@@ -32,6 +32,20 @@ const createTalkRoomMessage = async (
     return throwInvalidError("ユーザーが存在しません");
   }
 
+  const room = await prisma.talkRoom.findUnique({
+    where: {
+      id: payload.talkRoomId,
+    },
+  });
+
+  // 既にルームが削除されていた場合はその時点でリターン。メッセージのデータも作成しなくて良い
+  if (!room) {
+    return {
+      talkRoomPresence: false,
+      talkRoomId: payload.talkRoomId,
+    };
+  }
+
   const talkRoomMessage = await prisma.talkRoomMessage.create({
     data: {
       userId: user.id,
@@ -45,21 +59,11 @@ const createTalkRoomMessage = async (
 
   // 送信相手がメッセージを受け取らない設定にしている場合はこの時点でリターン。push通知もsocketのイベントも起こさない
   if (!partner.talkRoomMessageReceipt) {
-    return clientMessage;
-  }
-
-  const deletedTalkRoom = await prisma.deleteTalkRoom.findUnique({
-    where: {
-      userId_talkRoomId: {
-        userId: payload.partnerId, // 相手がこのルームを削除したかどうかを知りたいのでpartnerのidを指定する
-        talkRoomId: payload.talkRoomId,
-      },
-    },
-  });
-
-  // トーク相手がルームを削除していた場合はその時点でリターン。(ioもpush通知もしない)
-  if (deletedTalkRoom) {
-    return clientMessage;
+    return {
+      talkRoomPresence: true,
+      message: clientMessage,
+      talkRoomId: payload.talkRoomId,
+    };
   }
 
   let ioData: any;
@@ -176,7 +180,11 @@ const createTalkRoomMessage = async (
     },
   });
 
-  return clientMessage;
+  return {
+    talkRoomPresence: true,
+    message: clientMessage,
+    talkRoomId: payload.talkRoomId,
+  };
 };
 
 export const talkRoomMessagesHandler = {

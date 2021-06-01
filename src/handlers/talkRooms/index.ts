@@ -65,7 +65,6 @@ const createTalkRoom = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
 
 const deleteTalkRoom = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const params = req.params as DeleteTalkRoomParams;
-  console.log(params);
 
   await prisma.readTalkRoomMessage.deleteMany({
     where: {

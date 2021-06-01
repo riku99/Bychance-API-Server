@@ -64,9 +64,10 @@ export const createClientData = (data: Arg): ClientData => {
 
   allTalkRooms.forEach((talkRoom) => {
     // 論理的に削除されている(DBには残っている)データの場合その時点でリターン。
-    if (deletedTalkRoomIds.includes(talkRoom.id)) {
-      return;
-    }
+    // if (deletedTalkRoomIds.includes(talkRoom.id)) {
+    //   return;
+    // }
+
     // トークルームは存在しても作成相手からメッセージがきてない場合はrecipient側にはそのトークルームは表示させない。それを判断するために使うデータ
     let dataToBeDisplayed = false;
 
@@ -76,8 +77,12 @@ export const createClientData = (data: Arg): ClientData => {
     }
 
     talkRoom.messages.forEach((talkRoomMessage) => {
-      // そのルームの受け取り側(recipient)でも相手からのメッセージが既に存在する場合は表示させることを決定
-      if (!dataToBeDisplayed && talkRoomMessage.userId !== user.id) {
+      // そのルームの受け取り側(recipient)でも相手からのメッセージが既に存在する場合(recieptがtrue)は表示させることを決定
+      if (
+        !dataToBeDisplayed &&
+        talkRoomMessage.userId !== user.id &&
+        talkRoomMessage.receipt
+      ) {
         dataToBeDisplayed = true;
       }
 
