@@ -75,7 +75,7 @@ export const initializeServer = async () => {
     talkRoomsPlugin,
     talkRoomMessagesPlugin,
     readTalkRoomMessagesPlugin,
-    deleteTalkRoomsPlugin,
+    // deleteTalkRoomsPlugin,
     deviceTokenPlugin,
   ]);
 

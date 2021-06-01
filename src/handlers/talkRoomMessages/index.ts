@@ -67,7 +67,7 @@ const createTalkRoomMessage = async (
   }
 
   // 送信者から見たらそれは初回メッセージではなくても、受け取る側から見たらそれは初回メッセージの可能性がある(相手がメッセージを送った時に受け取りがfalseになってる時とか)
-  // なので初回メッセージかどうかはpayloadの情報(送信者から見たデータ)だけでなく、受け取り側視点も考慮しなければいけない
+  // なので初回メッセージかどうかはpayloadの情報(送信者から見たデータ)ではなく、受け取り側視点も考慮しなければいけない
   const allMessagesBelongingToTheTalkRoom = await prisma.talkRoomMessage.findMany(
     {
       where: {
