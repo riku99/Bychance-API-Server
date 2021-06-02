@@ -20,4 +20,9 @@ export type AnotherUser = Pick<
   | "twitter"
   | "youtube"
   | "tiktok"
-> & { posts: ClientPost[] } & { flashes: AnotherUserFlashData };
+> & {
+  posts: ClientPost[];
+  flashes: AnotherUserFlashData;
+  lat: number | null;
+  lng: number | null;
+};

@@ -4,6 +4,7 @@ import { serializePost } from "~/serializers/post";
 import { serializeFlash } from "~/serializers/flash";
 import { AnotherUser } from "~/types/anotherUser";
 import { filterByDayDiff } from "~/helpers/clientData";
+import { handleUserLocationCrypt } from "~/helpers/crypto";
 
 type Arg = {
   user: User;
@@ -30,6 +31,8 @@ export const createAnotherUser = ({
     twitter,
     youtube,
     tiktok,
+    lat: _lat,
+    lng: _lng,
   } = user;
 
   const serializedPosts = posts.map((post) => serializePost({ post }));
@@ -68,6 +71,16 @@ export const createAnotherUser = ({
     isAllAlreadyViewed,
   };
 
+  let decryptedLat: number | null = null;
+  let decryptedLng: number | null = null;
+
+  if (_lat && _lng) {
+    const { lat, lng } = handleUserLocationCrypt(_lat, _lng, "decrypt");
+
+    decryptedLat = lat;
+    decryptedLng = lng;
+  }
+
   return {
     id,
     name,
@@ -82,5 +95,7 @@ export const createAnotherUser = ({
     backGroundItemType,
     posts: serializedPosts,
     flashes: flashesData,
+    lat: decryptedLat,
+    lng: decryptedLng,
   };
 };
