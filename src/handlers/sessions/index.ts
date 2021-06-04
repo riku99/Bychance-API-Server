@@ -74,6 +74,17 @@ const lineLogin = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
         include: userIncludes.forCreateClient,
       });
 
+  if (!user.login) {
+    await prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        login: true,
+      },
+    });
+  }
+
   const {
     posts,
     flashes,
@@ -105,6 +116,17 @@ export const sessionLogin = async (
   h: Hapi.ResponseToolkit
 ) => {
   const user = req.auth.artifacts as Artifacts;
+
+  if (!user.login) {
+    await prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        login: true,
+      },
+    });
+  }
 
   const data = await prisma.user.findUnique({
     where: { id: user.id },
@@ -154,6 +176,15 @@ const sampleLogin = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const data = await prisma.user.findUnique({
     where: { id: "5b9a9b57-d497-4dd5-b257-cd5d10c2ea40" },
     include: userIncludes.forCreateClient,
+  });
+
+  await prisma.user.update({
+    where: {
+      id: "5b9a9b57-d497-4dd5-b257-cd5d10c2ea40",
+    },
+    data: {
+      login: true,
+    },
   });
 
   const {
