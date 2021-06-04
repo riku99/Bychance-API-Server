@@ -6,7 +6,7 @@ import { baseUrl } from "~/constants/url";
 
 export const lineLoginPath = `${baseUrl}/sessions/lineLogin`;
 export const sessionLoginPath = `${baseUrl}/sessions/sessionlogin`;
-export const logoutPath = `${baseUrl}/logout`;
+export const logoutPath = `${baseUrl}/sessions/logout`;
 
 export const sessionsRoute = async (server: Hapi.Server) => {
   server.route([

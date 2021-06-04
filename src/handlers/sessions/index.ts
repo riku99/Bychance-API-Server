@@ -156,8 +156,6 @@ const sampleLogin = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     include: userIncludes.forCreateClient,
   });
 
-  console.log(data);
-
   const {
     posts,
     flashes,
