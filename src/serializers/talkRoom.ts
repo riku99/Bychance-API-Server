@@ -24,6 +24,7 @@ export const serializeTalkRoom = ({
     (data) => data.userId === userId
   );
   const unreadNumber = messagesWithoutMine.length - readMessages.length;
+
   const latestMessage = talkRoomMessages
     .reverse()
     .find((m) => m.userId === userId || m.receipt);

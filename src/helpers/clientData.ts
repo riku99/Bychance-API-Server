@@ -23,7 +23,7 @@ import { serializeTalkRoomMessage } from "~/serializers/talkRoomMessage";
 import { createAnotherUser } from "~/helpers/anotherUser";
 
 export const filterByDayDiff = (timestamp: Date) =>
-  (new Date().getTime() - new Date(timestamp).getTime()) / dayMs < 3; // 作成してから1日以内の物を取り出す
+  (new Date().getTime() - new Date(timestamp).getTime()) / dayMs < 7; // 作成してから7日以内の物を取り出す ここはあとで変える
 
 type Arg = {
   user: User;
@@ -60,7 +60,7 @@ export const createClientData = (data: Arg): ClientData => {
   let talkRooms: ClientTalkRoom[] = [];
   let talkRoomMessages: ClientTalkRoomMessage[] = [];
   const allTalkRooms = [...data.senderTalkRooms, ...data.recipientTalkRooms];
-  const deletedTalkRoomIds = data.deleteTalkRooms.map((d) => d.talkRoomId);
+  // const deletedTalkRoomIds = data.deleteTalkRooms.map((d) => d.talkRoomId);
 
   allTalkRooms.forEach((talkRoom) => {
     // 論理的に削除されている(DBには残っている)データの場合その時点でリターン。
