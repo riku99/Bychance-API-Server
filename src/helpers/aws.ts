@@ -20,8 +20,8 @@ const getResizeNumber = (domain: string) => {
       };
     case "avatar":
       return {
-        width: 1000,
-        height: 1000,
+        width: 700,
+        height: 700,
       };
     case "backGroundItem":
       return {
@@ -74,8 +74,7 @@ const convertVideo = (
   return new Promise(async (resolve) => {
     try {
       ffmpeg(inputFilePath)
-        // .size("720x1280")
-        .size(`${w}*${h}`)
+        .size(`${w}x${h}`)
         .videoCodec("libx264")
         .toFormat("mp4")
         .save(outputFilePath)
@@ -151,8 +150,6 @@ export const createS3ObjectPath = async ({
   }
 
   const { width, height } = getResizeNumber(domain);
-
-  console.log(`${width}:${height}`);
 
   const randomString = createRandomString();
   const fileName = randomString.replace(/\//g, "w"); // / を全て変換。ファイル名をランダムな文字列にすることでなるべくセキュアにする
