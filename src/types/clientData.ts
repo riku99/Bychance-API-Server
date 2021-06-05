@@ -22,7 +22,10 @@ export type ClientUser = Pick<
   | "tiktok"
 > & { lat: number | null; lng: number | null };
 
-export type ClientPost = Pick<Post, "id" | "image" | "text" | "userId"> & {
+export type ClientPost = Pick<
+  Post,
+  "id" | "url" | "text" | "userId" | "sourceType"
+> & {
   date: string;
 };
 

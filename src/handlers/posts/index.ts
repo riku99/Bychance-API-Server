@@ -27,7 +27,7 @@ const createPost = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
 
   const post = await prisma.post.create({
     data: {
-      image: url.source,
+      url: url.source,
       text: payload.text,
       sourceType: payload.sourceType,
       user: {

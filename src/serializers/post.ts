@@ -7,7 +7,8 @@ export const serializePost = ({ post }: { post: Post }): ClientPost => {
   const date = formatDate({ date: post.createdAt });
   const clientPost = {
     id: post.id,
-    image: post.image,
+    url: post.url,
+    sourceType: post.sourceType,
     text: post.text,
     userId: post.userId,
     date,
