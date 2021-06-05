@@ -57,7 +57,7 @@ const createTalkRoomMessage = async (
 
   const clientMessage = serializeTalkRoomMessage({ talkRoomMessage });
 
-  // 送信相手がメッセージを受け取らない設定にしている場合はこの時点でリターン。push通知もsocketのイベントも起こさない
+  // 送信相手がログアウト中 or メッセージを受け取らない設定にしている場合はこの時点でリターン。push通知もsocketのイベントも起こさない
   if (!partner.talkRoomMessageReceipt || !partner.login) {
     return {
       talkRoomPresence: true,

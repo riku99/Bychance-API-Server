@@ -25,6 +25,7 @@ const getNearbyUsers = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const displayedUsers = await prisma.user.findMany({
     where: {
       display: true,
+      login: true,
     },
     include: {
       posts: {

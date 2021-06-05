@@ -12,7 +12,7 @@ import {
 } from "~/routes/users/validator";
 import { serializeUser } from "~/serializers/user";
 import { createS3ObjectPath } from "~/helpers/aws";
-import { throwInvalidError } from "~/helpers/errors";
+import { throwInvalidError, throwLoginError } from "~/helpers/errors";
 import { handleUserLocationCrypt } from "~/helpers/crypto";
 import { createAnotherUser } from "~/helpers/anotherUser";
 
