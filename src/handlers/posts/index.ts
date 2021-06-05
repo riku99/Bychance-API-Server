@@ -13,21 +13,23 @@ const createPost = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const user = req.auth.artifacts as Artifacts;
   const payload = req.payload as CreatePostPayload;
 
-  const imageUrl = await createS3ObjectPath({
+  const url = await createS3ObjectPath({
     data: payload.source,
     domain: "post",
     id: user.id,
     ext: payload.ext,
+    sourceType: payload.sourceType,
   });
 
-  if (!imageUrl) {
-    throw new Error();
+  if (!url) {
+    return throwInvalidError();
   }
 
   const post = await prisma.post.create({
     data: {
-      image: imageUrl.source,
+      image: url.source,
       text: payload.text,
+      sourceType: payload.sourceType,
       user: {
         connect: { id: user.id },
       },

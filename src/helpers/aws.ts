@@ -18,10 +18,20 @@ const getResizeNumber = (domain: string) => {
         width: 720,
         height: 1280,
       };
+    case "avatar":
+      return {
+        width: 1000,
+        height: 1000,
+      };
+    case "backGroundItem":
+      return {
+        width: 1080,
+        height: 1350,
+      };
     default:
       return {
-        width: null,
-        height: null,
+        width: 500,
+        height: 500,
       };
   }
 };
@@ -53,13 +63,19 @@ const upload = async (params: AWS.S3.PutObjectRequest) => {
     });
 };
 
-const convertVideo = (inputFilePath: string): Promise<Buffer> => {
+const convertVideo = (
+  inputFilePath: string,
+  resize: { width: number; height: number }
+): Promise<Buffer> => {
+  const w = resize.width.toString();
+  const h = resize.height.toString();
   const outputFileName = createRandomString().replace(/\//g, "");
   const outputFilePath = `./tmp/video/"${outputFileName}.mp4`;
   return new Promise(async (resolve) => {
     try {
       ffmpeg(inputFilePath)
-        .size("720x1280")
+        // .size("720x1280")
+        .size(`${w}*${h}`)
         .videoCodec("libx264")
         .toFormat("mp4")
         .save(outputFilePath)
@@ -136,6 +152,8 @@ export const createS3ObjectPath = async ({
 
   const { width, height } = getResizeNumber(domain);
 
+  console.log(`${width}:${height}`);
+
   const randomString = createRandomString();
   const fileName = randomString.replace(/\//g, "w"); // / を全て変換。ファイル名をランダムな文字列にすることでなるべくセキュアにする
   const key = `${id}/${domain}/${fileName}.${s3Ext}`; // s3内のパス
@@ -153,6 +171,7 @@ export const createS3ObjectPath = async ({
 
   if (sourceType === "image") {
     sourceBufferData = await sharp(decodedData)
+      .rotate() // exifの関係でrotate()つけないと回転率が変になる時ある https://stackoverflow.com/questions/48716266/sharp-image-library-rotates-image-when-resizing
       .resize(width, height)
       .webp()
       .toBuffer();
@@ -163,7 +182,7 @@ export const createS3ObjectPath = async ({
     try {
       await writeFile(inputFilePath, decodedData);
       const result = await Promise.all([
-        convertVideo(inputFilePath),
+        convertVideo(inputFilePath, { width, height }),
         createThumbnail(inputFilePath),
       ]);
       sourceBufferData = result[0];

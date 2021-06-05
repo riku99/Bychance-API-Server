@@ -50,6 +50,7 @@ model Post {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   userId    String
+  sourceType PostSourceTypeRole @default(image)
   user      User     @relation(fields: [userId], references: [id])
 
   @@index([userId], name: "Post.userId_index")
@@ -171,6 +172,11 @@ enum FlashSourceTypeRole {
 }
 
 enum BackGroundItemTypeRole {
+  image
+  video
+}
+
+enum PostSourceTypeRole {
   image
   video
 }
