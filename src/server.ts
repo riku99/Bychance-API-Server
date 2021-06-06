@@ -22,6 +22,7 @@ import { talkRoomMessagesPlugin } from "~/plugins/talkRoomMessages";
 import { readTalkRoomMessagesPlugin } from "~/plugins/readTalkRoomMessages";
 import { deleteTalkRoomsPlugin } from "~/plugins/deleteTalkRooms";
 import { deviceTokenPlugin } from "~/plugins/deviceToken";
+import { flashStampsPlugin } from "~/plugins/flashStamps";
 
 const server = Hapi.server({
   port: 4001,
@@ -77,6 +78,7 @@ export const initializeServer = async () => {
     readTalkRoomMessagesPlugin,
     // deleteTalkRoomsPlugin,
     deviceTokenPlugin,
+    flashStampsPlugin,
   ]);
 
   await server.initialize();
