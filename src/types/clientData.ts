@@ -2,7 +2,7 @@ import { User } from "@prisma/client";
 import { TalkRoomMessage } from "@prisma/client";
 import { TalkRoom } from "@prisma/client";
 import { Post } from "@prisma/client";
-import { Flash } from "@prisma/client";
+import { Flash, FlashStamp } from "@prisma/client";
 
 import { AnotherUser } from "~/types/anotherUser";
 
@@ -42,9 +42,19 @@ export type ClientTalkRoomMessage = Pick<
   "id" | "userId" | "roomId" | "text"
 > & { timestamp: string };
 
+type StampValues = FlashStamp["value"];
+export type FlashStampData = Record<
+  StampValues,
+  {
+    number: number;
+    userIds: string[];
+  }
+>;
+
 export type ClientFlash = Pick<Flash, "id" | "sourceType" | "source"> & {
   timestamp: string;
   viewsNumber: number;
+  stamps: FlashStampData;
 };
 
 // 後々roomsをtalkRoomsに、messagesをtalkMessagesに変えたい

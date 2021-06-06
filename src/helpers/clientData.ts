@@ -7,6 +7,7 @@ import {
   ReadTalkRoomMessage,
   ViewedFlash,
   DeleteTalkRoom,
+  FlashStamp,
 } from "@prisma/client";
 
 import {
@@ -25,15 +26,15 @@ import { createAnotherUser } from "~/helpers/anotherUser";
 export const filterByDayDiff = (timestamp: Date) =>
   (new Date().getTime() - new Date(timestamp).getTime()) / dayMs < 10; // 作成してから7日以内の物を取り出す ここはあとで変える
 
-type Arg = {
+export type CreateClientDataArg = {
   user: User;
   posts: Post[];
-  flashes: (Flash & { viewed: ViewedFlash[] })[];
+  flashes: (Flash & { viewed: ViewedFlash[]; stamps: FlashStamp[] })[];
   // includeされたデータなのでTalkRoom[]だけでなくrecipientなど他のデータもくっついてくる
   senderTalkRooms: (TalkRoom & {
     messages: TalkRoomMessage[];
     recipient: User & {
-      flashes: (Flash & { viewed: ViewedFlash[] })[];
+      flashes: (Flash & { viewed: ViewedFlash[]; stamps: FlashStamp[] })[];
       posts: Post[];
     };
   })[];
@@ -41,7 +42,7 @@ type Arg = {
     messages: TalkRoomMessage[];
     sender: User & {
       posts: Post[];
-      flashes: (Flash & { viewed: ViewedFlash[] })[];
+      flashes: (Flash & { viewed: ViewedFlash[]; stamps: FlashStamp[] })[];
     };
   })[];
   readTalkRoomMessages: ReadTalkRoomMessage[];
@@ -49,7 +50,7 @@ type Arg = {
   deleteTalkRooms: (DeleteTalkRoom & { talkRoom: TalkRoom })[];
 };
 
-export const createClientData = (data: Arg): ClientData => {
+export const createClientData = (data: CreateClientDataArg): ClientData => {
   const user = serializeUser({ user: data.user });
   const posts = data.posts.map((post) => serializePost({ post }));
   const notExpiredFlashes = data.flashes.filter((flash) =>

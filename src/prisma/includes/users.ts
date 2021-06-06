@@ -9,6 +9,7 @@ const forCreateClient = {
   flashes: {
     include: {
       viewed: true,
+      stamps: true,
     },
   },
   talkRoomMessages: true,
@@ -29,6 +30,7 @@ const forCreateClient = {
           flashes: {
             include: {
               viewed: true,
+              stamps: true,
             },
           },
         },
@@ -48,6 +50,7 @@ const forCreateClient = {
           flashes: {
             include: {
               viewed: true,
+              stamps: true,
             },
           },
         },

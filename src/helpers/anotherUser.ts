@@ -1,4 +1,4 @@
-import { User, Post, Flash, ViewedFlash } from "@prisma/client";
+import { User, Post, Flash, ViewedFlash, FlashStamp } from "@prisma/client";
 
 import { serializePost } from "~/serializers/post";
 import { serializeFlash } from "~/serializers/flash";
@@ -9,7 +9,7 @@ import { handleUserLocationCrypt } from "~/helpers/crypto";
 type Arg = {
   user: User;
   posts: Post[];
-  flashes: (Flash & { viewed: ViewedFlash[] })[];
+  flashes: (Flash & { viewed: ViewedFlash[]; stamps: FlashStamp[] })[];
   viewedFlashes: ViewedFlash[]; // 返すユーザーではなく、自分(リクエストした側)のものを渡す
 };
 

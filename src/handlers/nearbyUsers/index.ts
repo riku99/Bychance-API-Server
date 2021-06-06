@@ -36,6 +36,7 @@ const getNearbyUsers = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       flashes: {
         include: {
           viewed: true,
+          stamps: true,
         },
       },
     },

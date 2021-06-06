@@ -36,6 +36,7 @@ const createFlash = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     },
     include: {
       viewed: true,
+      stamps: true,
     },
   });
 

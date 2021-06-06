@@ -111,6 +111,7 @@ const createTalkRoomMessage = async (
         flashes: {
           include: {
             viewed: true,
+            stamps: true,
           },
         },
         viewedFlashes: true,
