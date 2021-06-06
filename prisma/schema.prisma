@@ -38,6 +38,7 @@ model User {
   viewedFlashes        ViewedFlash[]
   deleteTalkRooms DeleteTalkRoom[]
   deviceToken DeviceToken[]
+  flashStamps FlashStamp[]
 
   @@index([display], name: "User.display_index")
   @@index([lineId], name: "User.lineId_index")
@@ -65,6 +66,7 @@ model Flash {
   userId     String
   user       User                @relation(fields: [userId], references: [id])
   viewed     ViewedFlash[]
+  stamps FlashStamp[]
 
   @@index([userId], name: "Flash.userId_index")
 }
@@ -166,6 +168,20 @@ model DeviceToken {
   @@unique([token])
 }
 
+model FlashStamp {
+  id Int @id @default(autoincrement())
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  value FlashStampValue
+  userId String
+  flashId Int
+  user User @relation(fields: [userId], references: [id])
+  flash Flash @relation(fields: [flashId], references: [id])
+
+  @@index([userId, flashId])
+  @@unique([userId, flashId, value]) // ユーザーに同じスタンプデータをを複数回登録することをできなくする
+}
+
 enum FlashSourceTypeRole {
   image
   video
@@ -179,4 +195,12 @@ enum BackGroundItemTypeRole {
 enum PostSourceTypeRole {
   image
   video
+}
+
+enum FlashStampValue {
+  thumbsUp
+  yusyo
+  yoi
+  itibann
+  seikai
 }

@@ -20,8 +20,8 @@ const getResizeNumber = (domain: string) => {
       };
     case "avatar":
       return {
-        width: 700,
-        height: 700,
+        width: 500,
+        height: 500,
       };
     case "backGroundItem":
       return {
