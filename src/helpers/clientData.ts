@@ -6,7 +6,6 @@ import {
   TalkRoomMessage,
   ReadTalkRoomMessage,
   ViewedFlash,
-  DeleteTalkRoom,
   FlashStamp,
 } from "@prisma/client";
 
@@ -107,7 +106,9 @@ export const createClientFlashStamps = (
   };
 };
 
-const createClientFlashStampsFromFlashes = (flashes: FlashWithIncludesItem) => {
+export const createClientFlashStampsFromFlashes = (
+  flashes: FlashWithIncludesItem
+) => {
   const result = flashes
     .map((f) => {
       if (filterByDayDiff(f.createdAt)) {

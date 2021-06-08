@@ -8,7 +8,7 @@ import { GetnearbyUsersQuery } from "~/routes/nearbyUsers/validator";
 import { handleUserLocationCrypt } from "~/helpers/crypto";
 import { createAnotherUser } from "~/helpers/anotherUser";
 import { postIncludes, flashIncludes } from "~/prisma/includes";
-import { filterByDayDiff, createClientFlashStamps } from "~/helpers/clientData";
+import { createClientFlashStampsFromFlashes } from "~/helpers/clientData";
 import { ClientFlashStamp } from "~/types/clientData";
 
 const prisma = new PrismaClient();
@@ -76,12 +76,11 @@ const getNearbyUsers = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
 
   const returnData = sortedUsers.map((user) => {
     const { posts, flashes, ...userData } = user;
-    flashes.forEach((f) => {
-      if (filterByDayDiff(f.createdAt)) {
-        const result = createClientFlashStamps(f.stamps, f.id);
-        flashStampsData.push(result);
-      }
-    });
+
+    const nearbuUserFlashStampsData = createClientFlashStampsFromFlashes(
+      flashes
+    );
+    flashStampsData.push(...nearbuUserFlashStampsData);
     return createAnotherUser({ user: userData, posts, flashes, viewedFlashes });
   });
 
