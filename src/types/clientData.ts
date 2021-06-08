@@ -54,7 +54,11 @@ export type FlashStampData = Record<
 export type ClientFlash = Pick<Flash, "id" | "sourceType" | "source"> & {
   timestamp: string;
   viewsNumber: number;
-  stamps: FlashStampData;
+};
+
+type ClientFlashStamp = {
+  flashId: number;
+  data: FlashStampData;
 };
 
 // 後々roomsをtalkRoomsに、messagesをtalkMessagesに変えたい
@@ -62,7 +66,8 @@ export type ClientData = {
   user: ClientUser;
   posts: ClientPost[];
   rooms: ClientTalkRoom[];
+  chatPartners: AnotherUser[];
   messages: ClientTalkRoomMessage[];
   flashes: ClientFlash[];
-  chatPartners: AnotherUser[];
+  flasStamps: ClientFlashStamp[];
 };

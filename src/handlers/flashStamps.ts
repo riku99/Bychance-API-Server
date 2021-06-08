@@ -19,15 +19,15 @@ const createFlashStamp = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
         value: payload.value,
       },
     });
-
-    return {
-      userId: user.id,
-      flashId: payload.flashId,
-      value: payload.value,
-    };
   } catch {
-    return throwInvalidError();
+    // return throwInvalidError();
   }
+
+  return {
+    userId: user.id,
+    flashId: payload.flashId,
+    value: payload.value,
+  };
 };
 
 export const flashStampsHandler = {

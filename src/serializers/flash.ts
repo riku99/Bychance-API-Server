@@ -9,40 +9,40 @@ export const serializeFlash = ({
 }): ClientFlash => {
   const { id, source, sourceType, viewed, stamps } = flash;
   const timestamp = new Date(flash.createdAt).toString();
-  let clientStampData: FlashStampData = {
-    thumbsUp: {
-      number: 0,
-      userIds: [],
-    },
-    yusyo: {
-      number: 0,
-      userIds: [],
-    },
-    yoi: {
-      number: 0,
-      userIds: [],
-    },
-    itibann: {
-      number: 0,
-      userIds: [],
-    },
-    seikai: {
-      number: 0,
-      userIds: [],
-    },
-  };
+  // let clientStampData: FlashStampData = {
+  //   thumbsUp: {
+  //     number: 0,
+  //     userIds: [],
+  //   },
+  //   yusyo: {
+  //     number: 0,
+  //     userIds: [],
+  //   },
+  //   yoi: {
+  //     number: 0,
+  //     userIds: [],
+  //   },
+  //   itibann: {
+  //     number: 0,
+  //     userIds: [],
+  //   },
+  //   seikai: {
+  //     number: 0,
+  //     userIds: [],
+  //   },
+  // };
 
-  stamps.forEach((stamp) => {
-    clientStampData[stamp.value].number += 1;
-    clientStampData[stamp.value].userIds.push(stamp.userId);
-  });
+  // stamps.forEach((stamp) => {
+  //   clientStampData[stamp.value].number += 1;
+  //   clientStampData[stamp.value].userIds.push(stamp.userId);
+  // });
 
   const clientFlash: ClientFlash = {
     id,
     source,
     sourceType,
     timestamp,
-    stamps: clientStampData,
+    // stamps: clientStampData,
     viewsNumber: viewed.length,
   };
 
