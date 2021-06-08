@@ -15,12 +15,12 @@ import { createS3ObjectPath } from "~/helpers/aws";
 import { throwInvalidError } from "~/helpers/errors";
 import { handleUserLocationCrypt } from "~/helpers/crypto";
 import { createAnotherUser } from "~/helpers/anotherUser";
-import {
-  createClientFlashesData,
-  createClientPostsData,
-} from "~/helpers/clientData";
 import { flashIncludes, postIncludes } from "~/prisma/includes";
-import { createClientFlashStamps } from "~/helpers/clientData";
+import {
+  createClientFlashes,
+  createClientFlashStamps,
+} from "~/helpers/flashes";
+import { createClientPosts } from "~/helpers/posts";
 
 const prisma = new PrismaClient();
 
@@ -121,8 +121,8 @@ const refreshUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   if (isMyData) {
     const { posts: _posts, flashes: _flashes, ...restUserData } = refreshData;
     const user = serializeUser({ user: restUserData });
-    const posts = createClientPostsData(_posts);
-    const flashes = createClientFlashesData(_flashes);
+    const posts = createClientPosts(_posts);
+    const flashes = createClientFlashes(_flashes);
     const flashStamps = createClientFlashStamps(_flashes);
 
     return {

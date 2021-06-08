@@ -8,7 +8,7 @@ import { GetnearbyUsersQuery } from "~/routes/nearbyUsers/validator";
 import { handleUserLocationCrypt } from "~/helpers/crypto";
 import { createAnotherUser } from "~/helpers/anotherUser";
 import { postIncludes, flashIncludes } from "~/prisma/includes";
-import { createClientFlashStamps } from "~/helpers/clientData";
+import { createClientFlashStamps } from "~/helpers/flashes";
 import { ClientFlashStamp } from "~/types/clientData";
 
 const prisma = new PrismaClient();

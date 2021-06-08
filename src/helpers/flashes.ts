@@ -7,7 +7,7 @@ import { FlashStampValuesData } from "~/types/clientData";
 
 export const filterExpiredFlash = (d: Date) => filterByDayDiff(d, 10);
 
-export const createClientFlashesData = (flashes: FlashWithIncludesItem) => {
+export const createClientFlashes = (flashes: FlashWithIncludesItem) => {
   const notExpiredFlashes = flashes.filter((flash) =>
     filterExpiredFlash(flash.createdAt)
   );

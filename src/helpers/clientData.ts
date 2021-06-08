@@ -16,12 +16,16 @@ import {
   ClientFlashStamp,
 } from "~/types/clientData";
 import { serializeUser } from "~/serializers/user";
-import { serializePost } from "~/serializers/post";
-import { serializeFlash } from "~/serializers/flash";
 import { serializeTalkRoom } from "~/serializers/talkRoom";
 import { serializeTalkRoomMessage } from "~/serializers/talkRoomMessage";
 import { createAnotherUser } from "~/helpers/anotherUser";
-import { filterExpiredFlash, createClientFlashStamps } from "~/helpers/flashes";
+import {
+  createClientFlashStamps,
+  createClientFlashes,
+} from "~/helpers/flashes";
+import { createClientPosts } from "~/helpers/posts";
+
+export type PostsWithIncludesItem = Post[];
 
 export type FlashWithIncludesItem = (Flash & {
   viewed: ViewedFlash[];
@@ -30,7 +34,7 @@ export type FlashWithIncludesItem = (Flash & {
 
 export type CreateClientDataArg = {
   user: User;
-  posts: Post[];
+  posts: PostsWithIncludesItem;
   flashes: FlashWithIncludesItem;
   // includeされたデータなのでTalkRoom[]だけでなくrecipientなど他のデータもくっついてくる
   senderTalkRooms: (TalkRoom & {
@@ -51,23 +55,10 @@ export type CreateClientDataArg = {
   viewedFlashes: ViewedFlash[];
 };
 
-export const createClientPostsData = (posts: CreateClientDataArg["posts"]) => {
-  return posts.map((post) => serializePost({ post }));
-};
-
-export const createClientFlashesData = (
-  flashes: CreateClientDataArg["flashes"]
-) => {
-  const notExpiredFlashes = flashes.filter((flash) =>
-    filterExpiredFlash(flash.createdAt)
-  );
-  return notExpiredFlashes.map((flash) => serializeFlash({ flash }));
-};
-
 export const createClientData = (data: CreateClientDataArg): ClientData => {
   const user = serializeUser({ user: data.user });
-  const posts = createClientPostsData(data.posts);
-  const flashes = createClientFlashesData(data.flashes);
+  const posts = createClientPosts(data.posts);
+  const flashes = createClientFlashes(data.flashes);
 
   let clientFlashStamps: ClientFlashStamp[] = [];
 
