@@ -2,7 +2,7 @@ import Hapi from "@hapi/hapi";
 
 import { baseUrl } from "~/constants/url";
 import { createFlashStampValidator } from "./validator";
-import { flashStampsHandler } from "~/handlers/flashStampsHandler";
+import { flashStampsHandler } from "~/handlers/flashStamps";
 
 const createPath = `${baseUrl}/flashStamps`;
 

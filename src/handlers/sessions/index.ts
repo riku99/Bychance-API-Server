@@ -6,7 +6,7 @@ import { createHash, createRandomString } from "~/helpers/crypto";
 import { LineLoginHeaders } from "~/routes/sessions/validator";
 import { throwLoginError } from "~/helpers/errors";
 import { createClientData } from "~/helpers/clientData";
-import { userIncludes } from "~/prisma/includes/users";
+import { createClientIncludes } from "~/prisma/includes";
 import { Artifacts } from "~/auth/bearer";
 
 const prisma = new PrismaClient();
@@ -61,7 +61,7 @@ const lineLogin = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
         data: {
           accessToken: hashededAccessToken,
         },
-        include: userIncludes.forCreateClient,
+        include: createClientIncludes,
       })
     : // 新規の場合は新たに作成
       await prisma.user.create({
@@ -71,7 +71,7 @@ const lineLogin = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
           name,
           avatar,
         },
-        include: userIncludes.forCreateClient,
+        include: createClientIncludes,
       });
 
   if (!user.login) {
@@ -93,7 +93,6 @@ const lineLogin = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     talkRoomMessages,
     readTalkRoomMessages,
     viewedFlashes,
-    deleteTalkRooms,
     ...rest
   } = user;
 
@@ -105,7 +104,6 @@ const lineLogin = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     viewedFlashes,
     senderTalkRooms,
     recipientTalkRooms,
-    deleteTalkRooms,
   });
 
   return { ...clientData, accessToken };
@@ -130,7 +128,7 @@ export const sessionLogin = async (
 
   const data = await prisma.user.findUnique({
     where: { id: user.id },
-    include: userIncludes.forCreateClient,
+    include: createClientIncludes,
   });
 
   const {
@@ -141,7 +139,6 @@ export const sessionLogin = async (
     talkRoomMessages,
     readTalkRoomMessages,
     viewedFlashes,
-    deleteTalkRooms,
     ...rest
   } = data!;
 
@@ -153,7 +150,6 @@ export const sessionLogin = async (
     viewedFlashes,
     senderTalkRooms,
     recipientTalkRooms,
-    deleteTalkRooms,
   });
 };
 
@@ -175,7 +171,7 @@ export const logout = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
 const sampleLogin = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const data = await prisma.user.findUnique({
     where: { id: "5b9a9b57-d497-4dd5-b257-cd5d10c2ea40" },
-    include: userIncludes.forCreateClient,
+    include: createClientIncludes,
   });
 
   await prisma.user.update({
@@ -195,7 +191,6 @@ const sampleLogin = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     talkRoomMessages,
     readTalkRoomMessages,
     viewedFlashes,
-    deleteTalkRooms,
     ...rest
   } = data!;
 
@@ -207,7 +202,6 @@ const sampleLogin = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     viewedFlashes,
     senderTalkRooms,
     recipientTalkRooms,
-    deleteTalkRooms,
   });
 
   return {

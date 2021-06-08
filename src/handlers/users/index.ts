@@ -15,6 +15,11 @@ import { createS3ObjectPath } from "~/helpers/aws";
 import { throwInvalidError, throwLoginError } from "~/helpers/errors";
 import { handleUserLocationCrypt } from "~/helpers/crypto";
 import { createAnotherUser } from "~/helpers/anotherUser";
+import {
+  createClientFlashesData,
+  createClientPostsData,
+} from "~/helpers/clientData";
+import { flashIncludes, postIncludes } from "~/prisma/includes";
 
 const prisma = new PrismaClient();
 
@@ -100,33 +105,29 @@ const refreshUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
 
   const isMyData = user.id === payload.userId;
 
-  const refreshedUser = await prisma.user.findUnique({
+  const refreshData = await prisma.user.findUnique({
     where: { id: payload.userId },
     include: {
-      posts: {
-        orderBy: {
-          createdAt: "desc",
-        },
-      },
-      flashes: {
-        include: {
-          viewed: true,
-          stamps: true,
-        },
-      },
+      ...postIncludes,
+      ...flashIncludes,
     },
   });
 
-  if (!refreshedUser) {
+  if (!refreshData) {
     return throwInvalidError("ユーザーが存在しません");
   }
 
   if (isMyData) {
-    const data = serializeUser({ user: refreshedUser });
+    const { posts: _posts, flashes: _flashes, ...restUserData } = refreshData;
+    const user = serializeUser({ user: restUserData });
+    const posts = createClientPostsData(_posts);
+    const flashes = createClientFlashesData(_flashes);
 
     return {
       isMyData,
-      data,
+      user,
+      posts,
+      flashes,
     };
   } else {
     const viewedFlashes = await prisma.viewedFlash.findMany({
@@ -134,7 +135,7 @@ const refreshUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
         userId: user.id,
       },
     });
-    const { posts, flashes, ...userData } = refreshedUser;
+    const { posts, flashes, ...userData } = refreshData;
     const data = createAnotherUser({
       user: userData,
       posts,

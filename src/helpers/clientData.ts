@@ -47,21 +47,30 @@ export type CreateClientDataArg = {
   })[];
   readTalkRoomMessages: ReadTalkRoomMessage[];
   viewedFlashes: ViewedFlash[];
-  deleteTalkRooms: (DeleteTalkRoom & { talkRoom: TalkRoom })[];
+  // deleteTalkRooms: (DeleteTalkRoom & { talkRoom: TalkRoom })[];
+};
+
+export const createClientPostsData = (posts: CreateClientDataArg["posts"]) => {
+  return posts.map((post) => serializePost({ post }));
+};
+
+export const createClientFlashesData = (
+  flashes: CreateClientDataArg["flashes"]
+) => {
+  const notExpiredFlashes = flashes.filter((flash) =>
+    filterByDayDiff(flash.createdAt)
+  );
+  return notExpiredFlashes.map((flash) => serializeFlash({ flash }));
 };
 
 export const createClientData = (data: CreateClientDataArg): ClientData => {
   const user = serializeUser({ user: data.user });
-  const posts = data.posts.map((post) => serializePost({ post }));
-  const notExpiredFlashes = data.flashes.filter((flash) =>
-    filterByDayDiff(flash.createdAt)
-  );
-  const flashes = notExpiredFlashes.map((flash) => serializeFlash({ flash }));
+  const posts = createClientPostsData(data.posts);
+  const flashes = createClientFlashesData(data.flashes);
 
   let talkRooms: ClientTalkRoom[] = [];
   let talkRoomMessages: ClientTalkRoomMessage[] = [];
   const allTalkRooms = [...data.senderTalkRooms, ...data.recipientTalkRooms];
-  // const deletedTalkRoomIds = data.deleteTalkRooms.map((d) => d.talkRoomId);
 
   allTalkRooms.forEach((talkRoom) => {
     // 論理的に削除されている(DBには残っている)データの場合その時点でリターン。
@@ -113,17 +122,18 @@ export const createClientData = (data: CreateClientDataArg): ClientData => {
   const recipients = data.senderTalkRooms.map((talkRoom) => talkRoom.recipient);
   const senders = data.recipientTalkRooms.map((talkRoom) => talkRoom.sender);
   const recipientsAndSenders = [...recipients, ...senders];
-  const deletedTalkRoomPartnerIds = data.deleteTalkRooms.map((deletedRooms) => {
-    const senderId = deletedRooms.talkRoom.senderId;
-    const recipientId = deletedRooms.talkRoom.recipientId;
-    return senderId !== data.user.id ? senderId : recipientId;
-  });
+  // const deletedTalkRoomPartnerIds = data.deleteTalkRooms.map((deletedRooms) => {
+  //   const senderId = deletedRooms.talkRoom.senderId;
+  //   const recipientId = deletedRooms.talkRoom.recipientId;
+  //   return senderId !== data.user.id ? senderId : recipientId;
+  // });
+  // この処理多分いらない
   // 削除登録されているルームのパートナーはデータから抜く
-  const filterdPartners = recipientsAndSenders.filter(
-    (partner) => !deletedTalkRoomPartnerIds.includes(partner.id)
-  );
+  // const filterdPartners = recipientsAndSenders.filter(
+  //   (partner) => !deletedTalkRoomPartnerIds.includes(partner.id)
+  // );
 
-  const chatPartners = filterdPartners.map((user) => {
+  const chatPartners = recipientsAndSenders.map((user) => {
     const { posts, flashes, ...restUserData } = user;
     return createAnotherUser({
       user: restUserData,
