@@ -3,7 +3,7 @@ import { User, Post, Flash, ViewedFlash, FlashStamp } from "@prisma/client";
 import { serializePost } from "~/serializers/post";
 import { serializeFlash } from "~/serializers/flash";
 import { AnotherUser } from "~/types/anotherUser";
-import { filterByDayDiff } from "~/helpers/clientData";
+import { filterExpiredFlash } from "~/helpers/flashes";
 import { handleUserLocationCrypt } from "~/helpers/crypto";
 
 type Arg = {
@@ -44,7 +44,7 @@ export const createAnotherUser = ({
   const alreadyViewedIds: number[] = [];
 
   const notExpiredFlashes = flashes.filter((flash) => {
-    const include = filterByDayDiff(flash.createdAt);
+    const include = filterExpiredFlash(flash.createdAt);
 
     if (include) {
       if (viewedFlashIds.includes(flash.id)) {

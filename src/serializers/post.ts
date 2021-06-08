@@ -1,6 +1,6 @@
 import { Post } from "@prisma/client";
 
-import { formatDate } from "~/helpers/date";
+import { formatDate } from "~/utils";
 import { ClientPost } from "~/types/clientData";
 
 export const serializePost = ({ post }: { post: Post }): ClientPost => {

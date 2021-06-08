@@ -12,7 +12,7 @@ import {
 } from "~/routes/users/validator";
 import { serializeUser } from "~/serializers/user";
 import { createS3ObjectPath } from "~/helpers/aws";
-import { throwInvalidError, throwLoginError } from "~/helpers/errors";
+import { throwInvalidError } from "~/helpers/errors";
 import { handleUserLocationCrypt } from "~/helpers/crypto";
 import { createAnotherUser } from "~/helpers/anotherUser";
 import {
@@ -20,7 +20,7 @@ import {
   createClientPostsData,
 } from "~/helpers/clientData";
 import { flashIncludes, postIncludes } from "~/prisma/includes";
-import { createClientFlashStampsFromFlashes } from "~/helpers/clientData";
+import { createClientFlashStamps } from "~/helpers/clientData";
 
 const prisma = new PrismaClient();
 
@@ -123,7 +123,7 @@ const refreshUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     const user = serializeUser({ user: restUserData });
     const posts = createClientPostsData(_posts);
     const flashes = createClientFlashesData(_flashes);
-    const flashStamps = createClientFlashStampsFromFlashes(_flashes);
+    const flashStamps = createClientFlashStamps(_flashes);
 
     return {
       isMyData,
@@ -139,7 +139,7 @@ const refreshUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       },
     });
     const { posts, flashes, ...userData } = refreshData;
-    const flashStamps = createClientFlashStampsFromFlashes(flashes);
+    const flashStamps = createClientFlashStamps(flashes);
 
     const data = createAnotherUser({
       user: userData,

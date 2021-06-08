@@ -48,7 +48,7 @@ export type ClientFlash = Pick<Flash, "id" | "sourceType" | "source"> & {
 };
 
 type StampValues = FlashStamp["value"];
-export type FlashStampData = Record<
+export type FlashStampValuesData = Record<
   StampValues,
   {
     number: number;
@@ -58,7 +58,7 @@ export type FlashStampData = Record<
 
 export type ClientFlashStamp = {
   flashId: number;
-  data: FlashStampData;
+  data: FlashStampValuesData;
 };
 
 // 後々roomsをtalkRoomsに、messagesをtalkMessagesに変えたい

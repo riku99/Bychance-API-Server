@@ -13,21 +13,17 @@ import {
   ClientData,
   ClientTalkRoom,
   ClientTalkRoomMessage,
-  FlashStampData,
   ClientFlashStamp,
 } from "~/types/clientData";
 import { serializeUser } from "~/serializers/user";
 import { serializePost } from "~/serializers/post";
 import { serializeFlash } from "~/serializers/flash";
 import { serializeTalkRoom } from "~/serializers/talkRoom";
-import { dayMs } from "~/constants/date";
 import { serializeTalkRoomMessage } from "~/serializers/talkRoomMessage";
 import { createAnotherUser } from "~/helpers/anotherUser";
+import { filterExpiredFlash, createClientFlashStamps } from "~/helpers/flashes";
 
-export const filterByDayDiff = (timestamp: Date) =>
-  (new Date().getTime() - new Date(timestamp).getTime()) / dayMs < 10; // 作成してから7日以内の物を取り出す ここはあとで変える
-
-type FlashWithIncludesItem = (Flash & {
+export type FlashWithIncludesItem = (Flash & {
   viewed: ViewedFlash[];
   stamps: FlashStamp[];
 })[];
@@ -63,61 +59,9 @@ export const createClientFlashesData = (
   flashes: CreateClientDataArg["flashes"]
 ) => {
   const notExpiredFlashes = flashes.filter((flash) =>
-    filterByDayDiff(flash.createdAt)
+    filterExpiredFlash(flash.createdAt)
   );
   return notExpiredFlashes.map((flash) => serializeFlash({ flash }));
-};
-
-export const createClientFlashStamps = (
-  stamps: FlashStamp[],
-  flashId: number
-) => {
-  let clientStampData: FlashStampData = {
-    thumbsUp: {
-      number: 0,
-      userIds: [],
-    },
-    yusyo: {
-      number: 0,
-      userIds: [],
-    },
-    yoi: {
-      number: 0,
-      userIds: [],
-    },
-    itibann: {
-      number: 0,
-      userIds: [],
-    },
-    seikai: {
-      number: 0,
-      userIds: [],
-    },
-  };
-
-  stamps.forEach((stamp) => {
-    clientStampData[stamp.value].number += 1;
-    clientStampData[stamp.value].userIds.push(stamp.userId);
-  });
-
-  return {
-    flashId,
-    data: clientStampData,
-  };
-};
-
-export const createClientFlashStampsFromFlashes = (
-  flashes: FlashWithIncludesItem
-) => {
-  const result = flashes
-    .map((f) => {
-      if (filterByDayDiff(f.createdAt)) {
-        return createClientFlashStamps(f.stamps, f.id);
-      }
-    })
-    .filter((f): f is Exclude<typeof f, undefined> => f !== undefined);
-
-  return result;
 };
 
 export const createClientData = (data: CreateClientDataArg): ClientData => {
@@ -127,7 +71,7 @@ export const createClientData = (data: CreateClientDataArg): ClientData => {
 
   let clientFlashStamps: ClientFlashStamp[] = [];
 
-  const myFlashStampsData = createClientFlashStampsFromFlashes(data.flashes);
+  const myFlashStampsData = createClientFlashStamps(data.flashes);
   clientFlashStamps.push(...myFlashStampsData);
 
   let talkRooms: ClientTalkRoom[] = [];
@@ -183,9 +127,7 @@ export const createClientData = (data: CreateClientDataArg): ClientData => {
   const chatPartners = recipientsAndSenders.map((user) => {
     const { posts, flashes, ...restUserData } = user;
 
-    const chatpartnerFlashStampsData = createClientFlashStampsFromFlashes(
-      flashes
-    );
+    const chatpartnerFlashStampsData = createClientFlashStamps(flashes);
     clientFlashStamps.push(...chatpartnerFlashStampsData);
 
     return createAnotherUser({
