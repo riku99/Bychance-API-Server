@@ -28,15 +28,20 @@ import { createAnotherUser } from "~/helpers/anotherUser";
 export const filterByDayDiff = (timestamp: Date) =>
   (new Date().getTime() - new Date(timestamp).getTime()) / dayMs < 10; // 作成してから7日以内の物を取り出す ここはあとで変える
 
+type FlashWithIncludesItem = (Flash & {
+  viewed: ViewedFlash[];
+  stamps: FlashStamp[];
+})[];
+
 export type CreateClientDataArg = {
   user: User;
   posts: Post[];
-  flashes: (Flash & { viewed: ViewedFlash[]; stamps: FlashStamp[] })[];
+  flashes: FlashWithIncludesItem;
   // includeされたデータなのでTalkRoom[]だけでなくrecipientなど他のデータもくっついてくる
   senderTalkRooms: (TalkRoom & {
     messages: TalkRoomMessage[];
     recipient: User & {
-      flashes: (Flash & { viewed: ViewedFlash[]; stamps: FlashStamp[] })[];
+      flashes: FlashWithIncludesItem;
       posts: Post[];
     };
   })[];
@@ -44,7 +49,7 @@ export type CreateClientDataArg = {
     messages: TalkRoomMessage[];
     sender: User & {
       posts: Post[];
-      flashes: (Flash & { viewed: ViewedFlash[]; stamps: FlashStamp[] })[];
+      flashes: FlashWithIncludesItem;
     };
   })[];
   readTalkRoomMessages: ReadTalkRoomMessage[];
@@ -64,7 +69,10 @@ export const createClientFlashesData = (
   return notExpiredFlashes.map((flash) => serializeFlash({ flash }));
 };
 
-const createClientFlashStamps = (stamps: FlashStamp[], flashId: number) => {
+export const createClientFlashStamps = (
+  stamps: FlashStamp[],
+  flashId: number
+) => {
   let clientStampData: FlashStampData = {
     thumbsUp: {
       number: 0,
@@ -99,6 +107,18 @@ const createClientFlashStamps = (stamps: FlashStamp[], flashId: number) => {
   };
 };
 
+const createClientFlashStampsFromFlashes = (flashes: FlashWithIncludesItem) => {
+  const result = flashes
+    .map((f) => {
+      if (filterByDayDiff(f.createdAt)) {
+        return createClientFlashStamps(f.stamps, f.id);
+      }
+    })
+    .filter((f): f is Exclude<typeof f, undefined> => f !== undefined);
+
+  return result;
+};
+
 export const createClientData = (data: CreateClientDataArg): ClientData => {
   const user = serializeUser({ user: data.user });
   const posts = createClientPostsData(data.posts);
@@ -106,12 +126,8 @@ export const createClientData = (data: CreateClientDataArg): ClientData => {
 
   let clientFlashStamps: ClientFlashStamp[] = [];
 
-  data.flashes.forEach((f) => {
-    if (filterByDayDiff(f.createdAt)) {
-      const result = createClientFlashStamps(f.stamps, f.id);
-      clientFlashStamps.push(result);
-    }
-  });
+  const myFlashStampsData = createClientFlashStampsFromFlashes(data.flashes);
+  clientFlashStamps.push(...myFlashStampsData);
 
   let talkRooms: ClientTalkRoom[] = [];
   let talkRoomMessages: ClientTalkRoomMessage[] = [];
@@ -165,12 +181,11 @@ export const createClientData = (data: CreateClientDataArg): ClientData => {
 
   const chatPartners = recipientsAndSenders.map((user) => {
     const { posts, flashes, ...restUserData } = user;
-    flashes.forEach((f) => {
-      if (filterByDayDiff(f.createdAt)) {
-        const _stamps = createClientFlashStamps(f.stamps, f.id);
-        clientFlashStamps.push(_stamps);
-      }
-    });
+
+    const chatpartnerFlashStampsData = createClientFlashStampsFromFlashes(
+      flashes
+    );
+    clientFlashStamps.push(...chatpartnerFlashStampsData);
 
     return createAnotherUser({
       user: restUserData,
@@ -187,7 +202,7 @@ export const createClientData = (data: CreateClientDataArg): ClientData => {
     rooms: talkRooms,
     messages: talkRoomMessages,
     chatPartners,
-    flasStamps: clientFlashStamps,
+    flashStamps: clientFlashStamps,
   };
 
   return clietnData;

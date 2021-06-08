@@ -69,5 +69,5 @@ export type ClientData = {
   chatPartners: AnotherUser[];
   messages: ClientTalkRoomMessage[];
   flashes: ClientFlash[];
-  flasStamps: ClientFlashStamp[];
+  flashStamps: ClientFlashStamp[];
 };
