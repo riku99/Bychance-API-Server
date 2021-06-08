@@ -42,6 +42,11 @@ export type ClientTalkRoomMessage = Pick<
   "id" | "userId" | "roomId" | "text"
 > & { timestamp: string };
 
+export type ClientFlash = Pick<Flash, "id" | "sourceType" | "source"> & {
+  timestamp: string;
+  viewsNumber: number;
+};
+
 type StampValues = FlashStamp["value"];
 export type FlashStampData = Record<
   StampValues,
@@ -51,12 +56,7 @@ export type FlashStampData = Record<
   }
 >;
 
-export type ClientFlash = Pick<Flash, "id" | "sourceType" | "source"> & {
-  timestamp: string;
-  viewsNumber: number;
-};
-
-type ClientFlashStamp = {
+export type ClientFlashStamp = {
   flashId: number;
   data: FlashStampData;
 };

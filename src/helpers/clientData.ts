@@ -14,6 +14,8 @@ import {
   ClientData,
   ClientTalkRoom,
   ClientTalkRoomMessage,
+  FlashStampData,
+  ClientFlashStamp,
 } from "~/types/clientData";
 import { serializeUser } from "~/serializers/user";
 import { serializePost } from "~/serializers/post";
@@ -63,21 +65,60 @@ export const createClientFlashesData = (
   return notExpiredFlashes.map((flash) => serializeFlash({ flash }));
 };
 
+const createClientFlashStamps = (stamps: FlashStamp[], flashId: number) => {
+  let clientStampData: FlashStampData = {
+    thumbsUp: {
+      number: 0,
+      userIds: [],
+    },
+    yusyo: {
+      number: 0,
+      userIds: [],
+    },
+    yoi: {
+      number: 0,
+      userIds: [],
+    },
+    itibann: {
+      number: 0,
+      userIds: [],
+    },
+    seikai: {
+      number: 0,
+      userIds: [],
+    },
+  };
+
+  stamps.forEach((stamp) => {
+    clientStampData[stamp.value].number += 1;
+    clientStampData[stamp.value].userIds.push(stamp.userId);
+  });
+
+  return {
+    flashId,
+    data: clientStampData,
+  };
+};
+
 export const createClientData = (data: CreateClientDataArg): ClientData => {
   const user = serializeUser({ user: data.user });
   const posts = createClientPostsData(data.posts);
   const flashes = createClientFlashesData(data.flashes);
+
+  let clientFlashStamps: ClientFlashStamp[] = [];
+
+  data.flashes.forEach((f) => {
+    if (filterByDayDiff(f.createdAt)) {
+      const result = createClientFlashStamps(f.stamps, f.id);
+      clientFlashStamps.push(result);
+    }
+  });
 
   let talkRooms: ClientTalkRoom[] = [];
   let talkRoomMessages: ClientTalkRoomMessage[] = [];
   const allTalkRooms = [...data.senderTalkRooms, ...data.recipientTalkRooms];
 
   allTalkRooms.forEach((talkRoom) => {
-    // 論理的に削除されている(DBには残っている)データの場合その時点でリターン。
-    // if (deletedTalkRoomIds.includes(talkRoom.id)) {
-    //   return;
-    // }
-
     // トークルームは存在しても作成相手からメッセージがきてない場合はrecipient側にはそのトークルームは表示させない。それを判断するために使うデータ
     let dataToBeDisplayed = false;
 
@@ -122,19 +163,16 @@ export const createClientData = (data: CreateClientDataArg): ClientData => {
   const recipients = data.senderTalkRooms.map((talkRoom) => talkRoom.recipient);
   const senders = data.recipientTalkRooms.map((talkRoom) => talkRoom.sender);
   const recipientsAndSenders = [...recipients, ...senders];
-  // const deletedTalkRoomPartnerIds = data.deleteTalkRooms.map((deletedRooms) => {
-  //   const senderId = deletedRooms.talkRoom.senderId;
-  //   const recipientId = deletedRooms.talkRoom.recipientId;
-  //   return senderId !== data.user.id ? senderId : recipientId;
-  // });
-  // この処理多分いらない
-  // 削除登録されているルームのパートナーはデータから抜く
-  // const filterdPartners = recipientsAndSenders.filter(
-  //   (partner) => !deletedTalkRoomPartnerIds.includes(partner.id)
-  // );
 
   const chatPartners = recipientsAndSenders.map((user) => {
     const { posts, flashes, ...restUserData } = user;
+    flashes.forEach((f) => {
+      if (filterByDayDiff(f.createdAt)) {
+        const _stamps = createClientFlashStamps(f.stamps, f.id);
+        clientFlashStamps.push(_stamps);
+      }
+    });
+
     return createAnotherUser({
       user: restUserData,
       posts,
@@ -150,6 +188,7 @@ export const createClientData = (data: CreateClientDataArg): ClientData => {
     rooms: talkRooms,
     messages: talkRoomMessages,
     chatPartners,
+    flasStamps: clientFlashStamps,
   };
 
   return clietnData;
