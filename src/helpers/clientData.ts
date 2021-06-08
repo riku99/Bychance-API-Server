@@ -49,7 +49,6 @@ export type CreateClientDataArg = {
   })[];
   readTalkRoomMessages: ReadTalkRoomMessage[];
   viewedFlashes: ViewedFlash[];
-  // deleteTalkRooms: (DeleteTalkRoom & { talkRoom: TalkRoom })[];
 };
 
 export const createClientPostsData = (posts: CreateClientDataArg["posts"]) => {
