@@ -20,7 +20,7 @@ import {
   createClientPostsData,
 } from "~/helpers/clientData";
 import { flashIncludes, postIncludes } from "~/prisma/includes";
-import { filterByDayDiff, createClientFlashStamps } from "~/helpers/clientData";
+import { createClientFlashStampsFromFlashes } from "~/helpers/clientData";
 
 const prisma = new PrismaClient();
 
@@ -123,17 +123,14 @@ const refreshUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     const user = serializeUser({ user: restUserData });
     const posts = createClientPostsData(_posts);
     const flashes = createClientFlashesData(_flashes);
-    const clientFlashStampsData = _flashes.map((f) => {
-      if (filterByDayDiff(f.createdAt)) {
-        return createClientFlashStamps(f.stamps, f.id);
-      }
-    });
+    const flashStamps = createClientFlashStampsFromFlashes(_flashes);
 
     return {
       isMyData,
       user,
       posts,
       flashes,
+      flashStamps,
     };
   } else {
     const viewedFlashes = await prisma.viewedFlash.findMany({
@@ -142,6 +139,7 @@ const refreshUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       },
     });
     const { posts, flashes, ...userData } = refreshData;
+    const flashStamps = createClientFlashStampsFromFlashes(flashes);
 
     const data = createAnotherUser({
       user: userData,
@@ -152,7 +150,10 @@ const refreshUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
 
     return {
       isMyData,
-      data,
+      data: {
+        user: data,
+        flashStamps,
+      },
     };
   }
 };
