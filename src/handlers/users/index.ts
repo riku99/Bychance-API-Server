@@ -9,6 +9,7 @@ import {
   ChangeUserDisplayPayload,
   ChangeVideoEditDescriptionPayload,
   ChangeTalkRoomMessageReceipt,
+  ChangeShowReceiveMessage,
 } from "~/routes/users/validator";
 import { serializeUser } from "~/serializers/user";
 import { createS3ObjectPath } from "~/helpers/aws";
@@ -232,6 +233,29 @@ const changeTalkRoomMessageReceipt = async (
   return h.response().code(200);
 };
 
+const changeShowReceiveMessage = async (
+  req: Hapi.Request,
+  h: Hapi.ResponseToolkit
+) => {
+  const user = req.auth.artifacts as Artifacts;
+  const payload = req.payload as ChangeShowReceiveMessage;
+
+  try {
+    await prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        showReceiveMessage: payload.showReceiveMessage,
+      },
+    });
+  } catch {
+    return throwInvalidError("変更に失敗しました");
+  }
+
+  return h.response().code(200);
+};
+
 export const usersHandler = {
   updateUser,
   refreshUser,
@@ -239,4 +263,5 @@ export const usersHandler = {
   changeDisplay,
   changeVideoEditDescription,
   changeTalkRoomMessageReceipt,
+  changeShowReceiveMessage,
 };

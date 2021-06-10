@@ -140,3 +140,18 @@ export const changeTalkRoomMessageReceiptValidator = {
   validator: talkRoomMessageReceiptValidation,
   failAction: talkRoomMessageReceiptFailAction,
 };
+
+export type ChangeShowReceiveMessage = {
+  showReceiveMessage: boolean;
+};
+
+const changeShowReceiveMessageValidation = {
+  payload: Joi.object<ChangeShowReceiveMessage>({
+    showReceiveMessage: Joi.boolean().required(),
+  }),
+};
+
+export const changeShowReceiveMessageValidator = {
+  validator: changeShowReceiveMessageValidation,
+  failAction: () => throwInvalidError(),
+};

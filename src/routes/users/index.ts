@@ -7,10 +7,13 @@ import {
   changeUserDisplayValidator,
   changeVideoEditDescriptionValidator,
   changeTalkRoomMessageReceiptValidator,
+  changeShowReceiveMessageValidator,
 } from "./validator";
 import { usersHandler } from "~/handlers/users";
 import { baseUrl } from "~/constants/url";
 import { maxBytes } from "~/config/apis/size";
+
+const changeShowReceiveMessagePath = `${baseUrl}/users/showReceiveMessage`;
 
 export const usersRoute = async (server: Hapi.Server) => {
   server.route([
@@ -80,6 +83,17 @@ export const usersRoute = async (server: Hapi.Server) => {
         validate: {
           payload: changeTalkRoomMessageReceiptValidator.validator.payload,
           failAction: changeTalkRoomMessageReceiptValidator.failAction,
+        },
+      },
+    },
+    {
+      method: "PATCH",
+      path: changeShowReceiveMessagePath,
+      handler: usersHandler.changeShowReceiveMessage,
+      options: {
+        validate: {
+          payload: changeShowReceiveMessageValidator.validator.payload,
+          failAction: changeShowReceiveMessageValidator.failAction,
         },
       },
     },

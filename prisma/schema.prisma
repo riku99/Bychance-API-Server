@@ -28,6 +28,7 @@ model User {
   videoEditDescription Boolean                @default(false)
   talkRoomMessageReceipt Boolean              @default(true)
   login                 Boolean               @default(true)
+  showReceiveMessage Boolean                  @default(true)
   backGroundItemType BackGroundItemTypeRole?
   flashes              Flash[]
   posts                Post[]

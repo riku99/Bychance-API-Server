@@ -10,8 +10,8 @@ const getResizeNumber = (domain: string) => {
   switch (domain) {
     case "post":
       return {
-        width: 1080,
-        height: 1350,
+        width: 768,
+        height: 1024,
       };
     case "flash":
       return {
@@ -25,8 +25,8 @@ const getResizeNumber = (domain: string) => {
       };
     case "backGroundItem":
       return {
-        width: 1080,
-        height: 1350,
+        width: 768,
+        height: 1024,
       };
     default:
       return {
@@ -166,6 +166,7 @@ export const createS3ObjectPath = async ({
   let sourceBufferData: Buffer;
   let thumbnailBufferData: Buffer | undefined;
 
+  console.log(width + ":" + height);
   if (sourceType === "image") {
     sourceBufferData = await sharp(decodedData)
       .rotate() // exifの関係でrotate()つけないと回転率が変になる時ある https://stackoverflow.com/questions/48716266/sharp-image-library-rotates-image-when-resizing
