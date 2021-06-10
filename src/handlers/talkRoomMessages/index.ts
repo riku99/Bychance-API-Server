@@ -102,6 +102,7 @@ const createTalkRoomMessage = async (
         avatar: sender.avatar,
         name: sender.name,
       },
+      show: partner.showReceiveMessage,
     };
   } else {
     const sender = await prisma.user.findUnique({
@@ -161,6 +162,7 @@ const createTalkRoomMessage = async (
       room: serializedRoom,
       message: clientMessage,
       sender: clientSenderData,
+      show: partner.showReceiveMessage,
     };
   }
 
