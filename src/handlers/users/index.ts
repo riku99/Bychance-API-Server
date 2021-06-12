@@ -177,6 +177,26 @@ const updateLocation = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   return h.response().code(200);
 };
 
+const deleteLocation = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
+  const user = req.auth.artifacts as Artifacts;
+
+  try {
+    await prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        lat: null,
+        lng: null,
+      },
+    });
+  } catch {
+    return throwInvalidError("削除に失敗しました");
+  }
+
+  return h.response().code(200);
+};
+
 const changeDisplay = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const user = req.auth.artifacts as Artifacts;
   const payload = req.payload as ChangeUserDisplayPayload;
@@ -264,4 +284,5 @@ export const usersHandler = {
   changeVideoEditDescription,
   changeTalkRoomMessageReceipt,
   changeShowReceiveMessage,
+  deleteLocation,
 };

@@ -14,6 +14,7 @@ import { baseUrl } from "~/constants/url";
 import { maxBytes } from "~/config/apis/size";
 
 const changeShowReceiveMessagePath = `${baseUrl}/users/showReceiveMessage`;
+const usersLocation = `${baseUrl}/users/location`;
 
 export const usersRoute = async (server: Hapi.Server) => {
   server.route([
@@ -52,6 +53,11 @@ export const usersRoute = async (server: Hapi.Server) => {
           failAction: updateLocationValidator.failAction,
         },
       },
+    },
+    {
+      method: "DELETE",
+      path: usersLocation,
+      handler: usersHandler.deleteLocation,
     },
     {
       method: "PATCH",
