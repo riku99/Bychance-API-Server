@@ -40,6 +40,7 @@ model User {
   deleteTalkRooms DeleteTalkRoom[]
   deviceToken DeviceToken[]
   flashStamps FlashStamp[]
+  privateZone PrivateZone[]
 
   @@index([display], name: "User.display_index")
   @@index([lineId], name: "User.lineId_index")
@@ -181,6 +182,19 @@ model FlashStamp {
 
   @@index([userId, flashId])
   @@unique([userId, flashId, value]) // ユーザーに同じスタンプデータをを複数回登録することをできなくする
+}
+
+model PrivateZone {
+  id Int @id @default(autoincrement())
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  lat String
+  lng String
+  address String
+  userId String
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
 }
 
 enum FlashSourceTypeRole {
