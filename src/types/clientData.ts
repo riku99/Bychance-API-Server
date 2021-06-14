@@ -61,6 +61,11 @@ export type ClientFlashStamp = {
   data: FlashStampValuesData;
 };
 
+export type ClientPrivateZone = {
+  id: number;
+  address: string;
+};
+
 // 後々roomsをtalkRoomsに、messagesをtalkMessagesに変えたい
 export type ClientData = {
   user: ClientUser;
@@ -70,4 +75,5 @@ export type ClientData = {
   messages: ClientTalkRoomMessage[];
   flashes: ClientFlash[];
   flashStamps: ClientFlashStamp[];
+  privateZone: ClientPrivateZone[];
 };
