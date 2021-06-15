@@ -30,6 +30,7 @@ type HandleUserLocationCrypt = {
   };
 };
 
+// lat, lngの暗号化
 export const handleUserLocationCrypt: HandleUserLocationCrypt = (
   lat: number | string,
   lng: number | string,
@@ -68,5 +69,23 @@ export const handleUserLocationCrypt: HandleUserLocationCrypt = (
     ).toString(CryptoJS.enc.Utf8);
 
     return { lat: Number(decryptedLat), lng: Number(decryptedLng) };
+  }
+};
+
+// addressの暗号化,復号化
+export const handleAddressCrypt = (
+  address: string,
+  mode: "decrypt" | "encrypt"
+) => {
+  if (mode === "encrypt") {
+    return CryptoJS.AES.encrypt(
+      address,
+      (process.env.USER_LOCATION_KEY as string) || "testkey"
+    ).toString();
+  } else {
+    return CryptoJS.AES.decrypt(
+      address,
+      (process.env.USER_LOCATION_KEY as string) || "testkey"
+    ).toString(CryptoJS.enc.Utf8);
   }
 };
