@@ -20,9 +20,9 @@ import { nearbyUsersPlugin } from "~/plugins/nearbyUsers";
 import { talkRoomsPlugin } from "~/plugins/talkRooms";
 import { talkRoomMessagesPlugin } from "~/plugins/talkRoomMessages";
 import { readTalkRoomMessagesPlugin } from "~/plugins/readTalkRoomMessages";
-import { deleteTalkRoomsPlugin } from "~/plugins/deleteTalkRooms";
 import { deviceTokenPlugin } from "~/plugins/deviceToken";
 import { flashStampsPlugin } from "~/plugins/flashStamps";
+import { privateZonePlugin } from "~/plugins/privateZone";
 
 const server = Hapi.server({
   port: 4001,
@@ -76,9 +76,9 @@ export const initializeServer = async () => {
     talkRoomsPlugin,
     talkRoomMessagesPlugin,
     readTalkRoomMessagesPlugin,
-    // deleteTalkRoomsPlugin,
     deviceTokenPlugin,
     flashStampsPlugin,
+    privateZonePlugin,
   ]);
 
   await server.initialize();
