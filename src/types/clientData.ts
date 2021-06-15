@@ -75,5 +75,4 @@ export type ClientData = {
   messages: ClientTalkRoomMessage[];
   flashes: ClientFlash[];
   flashStamps: ClientFlashStamp[];
-  privateZone: ClientPrivateZone[];
 };

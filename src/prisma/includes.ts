@@ -47,10 +47,4 @@ export const createClientIncludes = {
       },
     },
   },
-  privateZone: {
-    select: {
-      id: true,
-      address: true,
-    },
-  },
 };

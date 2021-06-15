@@ -7,7 +7,6 @@ import {
   ReadTalkRoomMessage,
   ViewedFlash,
   FlashStamp,
-  PrivateZone,
 } from "@prisma/client";
 
 import {
@@ -54,7 +53,6 @@ export type CreateClientDataArg = {
   })[];
   readTalkRoomMessages: ReadTalkRoomMessage[];
   viewedFlashes: ViewedFlash[];
-  privateZone: Pick<PrivateZone, "address" | "id">[];
 };
 
 export const createClientData = (data: CreateClientDataArg): ClientData => {
@@ -139,7 +137,6 @@ export const createClientData = (data: CreateClientDataArg): ClientData => {
     messages: talkRoomMessages,
     chatPartners,
     flashStamps: clientFlashStamps,
-    privateZone: data.privateZone,
   };
 
   return clietnData;
