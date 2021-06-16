@@ -23,6 +23,7 @@ import { readTalkRoomMessagesPlugin } from "~/plugins/readTalkRoomMessages";
 import { deviceTokenPlugin } from "~/plugins/deviceToken";
 import { flashStampsPlugin } from "~/plugins/flashStamps";
 import { privateZonePlugin } from "~/plugins/privateZone";
+import { privateTimePlugin } from "~/plugins/privateTime";
 
 const server = Hapi.server({
   port: 4001,
@@ -79,6 +80,7 @@ export const initializeServer = async () => {
     deviceTokenPlugin,
     flashStampsPlugin,
     privateZonePlugin,
+    privateTimePlugin,
   ]);
 
   await server.initialize();
