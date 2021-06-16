@@ -10,7 +10,7 @@ export const privateZoneRoute = async (server: Hapi.Server) => {
   server.route([
     {
       method: "GET",
-      path: `${baseUrl}/privateZone`,
+      path: privateZonePath,
       handler: privateZoneHandler.getPrivateZone,
     },
     {
@@ -21,6 +21,17 @@ export const privateZoneRoute = async (server: Hapi.Server) => {
         validate: {
           payload: privateZoneValidator.create.validator.payload,
           failAction: privateZoneValidator.create.failAction,
+        },
+      },
+    },
+    {
+      method: "DELETE",
+      path: `${privateZonePath}/{id}`,
+      handler: privateZoneHandler.deletePrivateZone,
+      options: {
+        validate: {
+          params: privateZoneValidator.delete.validator.params,
+          failAction: privateZoneValidator.delete.failAction,
         },
       },
     },

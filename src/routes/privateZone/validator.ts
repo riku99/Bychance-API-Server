@@ -18,9 +18,25 @@ const createValidation = {
 
 const createFailAction = () => throwLoginError();
 
+export type DeletePrivateZoneParams = {
+  id: string;
+};
+
+const deleteValidation = {
+  params: Joi.object<DeletePrivateZoneParams>({
+    id: Joi.string().required(),
+  }),
+};
+
+const deleteFailAction = () => throwInvalidError();
+
 export const privateZoneValidator = {
   create: {
     validator: createValidation,
     failAction: createFailAction,
+  },
+  delete: {
+    validator: deleteValidation,
+    failAction: deleteFailAction,
   },
 };

@@ -3,7 +3,10 @@ import { PrismaClient } from "@prisma/client";
 
 import { Artifacts } from "~/auth/bearer";
 import { throwInvalidError } from "~/helpers/errors";
-import { CreatePrivateZonePayload } from "~/routes/privateZone/validator";
+import {
+  CreatePrivateZonePayload,
+  DeletePrivateZoneParams,
+} from "~/routes/privateZone/validator";
 import { handleUserLocationCrypt, handleAddressCrypt } from "~/helpers/crypto";
 
 const prisma = new PrismaClient();
@@ -65,7 +68,29 @@ const createPrivateZone = async (
   };
 };
 
+const deletePrivateZone = async (
+  req: Hapi.Request,
+  h: Hapi.ResponseToolkit
+) => {
+  const user = req.auth.artifacts as Artifacts;
+  const params = req.params as DeletePrivateZoneParams;
+
+  const result = await prisma.privateZone.deleteMany({
+    where: {
+      id: Number(params.id),
+      userId: user.id,
+    },
+  });
+
+  if (!result.count) {
+    return throwInvalidError();
+  }
+
+  return h.response().code(200);
+};
+
 export const privateZoneHandler = {
   getPrivateZone,
   createPrivateZone,
+  deletePrivateZone,
 };
