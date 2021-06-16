@@ -1,6 +1,6 @@
 import Joi from "joi";
 
-import { throwInvalidError, throwLoginError } from "~/helpers/errors";
+import { throwInvalidError } from "~/helpers/errors";
 
 export type CreatePrivateZonePayload = {
   address: string;
@@ -16,7 +16,7 @@ const createValidation = {
   }),
 };
 
-const createFailAction = () => throwLoginError();
+const createFailAction = () => throwInvalidError();
 
 export type DeletePrivateZoneParams = {
   id: string;

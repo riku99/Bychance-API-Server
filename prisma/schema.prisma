@@ -41,6 +41,7 @@ model User {
   deviceToken DeviceToken[]
   flashStamps FlashStamp[]
   privateZone PrivateZone[]
+  privateTime PrivateTime[]
 
   @@index([display], name: "User.display_index")
   @@index([lineId], name: "User.lineId_index")
@@ -191,6 +192,20 @@ model PrivateZone {
   lat String
   lng String
   address String
+  userId String
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
+
+model PrivateTime {
+  id Int @id @default(autoincrement())
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  startHours Int
+  startMinutes Int
+  endHours Int
+  endMinutes Int
   userId String
   user User @relation(fields: [userId], references: [id])
 
