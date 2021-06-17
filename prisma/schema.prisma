@@ -21,15 +21,16 @@ model User {
   lat                  String?
   lng                  String?
   backGroundItem       String?
+  backGroundItemType BackGroundItemTypeRole?
   instagram            String?
   twitter              String?
   youtube              String?
   tiktok               String?
   videoEditDescription Boolean                @default(false)
   talkRoomMessageReceipt Boolean              @default(true)
-  login                 Boolean               @default(true)
-  showReceiveMessage Boolean                  @default(true)
-  backGroundItemType BackGroundItemTypeRole?
+  login                Boolean                @default(true)
+  showReceiveMessage   Boolean                @default(true)
+  inPrivateZone        Boolean                @default(false)
   flashes              Flash[]
   posts                Post[]
   readTalkRoomMessages ReadTalkRoomMessage[]
@@ -43,8 +44,9 @@ model User {
   privateZone PrivateZone[]
   privateTime PrivateTime[]
 
-  @@index([display], name: "User.display_index")
-  @@index([lineId], name: "User.lineId_index")
+  @@index([display, login, inPrivateZone])
+  @@index([lineId])
+  @@index([accessToken])
 }
 
 model Post {
@@ -57,7 +59,7 @@ model Post {
   sourceType PostSourceTypeRole @default(image)
   user      User     @relation(fields: [userId], references: [id])
 
-  @@index([userId], name: "Post.userId_index")
+  @@index([userId])
 }
 
 model Flash {
@@ -71,7 +73,7 @@ model Flash {
   viewed     ViewedFlash[]
   stamps FlashStamp[]
 
-  @@index([userId], name: "Flash.userId_index")
+  @@index([userId])
 }
 
 model Nonce {
@@ -95,7 +97,7 @@ model TalkRoom {
 
   @@unique([senderId, recipientId], name: "senderId_recipientId_unique")
   @@index([senderId, recipientId], name: "senderId_recipientId_index")
-  @@index([recipientId], name: "recipientId")
+  @@index([recipientId])
 }
 
 model TalkRoomMessage {
@@ -110,8 +112,8 @@ model TalkRoomMessage {
   user                 User                  @relation(fields: [userId], references: [id])
   readTalkRoomMessages ReadTalkRoomMessage[]
 
-  @@index([userId, roomId], name: "TalkRoomMessage.userId_roomId_index")
-  @@index([roomId], name: "roomId")
+  @@index([userId, roomId])
+  @@index([roomId])
 }
 
 model ViewedFlash {
@@ -124,8 +126,8 @@ model ViewedFlash {
   user      User     @relation(fields: [userId], references: [id])
 
   @@unique([userId, flashId], name: "userId_flashId_unique") // viewedFlash.userId_flashId_uniqueのように.つけて定義するとエラーになる
-  @@index([flashId], name: "flashId")
-  @@index([userId, flashId], name: "userId_flashId_index")
+  @@index([flashId])
+  @@index([userId, flashId])
 }
 
 model ReadTalkRoomMessage {
@@ -140,9 +142,9 @@ model ReadTalkRoomMessage {
   user      User            @relation(fields: [userId], references: [id])
 
   @@unique([userId, messageId, roomId], name: "userId_messageId_roomId_unique")
-  @@index([userId, messageId, roomId], name: "userId_messageId_roomId_index")
-  @@index([messageId], name: "messageId")
-  @@index([roomId], name: "roomId")
+  @@index([userId, messageId, roomId])
+  @@index([messageId])
+  @@index([roomId])
 }
 
 model DeleteTalkRoom {

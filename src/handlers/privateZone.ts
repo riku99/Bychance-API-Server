@@ -1,5 +1,7 @@
 import Hapi from "@hapi/hapi";
 import { PrismaClient } from "@prisma/client";
+import distance from "@turf/distance";
+import { point } from "@turf/helpers";
 
 import { Artifacts } from "~/auth/bearer";
 import { throwInvalidError } from "~/helpers/errors";
@@ -61,6 +63,54 @@ const createPrivateZone = async (
       address: cryptoAddress,
     },
   });
+
+  const userLatLng = await prisma.user.findUnique({
+    where: {
+      id: user.id,
+    },
+    select: {
+      lat: true,
+      lng: true,
+    },
+  });
+
+  if (!userLatLng) {
+    return throwInvalidError();
+  }
+
+  let decryptCurrentLatLng: { lat: number; lng: number } | null = null;
+
+  if (userLatLng.lat && userLatLng.lng) {
+    decryptCurrentLatLng = handleUserLocationCrypt(
+      userLatLng.lat,
+      userLatLng.lng,
+      "decrypt"
+    );
+  }
+
+  if (decryptCurrentLatLng) {
+    // 新たに作成されたゾーンと現在のサーバーにあるユーザーの位置情報データを使いゾーン内にいる場合は更新する
+    const privatePoint = point([payload.lng, payload.lat]);
+    const currentUserPoint = point([
+      decryptCurrentLatLng.lng,
+      decryptCurrentLatLng.lat,
+    ]);
+    const distanceResult = distance(privatePoint, currentUserPoint);
+
+    console.log("プライベートゾーンとの距離: " + distanceResult);
+
+    if (distanceResult <= Number(process.env.PRIVATE_ZONE_RANGE)) {
+      await prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          inPrivateZone: true,
+        },
+      });
+      console.log("trueになりました");
+    }
+  }
 
   return {
     id: result.id,
