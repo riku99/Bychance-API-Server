@@ -1,5 +1,7 @@
 import Hapi from "@hapi/hapi";
 import { PrismaClient } from "@prisma/client";
+import distance from "@turf/distance";
+import { point } from "@turf/helpers";
 
 import { Artifacts } from "~/auth/bearer";
 import {
@@ -169,9 +171,37 @@ const updateLocation = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     "encrypt"
   );
 
+  const currentPrivateZone = await prisma.privateZone.findMany({
+    where: {
+      userId: user.id,
+    },
+  });
+
+  const newPoint = point([payload.lng, payload.lat]);
+
+  const inPrivateZone = currentPrivateZone.find((p) => {
+    const decryptPrivateLatLng = handleUserLocationCrypt(
+      p.lat,
+      p.lng,
+      "decrypt"
+    );
+
+    const privatePoint = point([
+      decryptPrivateLatLng.lng,
+      decryptPrivateLatLng.lat,
+    ]);
+
+    const distanceResult = distance(privatePoint, newPoint);
+
+    return distanceResult <= Number(process.env.PRIVATE_ZONE_RANGE);
+  });
+
   await prisma.user.update({
     where: { id: user.id },
-    data: cryptedLocation,
+    data: {
+      ...cryptedLocation,
+      inPrivateZone: !!inPrivateZone,
+    },
   });
 
   return h.response().code(200);

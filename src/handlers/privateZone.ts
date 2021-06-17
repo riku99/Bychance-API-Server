@@ -114,14 +114,14 @@ const deletePrivateZone = async (
     return throwInvalidError();
   }
 
-  const currentPrivateZone = await prisma.privateZone.findMany({
-    where: {
-      userId: user.id,
-    },
-  });
-
   // プライベートゾーンを削除したということは、プライベートゾーン内にいる状態からそうでなくなる可能性がある。つまりinPrivateZoneがtrue -> falseになる可能性があるのでそれを検証
   if (user.lat && user.lng && user.inPrivateZone) {
+    const currentPrivateZone = await prisma.privateZone.findMany({
+      where: {
+        userId: user.id,
+      },
+    });
+
     const decryptCurrentLatLng = handleUserLocationCrypt(
       user.lat,
       user.lng,
