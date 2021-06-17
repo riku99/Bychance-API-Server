@@ -51,11 +51,3 @@ export const confirmInTime = ({
     return h > startHours || h < endHours;
   }
 };
-confirmInTime({
-  startHours: 20,
-  startMinutes: 30,
-  endHours: 4,
-  endMinutes: 4,
-  h: 20,
-  m: 29,
-});
