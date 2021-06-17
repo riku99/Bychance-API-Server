@@ -9,3 +9,53 @@ export const formatDate = ({ date }: { date: Date }) => {
   const d = new Date(date).getDate();
   return `${y}/${m}/${d}`;
 };
+
+// 指定された時間内かどうか
+export const confirmInTime = ({
+  startHours,
+  startMinutes,
+  endHours,
+  endMinutes,
+  h,
+  m,
+}: {
+  startHours: number;
+  startMinutes: number;
+  endHours: number;
+  endMinutes: number;
+  h: number; // 今の時間
+  m: number; // 今の分数
+}) => {
+  if (startHours < endHours) {
+    if (startHours === h) {
+      return startMinutes <= m;
+    }
+    if (endHours === h) {
+      return startHours <= h;
+    }
+    return startHours < h && h < endHours;
+  } else if (startHours === endHours) {
+    if (startMinutes === endMinutes) {
+      return startHours === h && startMinutes === m;
+    } else {
+      return startHours === h && m < endMinutes;
+    }
+  } else {
+    if (startHours === h) {
+      return startMinutes <= m;
+    }
+    if (endHours === h) {
+      return m <= endMinutes;
+    }
+
+    return h > startHours || h < endHours;
+  }
+};
+confirmInTime({
+  startHours: 20,
+  startMinutes: 30,
+  endHours: 4,
+  endMinutes: 4,
+  h: 20,
+  m: 29,
+});
