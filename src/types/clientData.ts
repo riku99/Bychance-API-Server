@@ -20,6 +20,9 @@ export type ClientUser = Pick<
   | "twitter"
   | "youtube"
   | "tiktok"
+  | "showReceiveMessage"
+  | "talkRoomMessageReceipt"
+  | "videoEditDescription"
 > & { lat: number | null; lng: number | null };
 
 export type ClientPost = Pick<

@@ -5,7 +5,15 @@ import { handleUserLocationCrypt } from "~/helpers/crypto";
 
 // Userはprismaにより定義されたDBに関連するデータで、ClientUserはクライアント側に返すデータ
 export const serializeUser = ({ user }: { user: User }): ClientUser => {
-  const { lineId, createdAt, updatedAt, accessToken, ...clientData } = user;
+  const {
+    lineId,
+    createdAt,
+    updatedAt,
+    accessToken,
+    inPrivateZone,
+    login,
+    ...clientData
+  } = user;
 
   let decryptedLat: number | null = null;
   let decryptedLng: number | null = null;
