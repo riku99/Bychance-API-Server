@@ -64,40 +64,19 @@ const createPrivateZone = async (
     },
   });
 
-  const userLatLng = await prisma.user.findUnique({
-    where: {
-      id: user.id,
-    },
-    select: {
-      lat: true,
-      lng: true,
-    },
-  });
-
-  if (!userLatLng) {
-    return throwInvalidError();
-  }
-
-  let decryptCurrentLatLng: { lat: number; lng: number } | null = null;
-
-  if (userLatLng.lat && userLatLng.lng) {
-    decryptCurrentLatLng = handleUserLocationCrypt(
-      userLatLng.lat,
-      userLatLng.lng,
+  // プライベートゾーンを追加したということは、それまでプライベートゾーン内にはいなかったがこの追加によりプライベートゾーン内にいる状態に変化する可能性がある。それを検証する
+  if (user.lat && user.lng && !user.inPrivateZone) {
+    const decryptCurrentLatLng = handleUserLocationCrypt(
+      user.lat,
+      user.lng,
       "decrypt"
     );
-  }
-
-  if (decryptCurrentLatLng) {
-    // 新たに作成されたゾーンと現在のサーバーにあるユーザーの位置情報データを使いゾーン内にいる場合は更新する
     const privatePoint = point([payload.lng, payload.lat]);
     const currentUserPoint = point([
       decryptCurrentLatLng.lng,
       decryptCurrentLatLng.lat,
     ]);
     const distanceResult = distance(privatePoint, currentUserPoint);
-
-    console.log("プライベートゾーンとの距離: " + distanceResult);
 
     if (distanceResult <= Number(process.env.PRIVATE_ZONE_RANGE)) {
       await prisma.user.update({
@@ -108,7 +87,6 @@ const createPrivateZone = async (
           inPrivateZone: true,
         },
       });
-      console.log("trueになりました");
     }
   }
 
@@ -134,6 +112,53 @@ const deletePrivateZone = async (
 
   if (!result.count) {
     return throwInvalidError();
+  }
+
+  const currentPrivateZone = await prisma.privateZone.findMany({
+    where: {
+      userId: user.id,
+    },
+  });
+
+  // プライベートゾーンを削除したということは、プライベートゾーン内にいる状態からそうでなくなる可能性がある。つまりinPrivateZoneがtrue -> falseになる可能性があるのでそれを検証
+  if (user.lat && user.lng && user.inPrivateZone) {
+    const decryptCurrentLatLng = handleUserLocationCrypt(
+      user.lat,
+      user.lng,
+      "decrypt"
+    );
+
+    const userCurrentPoint = point([
+      decryptCurrentLatLng.lng,
+      decryptCurrentLatLng.lat,
+    ]);
+
+    const inPrivateZone = currentPrivateZone.find((p) => {
+      const decryptPrivateLatLng = handleUserLocationCrypt(
+        p.lat,
+        p.lng,
+        "decrypt"
+      );
+      const privatePoint = point([
+        decryptPrivateLatLng.lng,
+        decryptPrivateLatLng.lat,
+      ]);
+
+      const distanceResult = distance(privatePoint, userCurrentPoint);
+
+      return distanceResult <= Number(process.env.PRIVATE_ZONE_RANGE);
+    });
+
+    if (!inPrivateZone) {
+      await prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          inPrivateZone: false,
+        },
+      });
+    }
   }
 
   return h.response().code(200);
