@@ -19,5 +19,10 @@ export const privateTimeRoute = async (server: Hapi.Server) => {
         },
       },
     },
+    {
+      method: "GET",
+      path: privateTimePath,
+      handler: privateTimeHandler.getPrivateTime,
+    },
   ]);
 };

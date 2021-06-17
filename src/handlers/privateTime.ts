@@ -7,6 +7,28 @@ import { CreatePrivateTimePayload } from "~/routes/privateTime/validator";
 
 const prisma = new PrismaClient();
 
+const getPrivateTime = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
+  const user = req.auth.artifacts as Artifacts;
+
+  const result = await prisma.privateTime.findMany({
+    where: {
+      userId: user.id,
+    },
+    select: {
+      id: true,
+      startHours: true,
+      startMinutes: true,
+      endHours: true,
+      endMinutes: true,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return result;
+};
+
 const createPrivateTime = async (
   req: Hapi.Request,
   h: Hapi.ResponseToolkit
@@ -40,4 +62,5 @@ const createPrivateTime = async (
 
 export const privateTimeHandler = {
   createPrivateTime,
+  getPrivateTime,
 };
