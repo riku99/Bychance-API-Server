@@ -19,7 +19,7 @@ const createPrivateTime = async (
     endMinutes,
   } = req.payload as CreatePrivateTimePayload;
 
-  await prisma.privateTime.create({
+  const result = await prisma.privateTime.create({
     data: {
       startHours,
       startMinutes,
@@ -29,7 +29,13 @@ const createPrivateTime = async (
     },
   });
 
-  return h.response().code(200);
+  return {
+    id: result.id,
+    startHours: result.startHours,
+    startMinutes: result.startMinutes,
+    endHours: result.endHours,
+    endMinutes: result.endMinutes,
+  };
 };
 
 export const privateTimeHandler = {
