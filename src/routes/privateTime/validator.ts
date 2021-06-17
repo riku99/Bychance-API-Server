@@ -1,4 +1,4 @@
-import Joi from "joi";
+import Joi, { string } from "joi";
 
 import { throwInvalidError } from "~/helpers/errors";
 
@@ -20,9 +20,25 @@ const createValidation = {
 
 const createFailAction = () => throwInvalidError();
 
+export type DeletePrivateTimeParams = {
+  id: string;
+};
+
+const deletePrivateTimeValidation = {
+  params: Joi.object<DeletePrivateTimeParams>({
+    id: Joi.string().required(),
+  }),
+};
+
+const deltePrivateTimeFailAction = () => throwInvalidError();
+
 export const privateTimeValidator = {
   create: {
     validator: createValidation,
     failAction: createFailAction,
+  },
+  delete: {
+    validator: deletePrivateTimeValidation,
+    failAction: deltePrivateTimeFailAction,
   },
 };

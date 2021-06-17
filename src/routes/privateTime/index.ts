@@ -24,5 +24,16 @@ export const privateTimeRoute = async (server: Hapi.Server) => {
       path: privateTimePath,
       handler: privateTimeHandler.getPrivateTime,
     },
+    {
+      method: "DELETE",
+      path: `${privateTimePath}/{id}`,
+      handler: privateTimeHandler.deletePrivateTime,
+      options: {
+        validate: {
+          params: privateTimeValidator.delete.validator.params,
+          failAction: privateTimeValidator.delete.failAction,
+        },
+      },
+    },
   ]);
 };

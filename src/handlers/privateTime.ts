@@ -3,7 +3,10 @@ import { PrismaClient } from "@prisma/client";
 
 import { Artifacts } from "~/auth/bearer";
 import { throwInvalidError } from "~/helpers/errors";
-import { CreatePrivateTimePayload } from "~/routes/privateTime/validator";
+import {
+  CreatePrivateTimePayload,
+  DeletePrivateTimeParams,
+} from "~/routes/privateTime/validator";
 
 const prisma = new PrismaClient();
 
@@ -60,7 +63,29 @@ const createPrivateTime = async (
   };
 };
 
+const deletePrivateTime = async (
+  req: Hapi.Request,
+  h: Hapi.ResponseToolkit
+) => {
+  const user = req.auth.artifacts as Artifacts;
+  const params = req.params as DeletePrivateTimeParams;
+
+  const result = await prisma.privateTime.deleteMany({
+    where: {
+      id: Number(params.id),
+      userId: user.id,
+    },
+  });
+
+  if (!result.count) {
+    return throwInvalidError();
+  }
+
+  return h.response().code(200);
+};
+
 export const privateTimeHandler = {
   createPrivateTime,
   getPrivateTime,
+  deletePrivateTime,
 };
