@@ -29,6 +29,7 @@ const getNearbyUsers = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     where: {
       display: true,
       login: true,
+      inPrivateZone: false,
     },
     include: {
       ...postIncludes,

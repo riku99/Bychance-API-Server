@@ -188,6 +188,7 @@ const deleteLocation = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       data: {
         lat: null,
         lng: null,
+        inPrivateZone: false,
       },
     });
   } catch {
