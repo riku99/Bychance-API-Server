@@ -31,14 +31,14 @@ export const confirmInTime = ({
       return startMinutes <= m;
     }
     if (endHours === h) {
-      return startHours <= h;
+      return m <= endMinutes;
     }
     return startHours < h && h < endHours;
   } else if (startHours === endHours) {
     if (startMinutes === endMinutes) {
       return startHours === h && startMinutes === m;
     } else {
-      return startHours === h && m < endMinutes;
+      return startHours === h && startMinutes <= m && m <= endMinutes;
     }
   } else {
     if (startHours === h) {

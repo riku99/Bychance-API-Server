@@ -10,6 +10,7 @@ import { createAnotherUser } from "~/helpers/anotherUser";
 import { postIncludes, flashIncludes } from "~/prisma/includes";
 import { createClientFlashStamps } from "~/helpers/flashes";
 import { ClientFlashStamp } from "~/types/clientData";
+import { confirmInTime } from "~/utils";
 
 const prisma = new PrismaClient();
 
@@ -34,13 +35,33 @@ const getNearbyUsers = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     include: {
       ...postIncludes,
       ...flashIncludes,
+      privateTime: true,
     },
   });
 
   const allDistance: number[] = [];
 
+  const date = new Date();
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
   const nearbyUsers = displayedUsers.filter((user) => {
     if (!user.lat || !user.lng) {
+      return false;
+    }
+
+    const inPrivateTime = user.privateTime.find((p) => {
+      const { startHours, startMinutes, endHours, endMinutes } = p;
+      return confirmInTime({
+        startHours,
+        startMinutes,
+        endHours,
+        endMinutes,
+        h: hours,
+        m: minutes,
+      });
+    });
+
+    if (inPrivateTime) {
       return false;
     }
 
