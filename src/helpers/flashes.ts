@@ -5,7 +5,7 @@ import { serializeFlash } from "~/serializers/flash";
 import { FlashWithIncludesItem } from "~/helpers/clientData";
 import { FlashStampValuesData } from "~/types/clientData";
 
-export const filterExpiredFlash = (d: Date) => filterByDayDiff(d, 12);
+export const filterExpiredFlash = (d: Date) => filterByDayDiff(d, 20);
 
 export const createClientFlashes = (flashes: FlashWithIncludesItem) => {
   const notExpiredFlashes = flashes.filter((flash) =>
