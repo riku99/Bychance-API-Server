@@ -9,6 +9,7 @@ import {
 import { createS3ObjectPath } from "~/helpers/aws";
 import { serializeFlash } from "~/serializers/flash";
 import { throwInvalidError } from "~/helpers/errors";
+import { createClientFlashStampValuesData } from "~/helpers/flashes";
 
 const prisma = new PrismaClient();
 
@@ -40,12 +41,23 @@ const createFlash = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     },
   });
 
-  return serializeFlash({ flash });
+  const defaultStampsData = createClientFlashStampValuesData([], flash.id);
+
+  return {
+    flash: serializeFlash({ flash }),
+    stamps: defaultStampsData,
+  };
 };
 
 const deleteFlash = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const user = req.auth.artifacts as Artifacts;
   const params = req.params as DeleteFlashParams;
+
+  await prisma.flashStamp.deleteMany({
+    where: {
+      flashId: Number(params.flashId),
+    },
+  });
 
   await prisma.viewedFlash.deleteMany({
     where: {
