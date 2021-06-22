@@ -20,8 +20,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    environment:
-      DATABASE_URL: mysql://root:bc-mysql-root-pass-dev@bc-mysql-dev:3306/bc-mysql-dev
     networks:
       - bc-net-dev
     volumes:
