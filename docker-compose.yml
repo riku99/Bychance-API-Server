@@ -5,9 +5,9 @@ services:
     container_name: bc-mysql-dev
     restart: unless-stopped
     networks:
-      - bc-net
+      - bc-net-dev
     volumes:
-      - bc-mysql-volume:/var/lib/mysql
+      - bc-mysql-volume-dev:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: bc-mysql-root-pass-dev
       # MYSQL_DATABASE: bc-db-dev
@@ -16,9 +16,24 @@ services:
     ports:
       - 3306:3306
 
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: mysql://root:bc-mysql-root-pass-dev@bc-mysql-dev:3306/bc-mysql-dev
+    networks:
+      - bc-net-dev
+    volumes:
+      - .:/app
+    ports:
+      - 4001:4001
+    depends_on:
+      - mysql
+
 networks:
-  bc-net:
+  bc-net-dev:
     driver: bridge
 volumes:
-  bc-mysql-volume:
+  bc-mysql-volume-dev:
     driver: local
