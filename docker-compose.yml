@@ -20,6 +20,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    environment:
+      NODE_ENV: dev
     networks:
       - bc-net-dev
     volumes:
