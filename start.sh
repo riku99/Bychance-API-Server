@@ -1,3 +1,3 @@
 #!/bin/bash
-yarn prisma migrate dev
+#yarn prisma migrate dev
 yarn dev
