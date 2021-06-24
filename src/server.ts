@@ -27,7 +27,7 @@ import { privateTimePlugin } from "~/plugins/privateTime";
 
 const server = Hapi.server({
   port: process.env.PORT || 4001,
-  host: "0.0.0.0", // このコメントされてる2つ含めるとwsがうまく動かないのでいったん外す
+  // host: "localhost", // このコメントされてる2つ含めるとwsがうまく動かないのでいったん外す
   // debug: false,
 });
 
