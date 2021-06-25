@@ -1,0 +1,238 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                   String                @id @default(uuid())
+  lineId               String                @unique
+  name                 String
+  avatar               String?
+  introduce            String?
+  statusMessage        String?
+  display              Boolean               @default(false)
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  accessToken          String                @unique
+  lat                  String?
+  lng                  String?
+  backGroundItem       String?
+  backGroundItemType BackGroundItemTypeRole?
+  instagram            String?
+  twitter              String?
+  youtube              String?
+  tiktok               String?
+  videoEditDescription Boolean                @default(false)
+  talkRoomMessageReceipt Boolean              @default(true)
+  login                Boolean                @default(true)
+  showReceiveMessage   Boolean                @default(true)
+  inPrivateZone        Boolean                @default(false)
+  flashes              Flash[]
+  posts                Post[]
+  readTalkRoomMessages ReadTalkRoomMessage[]
+  recipientTalkRooms   TalkRoom[]            @relation("recipient")
+  senderTalkRooms      TalkRoom[]            @relation("sender")
+  talkRoomMessages     TalkRoomMessage[]
+  viewedFlashes        ViewedFlash[]
+  deleteTalkRooms DeleteTalkRoom[]
+  deviceToken DeviceToken[]
+  flashStamps FlashStamp[]
+  privateZone PrivateZone[]
+  privateTime PrivateTime[]
+
+  @@index([display, login, inPrivateZone])
+  @@index([lineId])
+  @@index([accessToken])
+}
+
+model Post {
+  id        Int      @id @default(autoincrement())
+  text      String?
+  url       String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String
+  sourceType PostSourceTypeRole @default(image)
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
+
+model Flash {
+  id         Int                 @id @default(autoincrement())
+  source     String
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
+  sourceType FlashSourceTypeRole
+  userId     String
+  user       User                @relation(fields: [userId], references: [id])
+  viewed     ViewedFlash[]
+  stamps FlashStamp[]
+
+  @@index([userId])
+}
+
+model Nonce {
+  id        Int      @id @default(autoincrement())
+  nonce     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TalkRoom {
+  id                   Int                   @id @default(autoincrement())
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  senderId             String
+  recipientId          String
+  recipient            User                  @relation("recipient", fields: [recipientId], references: [id])
+  sender               User                  @relation("sender", fields: [senderId], references: [id])
+  readTalkRoomMessages ReadTalkRoomMessage[]
+  messages             TalkRoomMessage[]
+  deleteTalkRooms DeleteTalkRoom[]
+
+  @@unique([senderId, recipientId], name: "senderId_recipientId_unique")
+  @@index([senderId, recipientId], name: "senderId_recipientId_index")
+  @@index([recipientId])
+}
+
+model TalkRoomMessage {
+  id                   Int                   @id @default(autoincrement())
+  text                 String
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  userId               String
+  roomId               Int
+  receipt              Boolean               @default(true)
+  room                 TalkRoom              @relation(fields: [roomId], references: [id])
+  user                 User                  @relation(fields: [userId], references: [id])
+  readTalkRoomMessages ReadTalkRoomMessage[]
+
+  @@index([userId, roomId])
+  @@index([roomId])
+}
+
+model ViewedFlash {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String
+  flashId   Int
+  flash     Flash    @relation(fields: [flashId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, flashId], name: "userId_flashId_unique") // viewedFlash.userId_flashId_uniqueのように.つけて定義するとエラーになる
+  @@index([flashId])
+  @@index([userId, flashId])
+}
+
+model ReadTalkRoomMessage {
+  id        Int             @id @default(autoincrement())
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  userId    String
+  messageId Int
+  roomId    Int
+  message   TalkRoomMessage @relation(fields: [messageId], references: [id])
+  room      TalkRoom        @relation(fields: [roomId], references: [id])
+  user      User            @relation(fields: [userId], references: [id])
+
+  @@unique([userId, messageId, roomId], name: "userId_messageId_roomId_unique")
+  @@index([userId, messageId, roomId])
+  @@index([messageId])
+  @@index([roomId])
+}
+
+model DeleteTalkRoom {
+  id Int @id @default(autoincrement())
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  userId    String
+  talkRoomId Int
+  user User @relation(fields: [userId], references: [id])
+  talkRoom TalkRoom @relation(fields: [talkRoomId], references: [id])
+  @@index([userId, talkRoomId])
+  @@unique([userId, talkRoomId])
+}
+
+// https://rnfirebase.io/messaging/server-integration
+// A user can have more than one token (for example using 2 devices) so it's important to ensure that we store all tokens in the database.
+// 上記URLにこういうこと書いてあり、複数のトークンを持つ可能性があることからUserの属性として持たせるのではなく、別のテーブルとして管理
+model DeviceToken {
+  id Int @id @default(autoincrement())
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  token String
+  userId    String
+  user User @relation(fields: [userId], references: [id])
+  @@index([token])
+  @@unique([token])
+}
+
+model FlashStamp {
+  id Int @id @default(autoincrement())
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  value FlashStampValue
+  userId String
+  flashId Int
+  user User @relation(fields: [userId], references: [id])
+  flash Flash @relation(fields: [flashId], references: [id])
+
+  @@index([userId, flashId])
+  @@unique([userId, flashId, value]) // ユーザーに同じスタンプデータをを複数回登録することをできなくする
+}
+
+model PrivateZone {
+  id Int @id @default(autoincrement())
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  lat String
+  lng String
+  address String
+  userId String
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
+
+model PrivateTime {
+  id Int @id @default(autoincrement())
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  startHours Int
+  startMinutes Int
+  endHours Int
+  endMinutes Int
+  userId String
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
+
+enum FlashSourceTypeRole {
+  image
+  video
+}
+
+enum BackGroundItemTypeRole {
+  image
+  video
+}
+
+enum PostSourceTypeRole {
+  image
+  video
+}
+
+enum FlashStampValue {
+  thumbsUp
+  yusyo
+  yoi
+  itibann
+  seikai
+}

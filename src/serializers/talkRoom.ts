@@ -1,5 +1,4 @@
 import { TalkRoom, TalkRoomMessage, ReadTalkRoomMessage } from "@prisma/client";
-import { talkRoomMessage } from "~/../tests/data";
 
 import { ClientTalkRoom } from "~/types/clientData";
 
