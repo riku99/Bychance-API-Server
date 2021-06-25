@@ -53,6 +53,7 @@
   "scripts": {
     "dev": "yarn nodemon",
     "build": "yarn webpack --config webpack.prod.js",
+    "start": "yarn build && node ./dist/bundle.js ",
     "dev:down": "docker-compose down",
     "dev:db:up": "docker-compose up -d",
     "test": "yarn test:db:up && sleep 3 && yarn test:db:migrate && docker-compose -f docker-compose.test.yml run test_server yarn jest --runInBand --forceExit",
