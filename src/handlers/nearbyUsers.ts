@@ -11,6 +11,7 @@ import { postIncludes, flashIncludes } from "~/prisma/includes";
 import { createClientFlashStamps } from "~/helpers/flashes";
 import { ClientFlashStamp } from "~/types/clientData";
 import { confirmInTime } from "~/utils";
+import { throwLoginError } from "~/helpers/errors";
 
 const prisma = new PrismaClient();
 
@@ -99,8 +100,8 @@ const getNearbyUsers = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const returnData = sortedUsers.map((user) => {
     const { posts, flashes, ...userData } = user;
 
-    const nearbuUserFlashStampsData = createClientFlashStamps(flashes);
-    flashStampsData.push(...nearbuUserFlashStampsData);
+    const nearbyUserFlashStampsData = createClientFlashStamps(flashes);
+    flashStampsData.push(...nearbyUserFlashStampsData);
     return createAnotherUser({ user: userData, posts, flashes, viewedFlashes });
   });
 

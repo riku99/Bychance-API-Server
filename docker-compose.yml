@@ -22,12 +22,15 @@ services:
       dockerfile: Dockerfile
     environment:
       NODE_ENV: development
+      GOOGLE_APPLICATION_CREDENTIALS: /google_credentials.json
     networks:
       - bc-net-dev
     volumes:
       - .:/app
+      - /Users/riku/Downloads/BychanceDev-service-account-file.json:/google_credentials.json
     ports:
       - 4001:4001
+      - 5555:5555
     depends_on:
       - mysql
 

@@ -3,8 +3,11 @@ import sharp from "sharp";
 import fs from "fs";
 import ffmpeg from "fluent-ffmpeg";
 import util from "util";
+import ffmpegPath from "@ffmpeg-installer/ffmpeg";
 
 import { createRandomString } from "~/helpers/crypto";
+
+ffmpeg.setFfmpegPath(ffmpegPath.path);
 
 const getResizeNumber = (domain: string) => {
   switch (domain) {

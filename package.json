@@ -4,6 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
+    "@ffmpeg-installer/ffmpeg": "^1.0.20",
     "@hapi/basic": "^6.0.0",
     "@hapi/boom": "^9.1.2",
     "@hapi/hapi": "^20.1.2",
@@ -31,6 +32,7 @@
   },
   "devDependencies": {
     "@types/crypto-js": "^4.0.1",
+    "@types/ffmpeg-installer__ffmpeg": "^1.0.0",
     "@types/hapi-auth-bearer-token": "^6.1.2",
     "@types/hapi-pino": "^8.0.1",
     "@types/hapi__hapi": "^20.0.7",
