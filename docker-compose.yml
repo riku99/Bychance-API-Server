@@ -20,6 +20,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: dev-server
     environment:
       NODE_ENV: development
       GOOGLE_APPLICATION_CREDENTIALS: /google_credentials.json
