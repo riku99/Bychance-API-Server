@@ -5,6 +5,7 @@ import ffmpeg from "fluent-ffmpeg";
 import util from "util";
 
 import { createRandomString } from "~/helpers/crypto";
+import { URL } from "url";
 
 const getResizeNumber = (domain: string) => {
   switch (domain) {
@@ -166,7 +167,6 @@ export const createS3ObjectPath = async ({
   let sourceBufferData: Buffer;
   let thumbnailBufferData: Buffer | undefined;
 
-  console.log(width + ":" + height);
   if (sourceType === "image") {
     sourceBufferData = await sharp(decodedData)
       .rotate() // exifの関係でrotate()つけないと回転率が変になる時ある https://stackoverflow.com/questions/48716266/sharp-image-library-rotates-image-when-resizing
@@ -217,9 +217,8 @@ export const createS3ObjectPath = async ({
   } else {
     const url = await upload(params);
     urlData = {
-      source: url,
+      source: `${process.env.CLOUD_FRONT_ORIGIN}${new URL(url).pathname}`,
     };
   }
-
   return urlData!;
 };
