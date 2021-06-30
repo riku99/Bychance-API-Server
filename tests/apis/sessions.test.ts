@@ -5,7 +5,7 @@ import { PrismaClient } from "@prisma/client";
 import { initializeServer } from "~/server";
 import { createHash } from "~/helpers/crypto";
 import { loginErrorType } from "~/config/apis/errors";
-import { baseUrl } from "~/constants/url";
+import { baseUrl } from "~/constants";
 
 const prisma = new PrismaClient();
 

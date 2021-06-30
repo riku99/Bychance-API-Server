@@ -4,6 +4,7 @@ import Hapi from "@hapi/hapi";
 import AuthBearer from "hapi-auth-bearer-token";
 import socketio from "socket.io";
 import admin from "firebase-admin";
+import cron from "node-cron";
 
 import { checkBeareAccessToken } from "~/auth/bearer";
 import { throwLoginError } from "~/helpers/errors";
@@ -24,6 +25,7 @@ import { deviceTokenPlugin } from "~/plugins/deviceToken";
 import { flashStampsPlugin } from "~/plugins/flashStamps";
 import { privateZonePlugin } from "~/plugins/privateZone";
 import { privateTimePlugin } from "~/plugins/privateTime";
+import { deleteExpiredViewedFlashes } from "~/helpers/viewedFlash";
 
 const server = Hapi.server({
   port: process.env.PORT || 4001,
@@ -89,6 +91,7 @@ export const initializeServer = async () => {
 };
 
 export const startServer = async (server: Hapi.Server) => {
+  cron.schedule("0 0 0 * * *", deleteExpiredViewedFlashes); // 毎日0時に実行
   await server.start();
   console.log("サーバー起動: " + server.info.uri);
 

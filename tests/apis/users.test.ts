@@ -2,7 +2,7 @@ import Hapi from "@hapi/hapi";
 import { PrismaClient } from "@prisma/client";
 
 import { initializeServer } from "~/server";
-import { baseUrl } from "~/constants/url";
+import { baseUrl } from "~/constants";
 import { UpdateUserPayload } from "~/routes/users/validator";
 import { createHash } from "~/helpers/crypto";
 import { createS3ObjectPath } from "~/helpers/aws";

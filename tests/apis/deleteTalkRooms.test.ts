@@ -2,7 +2,7 @@ import Hapi from "@hapi/hapi";
 import { PrismaClient } from "@prisma/client";
 
 import { initializeServer } from "~/server";
-import { baseUrl } from "~/constants/url";
+import { baseUrl } from "~/constants";
 import { createHash } from "~/helpers/crypto";
 
 const prisma = new PrismaClient();

@@ -2,7 +2,7 @@ import Hapi from "@hapi/hapi";
 
 import { sessionsValidator } from "./validator";
 import { sessionsHandler } from "~/handlers/sessions";
-import { baseUrl } from "~/constants/url";
+import { baseUrl } from "~/constants";
 
 export const lineLoginPath = `${baseUrl}/sessions/lineLogin`;
 export const sessionLoginPath = `${baseUrl}/sessions/sessionlogin`;

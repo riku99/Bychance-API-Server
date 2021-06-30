@@ -1,6 +1,6 @@
 import Hapi from "@hapi/hapi";
 
-import { baseUrl } from "~/constants/url";
+import { baseUrl } from "~/constants";
 import { createTalkRoomValidator, deleteTalkRoomValidator } from "./validator";
 import { talkRoomsHandler } from "~/handlers/talkRooms";
 

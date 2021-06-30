@@ -1,6 +1,6 @@
 import Hapi from "@hapi/hapi";
 
-import { baseUrl } from "~/constants/url";
+import { baseUrl } from "~/constants";
 import { createFlashValidator, deleteFlashValidator } from "./validator";
 import { flashesHabdler } from "~/handlers/flashes";
 import { maxBytes } from "~/config/apis/size";

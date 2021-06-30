@@ -1,6 +1,6 @@
 import Hapi from "@hapi/hapi";
 
-import { baseUrl } from "~/constants/url";
+import { baseUrl } from "~/constants";
 import { createPostValidator, deletePostValidator } from "./validator";
 import { postHandler } from "~/handlers/posts";
 import { maxBytes } from "~/config/apis/size";

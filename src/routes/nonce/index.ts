@@ -2,7 +2,7 @@ import Hapi from "@hapi/hapi";
 
 import { nonceHandler } from "~/handlers/nonce";
 import { createNonceValidator } from "./validator";
-import { baseUrl } from "~/constants/url";
+import { baseUrl } from "~/constants";
 
 export const nonce = async (server: Hapi.Server) => {
   server.route([

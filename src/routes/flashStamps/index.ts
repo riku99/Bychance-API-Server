@@ -1,6 +1,6 @@
 import Hapi from "@hapi/hapi";
 
-import { baseUrl } from "~/constants/url";
+import { baseUrl } from "~/constants";
 import { createFlashStampValidator } from "./validator";
 import { flashStampsHandler } from "~/handlers/flashStamps";
 

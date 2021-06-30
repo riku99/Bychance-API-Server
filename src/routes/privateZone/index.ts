@@ -1,6 +1,6 @@
 import Hapi from "@hapi/hapi";
 
-import { baseUrl } from "~/constants/url";
+import { baseUrl } from "~/constants";
 import { privateZoneHandler } from "~/handlers/privateZone";
 import { privateZoneValidator } from "./validator";
 

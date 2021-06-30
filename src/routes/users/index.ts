@@ -10,7 +10,7 @@ import {
   changeShowReceiveMessageValidator,
 } from "./validator";
 import { usersHandler } from "~/handlers/users";
-import { baseUrl } from "~/constants/url";
+import { baseUrl } from "~/constants";
 import { maxBytes } from "~/config/apis/size";
 
 const changeShowReceiveMessagePath = `${baseUrl}/users/showReceiveMessage`;

@@ -1,4 +1,4 @@
-import { dayMs } from "~/constants/date";
+import { dayMs } from "~/constants";
 
 export const filterByDayDiff = (timestamp: Date, days: number) =>
   (new Date().getTime() - new Date(timestamp).getTime()) / dayMs < days;
