@@ -2,6 +2,7 @@ import Hapi from "@hapi/hapi";
 import { PrismaClient } from "@prisma/client";
 import distance from "@turf/distance";
 import { point } from "@turf/helpers";
+import geohash from "ngeohash";
 
 import { Artifacts } from "~/auth/bearer";
 import {

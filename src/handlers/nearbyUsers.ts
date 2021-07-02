@@ -40,8 +40,6 @@ const getNearbyUsers = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     },
   });
 
-  const allDistance: number[] = [];
-
   const date = new Date();
   const hours = date.getHours();
   const minutes = date.getMinutes();
@@ -71,10 +69,6 @@ const getNearbyUsers = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     const distanceResult = distance(requestUserPoint, anotherUserPoint, {
       units: "kilometers",
     });
-
-    if (distanceResult < query.range) {
-      allDistance.push(distanceResult);
-    }
 
     return distanceResult < query.range;
   });

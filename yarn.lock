@@ -1282,6 +1282,11 @@
   resolved "https://registry.yarnpkg.com/@types/mime-db/-/mime-db-1.43.0.tgz#c91a4fcae0d6cfe19f2452b3b3e9fc2b95aa9a52"
   integrity sha512-nCqnKWfvDzTVRh8NS9Zn+rnZYs5+iw5hx3G0nFgKM/R2mJQwPChin4DQ4zXlXnxTtc/3Ys5FnWweKW6NW+d2aw==
 
+"@types/ngeohash@^0.6.2":
+  version "0.6.2"
+  resolved "https://registry.yarnpkg.com/@types/ngeohash/-/ngeohash-0.6.2.tgz#356bb5e79294bc9f746ad89eb848eca2741a6e43"
+  integrity sha512-6nlq2eEh75JegDGUXis9wGTYIJpUvbori4qx++PRKQsV3YRkaqUNPNykzphniqPSZADXCouBuAnyptjUkMkhvw==
+
 "@types/node-cron@^2.0.3":
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/@types/node-cron/-/node-cron-2.0.3.tgz#b5bb940523d265f6a36548856ec0c278ea5a35d6"
@@ -4919,6 +4924,11 @@ neo-async@^2.6.2:
   version "2.6.2"
   resolved "https://registry.yarnpkg.com/neo-async/-/neo-async-2.6.2.tgz#b4aafb93e3aeb2d8174ca53cf163ab7d7308305f"
   integrity sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==
+
+ngeohash@^0.6.3:
+  version "0.6.3"
+  resolved "https://registry.yarnpkg.com/ngeohash/-/ngeohash-0.6.3.tgz#10b1e80be5488262ec95c56cf2dbb6c45fbdf245"
+  integrity sha512-kltF0cOxgx1AbmVzKxYZaoB0aj7mOxZeHaerEtQV0YaqnkXNq26WWqMmJ6lTqShYxVRWZ/mwvvTrNeOwdslWiw==
 
 nice-try@^1.0.4:
   version "1.0.5"
