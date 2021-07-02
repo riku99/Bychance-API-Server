@@ -25,6 +25,7 @@ import {
   createClientFlashStamps,
 } from "~/helpers/flashes";
 import { createClientPosts } from "~/helpers/posts";
+import { geohashPrecision } from "~/constants";
 
 const prisma = new PrismaClient();
 
@@ -166,7 +167,7 @@ const updateLocation = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const user = req.auth.artifacts as Artifacts;
   const payload = req.payload as UpdateLocationPayload;
 
-  const gh = geohash.encode(payload.lat, payload.lng);
+  const gh = geohash.encode(payload.lat, payload.lng, geohashPrecision);
   const hashedGh = createHash(gh);
 
   const cryptedLocation = handleUserLocationCrypt(

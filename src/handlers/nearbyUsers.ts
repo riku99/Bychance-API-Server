@@ -2,16 +2,17 @@ import Hapi from "@hapi/hapi";
 import { PrismaClient } from "@prisma/client";
 import distance from "@turf/distance";
 import { point } from "@turf/helpers";
+import geohash from "ngeohash";
 
 import { Artifacts } from "~/auth/bearer";
 import { GetnearbyUsersQuery } from "~/routes/nearbyUsers/validator";
-import { handleUserLocationCrypt } from "~/helpers/crypto";
+import { handleUserLocationCrypt, createHash } from "~/helpers/crypto";
 import { createAnotherUser } from "~/helpers/anotherUser";
 import { postIncludes, flashIncludes } from "~/prisma/includes";
 import { createClientFlashStamps } from "~/helpers/flashes";
 import { ClientFlashStamp } from "~/types/clientData";
 import { confirmInTime } from "~/utils";
-import { throwLoginError } from "~/helpers/errors";
+import { geohashPrecision } from "~/constants";
 
 const prisma = new PrismaClient();
 
@@ -20,6 +21,10 @@ const getNearbyUsers = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const query = req.query as GetnearbyUsersQuery;
 
   const requestUserPoint = point([query.lng, query.lat]); // 経度緯度の順で渡す
+
+  const gh = geohash.encode(query.lat, query.lng, geohashPrecision);
+  const hashedGh = createHash(gh);
+  const neighborsHashedGh = geohash.neighbors(gh).map((g) => createHash(g));
 
   const viewedFlashes = await prisma.viewedFlash.findMany({
     where: {
@@ -32,6 +37,9 @@ const getNearbyUsers = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       display: true,
       login: true,
       inPrivateZone: false,
+      geohash: {
+        in: [hashedGh, ...neighborsHashedGh],
+      },
     },
     include: {
       ...postIncludes,
