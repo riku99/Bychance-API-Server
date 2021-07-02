@@ -3,7 +3,7 @@ import sha256 from "crypto-js/sha256";
 import { v4 } from "uuid";
 
 export const createHash = (data: string) => {
-  const result = sha256(process.env.hashNonce + data).toString(
+  const result = sha256(process.env.HASH_NONCE + data).toString(
     CryptoJS.enc.Base64
   );
 

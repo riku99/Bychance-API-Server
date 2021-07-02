@@ -17,7 +17,7 @@ import {
 import { serializeUser } from "~/serializers/user";
 import { createS3ObjectPath } from "~/helpers/aws";
 import { throwInvalidError } from "~/helpers/errors";
-import { handleUserLocationCrypt } from "~/helpers/crypto";
+import { handleUserLocationCrypt, createHash } from "~/helpers/crypto";
 import { createAnotherUser } from "~/helpers/anotherUser";
 import { flashIncludes, postIncludes } from "~/prisma/includes";
 import {
@@ -166,6 +166,9 @@ const updateLocation = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const user = req.auth.artifacts as Artifacts;
   const payload = req.payload as UpdateLocationPayload;
 
+  const gh = geohash.encode(payload.lat, payload.lng);
+  const hashedGh = createHash(gh);
+
   const cryptedLocation = handleUserLocationCrypt(
     payload.lat,
     payload.lng,
@@ -202,6 +205,7 @@ const updateLocation = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     data: {
       ...cryptedLocation,
       inPrivateZone: !!inPrivateZone,
+      geohash: hashedGh,
     },
   });
 
