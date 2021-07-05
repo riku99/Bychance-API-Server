@@ -24,6 +24,7 @@ services:
     environment:
       NODE_ENV: development
       GOOGLE_APPLICATION_CREDENTIALS: /google_credentials.json
+      DATABASE_URL: mysql://root:bc-mysql-root-pass-dev@bc-mysql-dev:3306/bc-mysql-dev
     networks:
       - bc-net-dev
     volumes:

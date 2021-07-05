@@ -44,6 +44,7 @@ model User {
   flashStamps FlashStamp[]
   privateZone PrivateZone[]
   privateTime PrivateTime[]
+  deleteRecommendation DeleteRecommendation[]
 
   @@index([display, login, inPrivateZone, geohash])
   @@index([lineId])
@@ -213,6 +214,57 @@ model PrivateTime {
   user User @relation(fields: [userId], references: [id])
 
   @@index([userId])
+}
+
+// おすすめ機能が使えるクライアントのこと。
+model RecommendationClient {
+  id String @id @default(uuid())
+  email String @unique
+  password String
+  name String
+  lat Float
+  lng Float
+  geohash String
+  address String
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  enablePushNotification Boolean             @default(false)
+  instagram String?
+  twitter String?
+  url String?
+  recommendations Recommendation[]
+
+  @@index([email])
+  @@index([geohash])
+}
+
+model Recommendation{
+  id Int @id @default(autoincrement())
+  image String
+  title String
+  text String
+  coupon Boolean
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  clientId String
+  client RecommendationClient @relation(fields: [clientId], references: [id])
+  deleteRecommendation DeleteRecommendation[]
+
+  @@index([clientId])
+}
+
+// ユーザーが削除したレコメンデーションを記録
+model DeleteRecommendation {
+  id Int @id @default(autoincrement())
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  userId String
+  recommendationId Int
+  user User @relation(fields: [userId], references: [id])
+  recommendation Recommendation @relation(fields: [recommendationId], references: [id])
+
+  @@index([userId])
+  @@index([recommendationId])
 }
 
 enum FlashSourceTypeRole {
