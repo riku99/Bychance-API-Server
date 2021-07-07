@@ -26,6 +26,7 @@ import { flashStampsPlugin } from "~/plugins/flashStamps";
 import { privateZonePlugin } from "~/plugins/privateZone";
 import { privateTimePlugin } from "~/plugins/privateTime";
 import { deleteExpiredViewedFlashes } from "~/helpers/viewedFlash";
+import { recommendationClientsPlugin } from "~/plugins/recommendationClients";
 
 const server = Hapi.server({
   port: process.env.PORT || 4001,
@@ -83,6 +84,7 @@ export const initializeServer = async () => {
     flashStampsPlugin,
     privateZonePlugin,
     privateTimePlugin,
+    recommendationClientsPlugin,
   ]);
 
   await server.initialize();

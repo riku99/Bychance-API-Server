@@ -219,8 +219,9 @@ model PrivateTime {
 // おすすめ機能が使えるクライアントのこと。
 model RecommendationClient {
   id String @id @default(uuid())
-  email String @unique
-  password String
+  // email String @unique firebaseで管理
+  // password String firebaseで管理
+  uid String @unique // firebase内のid。認証認可で使用
   name String
   lat Float
   lng Float
@@ -234,7 +235,7 @@ model RecommendationClient {
   url String?
   recommendations Recommendation[]
 
-  @@index([email])
+  @@index([uid])
   @@index([geohash])
 }
 
@@ -266,6 +267,16 @@ model DeleteRecommendation {
   @@index([userId])
   @@index([recommendationId])
 }
+
+// RecommendationClientは誰でも作成できるわけではない。作成に必要なトークン
+model ClientSignupToken {
+  id Int @id @default(autoincrement())
+  createdAt            DateTime              @default(now())
+  token String
+
+  @@index([token])
+}
+
 
 enum FlashSourceTypeRole {
   image
