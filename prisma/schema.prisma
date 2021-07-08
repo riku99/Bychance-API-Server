@@ -272,7 +272,7 @@ model DeleteRecommendation {
 model ClientSignupToken {
   id Int @id @default(autoincrement())
   createdAt            DateTime              @default(now())
-  token String
+  token String @unique
 
   @@index([token])
 }
