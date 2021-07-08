@@ -35,7 +35,7 @@ const getClientSignupToken = async (
     return throwInvalidError("有効期限が切れています");
   }
 
-  h.response().code(200);
+  return h.response().code(200);
 };
 
 export const clientSignupTokenHandler = {
