@@ -15,6 +15,10 @@ export const recommendationClientsRoute = async (server: Hapi.Server) => {
         auth: false,
         validate: {
           payload: recommendationClientValidator.create.validator.payload,
+          headers: recommendationClientValidator.create.validator.header,
+          options: {
+            allowUnknown: true,
+          },
           failAction: recommendationClientValidator.create.failAction,
         },
       },
