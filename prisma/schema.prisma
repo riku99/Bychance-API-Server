@@ -223,10 +223,11 @@ model RecommendationClient {
   // password String firebaseで管理
   uid String @unique // firebase内のid。認証認可で使用
   name String
-  lat Float
-  lng Float
-  geohash String
-  address String
+  image String?
+  lat Float?
+  lng Float?
+  geohash String?
+  address String?
   createdAt            DateTime              @default(now())
   updatedAt            DateTime              @updatedAt
   enablePushNotification Boolean             @default(false)
