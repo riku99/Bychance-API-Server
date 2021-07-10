@@ -60,8 +60,9 @@ export const checkBeareFirebaseJWT = async (
   token: string,
   h: Hapi.ResponseToolkit
 ) => {
+  const rClientAdmin = admin.app("recommendationClient");
   try {
-    const { uid } = await admin.auth().verifyIdToken(token);
+    const { uid } = await rClientAdmin.auth().verifyIdToken(token);
     const client = await prisma.recommendationClient.findUnique({
       where: {
         uid,

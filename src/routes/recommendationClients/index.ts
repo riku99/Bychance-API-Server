@@ -2,6 +2,7 @@ import Hapi from "@hapi/hapi";
 
 import { baseUrl } from "~/constants";
 import { recommendationClientValidator } from "./validator";
+import { recommendationClientHandler } from "~/handlers/recommendatoinClients";
 
 const recommendationClientsPath = `${baseUrl}/recommendationClients`;
 
@@ -10,7 +11,7 @@ export const recommendationClientsRoute = async (server: Hapi.Server) => {
     {
       method: "POST",
       path: recommendationClientsPath,
-      handler: () => {},
+      handler: recommendationClientHandler.create,
       options: {
         auth: false,
         validate: {
