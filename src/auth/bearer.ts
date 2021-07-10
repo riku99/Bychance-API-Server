@@ -49,3 +49,9 @@ export const checkBeareAccessToken = async (
   // credentialsは例えisValidがfalseでも、trueだがhandler内で必要なくても定義しないとダメ
   return { isValid: true, credentials: {}, artifacts: user };
 };
+
+export const checkBeareFirebaseJWT = async (
+  request: Hapi.Request,
+  token: string,
+  h: Hapi.ResponseToolkit
+) => {};

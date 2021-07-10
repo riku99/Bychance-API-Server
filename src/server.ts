@@ -6,7 +6,7 @@ import socketio from "socket.io";
 import admin from "firebase-admin";
 import cron from "node-cron";
 
-import { checkBeareAccessToken } from "~/auth/bearer";
+import { checkBeareAccessToken, checkBeareFirebaseJWT } from "~/auth/bearer";
 import { throwLoginError } from "~/helpers/errors";
 import { setupSocketIo } from "~/sokcetIo";
 import { rootPlugin } from "~/plugins/root";
@@ -52,6 +52,13 @@ export const initializeServer = async () => {
     unauthorized: () => {
       // unauthorizedはtokenが存在しない場合、validateに渡した関数から{isValid: false}が返された場合に実行される
       console.log("認可失敗");
+      throwLoginError();
+    },
+  });
+
+  server.auth.strategy("r-client", "bearer-access-token", {
+    validate: checkBeareFirebaseJWT,
+    unauthorized: () => {
       throwLoginError();
     },
   });
