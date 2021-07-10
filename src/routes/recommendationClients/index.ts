@@ -24,5 +24,13 @@ export const recommendationClientsRoute = async (server: Hapi.Server) => {
         },
       },
     },
+    {
+      method: "GET",
+      path: `${baseUrl}/recommendationClient`,
+      handler: recommendationClientHandler.get,
+      options: {
+        auth: "r-client",
+      },
+    },
   ]);
 };
