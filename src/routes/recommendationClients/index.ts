@@ -10,6 +10,9 @@ export const recommendationClientsRoute = async (server: Hapi.Server) => {
       method: "POST",
       path: recommendationClientsPath,
       handler: () => {},
+      options: {
+        auth: false,
+      },
     },
   ]);
 };
