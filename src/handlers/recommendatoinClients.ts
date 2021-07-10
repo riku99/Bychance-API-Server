@@ -8,6 +8,7 @@ import {
   CreateRecommendationClientPayload,
 } from "~/routes/recommendationClients/validator";
 import { RecomendationClientArtifacts } from "~/auth/bearer";
+import { createClientRecommendationClient } from "~/helpers/recommendationClients";
 
 const prisma = new PrismaClient();
 
@@ -41,7 +42,7 @@ const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
 const get = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const client = req.auth.artifacts as RecomendationClientArtifacts;
 
-  return client;
+  return createClientRecommendationClient(client);
 };
 
 export const recommendationClientHandler = {
