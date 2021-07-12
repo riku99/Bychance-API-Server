@@ -1,14 +1,16 @@
 import Hapi from "@hapi/hapi";
 import { PrismaClient } from "@prisma/client";
 import admin from "firebase-admin";
-import { throwLoginError } from "~/helpers/errors";
+import { throwInvalidError, throwLoginError } from "~/helpers/errors";
 
 import {
   CreateRecommendationClientHeaders,
   CreateRecommendationClientPayload,
+  UpdateRecommendationClientPaylaod,
 } from "~/routes/recommendationClients/validator";
 import { RecomendationClientArtifacts } from "~/auth/bearer";
 import { createClientRecommendationClient } from "~/helpers/recommendationClients";
+import { createS3ObjectPath } from "~/helpers/aws";
 
 const prisma = new PrismaClient();
 
@@ -27,7 +29,7 @@ const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     return throwLoginError();
   }
 
-  await prisma.recommendationClient.create({
+  const result = await prisma.recommendationClient.create({
     data: {
       name: payload.name,
       uid,
@@ -35,7 +37,8 @@ const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   });
 
   return {
-    name: payload.name,
+    id: result.id,
+    name: result.name,
   };
 };
 
@@ -45,7 +48,52 @@ const get = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   return createClientRecommendationClient(client);
 };
 
+const update = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
+  const client = req.auth.artifacts as RecomendationClientArtifacts;
+  const {
+    name,
+    image,
+    address,
+    url,
+    instagram,
+    twitter,
+    ext,
+  } = req.payload as UpdateRecommendationClientPaylaod;
+
+  let imagePath: string | undefined;
+
+  if (image && ext) {
+    const result = await createS3ObjectPath({
+      data: image,
+      domain: "rClientProfileImage",
+      id: client.id,
+      ext,
+    });
+
+    if (!result) return throwInvalidError("画像を作成できませんでした");
+
+    imagePath = result.source;
+  }
+
+  await prisma.recommendationClient.update({
+    where: {
+      id: client.id,
+    },
+    data: {
+      name,
+      address,
+      url,
+      instagram,
+      twitter,
+      image: imagePath,
+    },
+  });
+
+  return h.response().code(200);
+};
+
 export const recommendationClientHandler = {
   create,
   get,
+  update,
 };

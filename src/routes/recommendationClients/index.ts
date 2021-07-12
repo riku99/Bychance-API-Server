@@ -32,5 +32,17 @@ export const recommendationClientsRoute = async (server: Hapi.Server) => {
         auth: "r-client",
       },
     },
+    {
+      method: "PATCH",
+      path: `${recommendationClientsPath}`,
+      handler: recommendationClientHandler.update,
+      options: {
+        auth: "r-client",
+        validate: {
+          payload: recommendationClientValidator.update.validator.payload,
+          failAction: recommendationClientValidator.update.failAction,
+        },
+      },
+    },
   ]);
 };

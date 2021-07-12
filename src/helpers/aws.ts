@@ -29,6 +29,11 @@ const getResizeNumber = (domain: string) => {
         width: 768,
         height: 1024,
       };
+    case "recommendationClient":
+      return {
+        width: 500,
+        height: 500,
+      };
     default:
       return {
         width: 500,

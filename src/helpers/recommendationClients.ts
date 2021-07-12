@@ -12,6 +12,7 @@ const formRecommendationClient = (client: RecommendationClient) => {
     instagram,
     twitter,
     url,
+    enablePushNotification,
   } = client;
 
   return {
@@ -24,6 +25,7 @@ const formRecommendationClient = (client: RecommendationClient) => {
     instagram,
     twitter,
     url,
+    enablePushNotification,
   };
 };
 
