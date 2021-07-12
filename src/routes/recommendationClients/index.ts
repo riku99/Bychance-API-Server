@@ -1,6 +1,6 @@
 import Hapi from "@hapi/hapi";
 
-import { baseUrl } from "~/constants";
+import { baseUrl, maxBytes } from "~/constants";
 import { recommendationClientValidator } from "./validator";
 import { recommendationClientHandler } from "~/handlers/recommendatoinClients";
 
@@ -41,6 +41,10 @@ export const recommendationClientsRoute = async (server: Hapi.Server) => {
         validate: {
           payload: recommendationClientValidator.update.validator.payload,
           failAction: recommendationClientValidator.update.failAction,
+        },
+        payload: {
+          timeout: 20000,
+          maxBytes,
         },
       },
     },
