@@ -31,7 +31,8 @@ model User {
   login                Boolean                @default(true)
   showReceiveMessage   Boolean                @default(true)
   inPrivateZone        Boolean                @default(false)
-  geohash              String?
+  geohash              String? // 6桁のgeohashのハッシュ。Userの取得などで使用
+  geohash7             String? // 7桁のgeohashのハッシュ。Recommendationの取得などで使用
   flashes              Flash[]
   posts                Post[]
   readTalkRoomMessages ReadTalkRoomMessage[]
@@ -226,7 +227,7 @@ model RecommendationClient {
   image String?
   lat Float?
   lng Float?
-  geohash String?
+  geohash String? // 7桁のgeohashのハッシュ
   address String?
   createdAt            DateTime              @default(now())
   updatedAt            DateTime              @updatedAt
