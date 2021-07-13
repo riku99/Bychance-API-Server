@@ -27,6 +27,8 @@ export type UpdateRecommendationClientPaylaod = {
   instagram?: string;
   twitter?: string;
   ext?: string;
+  lat?: number;
+  lng?: number;
 };
 
 const updateValidation = {
@@ -38,6 +40,8 @@ const updateValidation = {
     url: Joi.string().optional(),
     instagram: Joi.string().optional(),
     twitter: Joi.string().optional(),
+    lat: Joi.number().optional(),
+    lng: Joi.number().optional(),
   }),
 };
 

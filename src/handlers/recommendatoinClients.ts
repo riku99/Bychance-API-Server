@@ -58,6 +58,8 @@ const update = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     instagram,
     twitter,
     ext,
+    lat,
+    lng,
   } = req.payload as UpdateRecommendationClientPaylaod;
 
   let imagePath: string | undefined;
@@ -75,7 +77,7 @@ const update = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     imagePath = result.source;
   }
 
-  await prisma.recommendationClient.update({
+  const result = await prisma.recommendationClient.update({
     where: {
       id: client.id,
     },
@@ -86,10 +88,12 @@ const update = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       instagram,
       twitter,
       image: imagePath,
+      lat,
+      lng,
     },
   });
 
-  return h.response().code(200);
+  return createClientRecommendationClient(result);
 };
 
 export const recommendationClientHandler = {
