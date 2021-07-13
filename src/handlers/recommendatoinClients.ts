@@ -2,6 +2,7 @@ import Hapi from "@hapi/hapi";
 import { PrismaClient } from "@prisma/client";
 import admin from "firebase-admin";
 import { throwInvalidError, throwLoginError } from "~/helpers/errors";
+import ngeohash from "ngeohash";
 
 import {
   CreateRecommendationClientHeaders,
@@ -11,6 +12,7 @@ import {
 import { RecomendationClientArtifacts } from "~/auth/bearer";
 import { createClientRecommendationClient } from "~/helpers/recommendationClients";
 import { createS3ObjectPath } from "~/helpers/aws";
+import { createHash } from "~/helpers/crypto";
 
 const prisma = new PrismaClient();
 
@@ -77,6 +79,12 @@ const update = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     imagePath = result.source;
   }
 
+  let geohash: string | undefined;
+  if (lat && lng) {
+    const gh = ngeohash.encode(lat, lng, 7);
+    geohash = createHash(gh); // Userではないので安全性的な面からはハッシュ化する必要ないが、Userのgeohashと照らし合わせて検索するときにUser側はハッシュ化されたものなのでこっちもそれに合わす
+  }
+
   const result = await prisma.recommendationClient.update({
     where: {
       id: client.id,
@@ -90,6 +98,7 @@ const update = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       image: imagePath,
       lat,
       lng,
+      geohash,
     },
   });
 
