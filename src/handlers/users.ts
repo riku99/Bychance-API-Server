@@ -168,7 +168,9 @@ const updateLocation = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const payload = req.payload as UpdateLocationPayload;
 
   const gh = geohash.encode(payload.lat, payload.lng, geohashPrecision);
+  const gh7 = geohash.encode(payload.lat, payload.lng, 7);
   const hashedGh = createHash(gh);
+  const hashedGh7 = createHash(gh7);
 
   const cryptedLocation = handleUserLocationCrypt(
     payload.lat,
@@ -207,6 +209,7 @@ const updateLocation = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       ...cryptedLocation,
       inPrivateZone: !!inPrivateZone,
       geohash: hashedGh,
+      geohash7: hashedGh7,
     },
   });
 
@@ -224,6 +227,8 @@ const deleteLocation = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       data: {
         lat: null,
         lng: null,
+        geohash: null,
+        geohash7: null,
         inPrivateZone: false,
       },
     });
