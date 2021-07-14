@@ -243,17 +243,28 @@ model RecommendationClient {
 
 model Recommendation{
   id Int @id @default(autoincrement())
-  image String
   title String
   text String
   coupon Boolean
+  endTime DateTime?
   createdAt            DateTime              @default(now())
   updatedAt            DateTime              @updatedAt
   clientId String
   client RecommendationClient @relation(fields: [clientId], references: [id])
   deleteRecommendation DeleteRecommendation[]
+  images RecommendationImage[]
 
   @@index([clientId])
+}
+
+model RecommendationImage {
+  id Int @id @default(autoincrement())
+  createdAt            DateTime              @default(now())
+  url String
+  recommendationId Int
+  recommendation Recommendation @relation(fields: [recommendationId], references: [id])
+
+  @@index([recommendationId])
 }
 
 // ユーザーが削除したレコメンデーションを記録
