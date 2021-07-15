@@ -18,6 +18,27 @@ const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     endTime,
   } = req.payload as CreateRecommendatoinPayload;
 
+  let s3PromiseData: Promise<void | UrlData>[] = [];
+  images.forEach((data) => {
+    s3PromiseData.push(
+      createS3ObjectPath({
+        data: data.src,
+        domain: "recommendation",
+        id: client.id,
+        ext: data.ext,
+      })
+    );
+  });
+
+  const imageResult = await Promise.all(s3PromiseData);
+
+  const notCreatedData = imageResult.some((data) => !data); // s3オブジェクトの作成中にエラーがあったら配列にundefinedが入るのでundefinedが存在するかどうか確認
+
+  // 画像データの作成に失敗している場合はこの時点で終了
+  if (notCreatedData) {
+    return throwInvalidError();
+  }
+
   const recommendation = await prisma.recommendation.create({
     data: {
       title,
@@ -28,36 +49,10 @@ const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     },
   });
 
-  let promiseData: Promise<void | UrlData>[] = [];
-  images.forEach((data) => {
-    promiseData.push(
-      createS3ObjectPath({
-        data: data.src,
-        domain: "recommendation",
-        id: client.id,
-        ext: data.ext,
-      })
-    );
-  });
-
-  const imageResult = await Promise.all(promiseData);
-
-  const notCreatedData = imageResult.some((data) => !data);
-
-  if (notCreatedData) {
-    await prisma.recommendation.delete({
-      where: {
-        id: recommendation.id,
-      },
-    });
-
-    return throwInvalidError();
-  }
-
-  let imagesPromise: Promise<any>[] = [];
+  let createImagesPromise: Promise<any>[] = [];
 
   imageResult.forEach((data) => {
-    imagesPromise.push(
+    createImagesPromise.push(
       prisma.recommendationImage.create({
         data: {
           // @ts-ignore
@@ -68,7 +63,7 @@ const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     );
   });
 
-  await Promise.all(imagesPromise);
+  await Promise.all(createImagesPromise);
 
   return h.response().code(200);
 };
