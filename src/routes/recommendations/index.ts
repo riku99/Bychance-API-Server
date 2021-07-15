@@ -13,6 +13,10 @@ export const recommendationsRoute = async (server: Hapi.Server) => {
       path: recommendationsPath,
       handler: recommendationHandler.create,
       options: {
+        payload: {
+          maxBytes: 100000000,
+        },
+        auth: "r-client",
         validate: {
           payload: recommendationValidator.create.validator.payload,
           failAction: recommendationValidator.create.failAction,

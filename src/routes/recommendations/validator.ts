@@ -7,13 +7,16 @@ export type CreateRecommendatoinPayload = {
   text: string;
   coupon: boolean;
   endTime?: Date;
-  images: string; // 配列stringfyしたものがくる
+  images: {
+    src: string;
+    ext: string;
+  }[];
 };
 
 const createValidation = {
   payload: Joi.object<CreateRecommendatoinPayload>({
     title: Joi.string().required(),
-    text: Joi.string().optional(),
+    text: Joi.string().allow("").optional(),
     coupon: Joi.boolean().required(),
     endTime: Joi.date().optional(),
     images: Joi.array().required(),
