@@ -128,7 +128,7 @@ type CreateS3ObjPath = {
   sourceType?: "image" | "video";
 };
 
-type UrlData = {
+export type UrlData = {
   source: string;
   thumbnail?: string;
 };
