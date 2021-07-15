@@ -28,6 +28,7 @@ import { privateTimePlugin } from "~/plugins/privateTime";
 import { deleteExpiredViewedFlashes } from "~/helpers/viewedFlash";
 import { recommendationClientsPlugin } from "~/plugins/recommendationClients";
 import { clientSignupTokenPlugin } from "~/plugins/clientSignupToken";
+import { recommendationsPlugin } from "~/plugins/recommendations";
 
 const server = Hapi.server({
   port: process.env.PORT || 4001,
@@ -109,6 +110,7 @@ export const initializeServer = async () => {
     privateTimePlugin,
     recommendationClientsPlugin,
     clientSignupTokenPlugin,
+    recommendationsPlugin,
   ]);
 
   await server.initialize();
