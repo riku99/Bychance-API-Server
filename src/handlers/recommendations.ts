@@ -102,6 +102,9 @@ const getForClient = async (
         },
       },
     },
+    orderBy: {
+      createdAt: "desc",
+    },
   });
 
   return recommendations;
