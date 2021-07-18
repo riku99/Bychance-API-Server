@@ -15,18 +15,22 @@ export type ClientRecommendationClient = Pick<
   | "enablePushNotification"
 >;
 
-export type ClientRecommendation = Pick<
-  Recommendation,
-  "id" | "title" | "coupon" | "text"
-> & {
-  name: string;
-  avatar: string | null;
-  images: string[];
-  distance?: number;
-  url: string | null;
-  instagram: string | null;
-  twitter: string | null;
-  address: string;
-  lat: number;
-  lng: number;
+export type ClientRecommendation = {
+  id: number;
+  title: string;
+  coupon: boolean;
+  text: string;
+  images: {
+    url: string;
+  }[];
+  client: {
+    url: string | null;
+    name: string;
+    image: string | null;
+    instagram: string | null;
+    twitter: string | null;
+    address: string | null;
+    lat: number | null;
+    lng: number | null;
+  };
 };

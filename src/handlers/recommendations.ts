@@ -8,6 +8,7 @@ import {
 import { RecomendationClientArtifacts } from "~/auth/bearer";
 import { createS3ObjectPath, UrlData } from "~/helpers/aws";
 import { throwInvalidError } from "~/helpers/errors";
+import { ClientRecommendation } from "~/types";
 
 const prisma = new PrismaClient();
 
@@ -72,13 +73,11 @@ const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
 };
 
 const getForClient = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
-  const query = req.query as GetRecommendationsForClientQuery;
   const client = req.auth.artifacts as RecomendationClientArtifacts;
 
-  // idを元にrecommendationを全て取得
   const recommendations = await prisma.recommendation.findMany({
     where: {
-      clientId: query.id,
+      clientId: client.id,
     },
     select: {
       id: true,
@@ -90,10 +89,23 @@ const getForClient = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
           url: true,
         },
       },
+      client: {
+        select: {
+          name: true,
+          image: true,
+          url: true,
+          instagram: true,
+          twitter: true,
+          address: true,
+          lat: true,
+          lng: true,
+        },
+      },
     },
   });
 };
 
 export const recommendationHandler = {
   create,
+  getForClient,
 };
