@@ -29,6 +29,10 @@ export const recommendationsRoute = async (server: Hapi.Server) => {
       handler: recommendationHandler.getForClient,
       options: {
         auth: "r-client",
+        validate: {
+          query: recommendationValidator.getForClient.validator.query,
+          failAction: recommendationValidator.getForClient.failAction,
+        },
       },
     },
   ]);

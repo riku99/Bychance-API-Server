@@ -249,6 +249,7 @@ model Recommendation{
   endTime DateTime?
   createdAt            DateTime              @default(now())
   updatedAt            DateTime              @updatedAt
+  hide Boolean @default(false)
   clientId String
   client RecommendationClient @relation(fields: [clientId], references: [id])
   deleteRecommendation DeleteRecommendation[]

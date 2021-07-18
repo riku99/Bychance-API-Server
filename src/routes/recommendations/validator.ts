@@ -26,12 +26,12 @@ const createValidation = {
 const createFailAction = () => throwInvalidError();
 
 export type GetRecommendationsForClientQuery = {
-  id: string;
+  type?: string;
 };
 
 const getRecommendationsForClientValidation = {
   query: Joi.object<GetRecommendationsForClientQuery>({
-    id: Joi.string().required(),
+    type: Joi.string().allow("now").optional(),
   }),
 };
 
