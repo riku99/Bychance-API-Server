@@ -82,6 +82,10 @@ const getForClient = async (
   const recommendations = await prisma.recommendation.findMany({
     where: {
       clientId: client.id,
+      display: type === "now" ? true : undefined,
+      // endTime: {
+      //   lt: type === "now" ? new Date() : undefined,
+      // },
     },
     select: {
       id: true,

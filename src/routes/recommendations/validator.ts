@@ -26,7 +26,7 @@ const createValidation = {
 const createFailAction = () => throwInvalidError();
 
 export type GetRecommendationsForClientQuery = {
-  type?: string;
+  type?: "now";
 };
 
 const getRecommendationsForClientValidation = {
