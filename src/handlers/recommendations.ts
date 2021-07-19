@@ -83,9 +83,17 @@ const getForClient = async (
     where: {
       clientId: client.id,
       display: type === "now" ? true : undefined,
-      // endTime: {
-      //   lt: type === "now" ? new Date() : undefined,
-      // },
+      OR: [
+        {
+          endTime: {
+            gt: type === "now" ? new Date() : undefined,
+            lt: type === "now" ? undefined : new Date(),
+          },
+        },
+        {
+          endTime: null,
+        },
+      ],
     },
     select: {
       id: true,
