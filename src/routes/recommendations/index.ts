@@ -35,5 +35,17 @@ export const recommendationsRoute = async (server: Hapi.Server) => {
         },
       },
     },
+    {
+      method: "DELETE",
+      path: `${recommendationsPath}/{id}`,
+      handler: () => {},
+      options: {
+        auth: "r-client",
+        validate: {
+          params: recommendationValidator.hide.validator.params,
+          failAction: recommendationValidator.hide.failAction,
+        },
+      },
+    },
   ]);
 };

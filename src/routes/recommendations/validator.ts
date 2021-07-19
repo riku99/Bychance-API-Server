@@ -37,6 +37,18 @@ const getRecommendationsForClientValidation = {
 
 const getRecommendationsForClientFailAciton = () => throwInvalidError();
 
+export type HideRecommendationParams = {
+  id: string;
+};
+
+const hideRecommendationValidation = {
+  params: Joi.object<HideRecommendationParams>({
+    id: Joi.string().required(),
+  }),
+};
+
+const hideFailAction = () => throwInvalidError();
+
 export const recommendationValidator = {
   create: {
     validator: createValidation,
@@ -45,5 +57,9 @@ export const recommendationValidator = {
   getForClient: {
     validator: getRecommendationsForClientValidation,
     failAction: getRecommendationsForClientFailAciton,
+  },
+  hide: {
+    validator: hideRecommendationValidation,
+    failAction: hideFailAction,
   },
 };
