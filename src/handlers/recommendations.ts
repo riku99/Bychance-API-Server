@@ -80,21 +80,36 @@ const getForClient = async (
   const { type } = req.query as GetRecommendationsForClientQuery;
 
   const recommendations = await prisma.recommendation.findMany({
-    where: {
-      clientId: client.id,
-      display: type === "now" ? true : undefined,
-      OR: [
-        {
-          endTime: {
-            gt: type === "now" ? new Date() : undefined,
-            lt: type === "now" ? undefined : new Date(),
+    where:
+      type === "now"
+        ? {
+            clientId: client.id,
+            display: true,
+            OR: [
+              {
+                endTime: {
+                  gt: new Date(),
+                },
+              },
+              {
+                endTime: null,
+              },
+            ],
+          }
+        : {
+            clientId: client.id,
+            OR: [
+              {
+                display: true,
+                endTime: {
+                  lt: new Date(),
+                },
+              },
+              {
+                display: false,
+              },
+            ],
           },
-        },
-        {
-          endTime: null,
-        },
-      ],
-    },
     select: {
       id: true,
       title: true,
