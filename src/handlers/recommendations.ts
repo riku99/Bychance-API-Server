@@ -1,9 +1,10 @@
 import Hapi from "@hapi/hapi";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, RecommendationClient } from "@prisma/client";
 
 import {
   CreateRecommendatoinPayload,
   GetRecommendationsForClientQuery,
+  HideRecommendationParams,
 } from "~/routes/recommendations/validator";
 import { RecomendationClientArtifacts } from "~/auth/bearer";
 import { createS3ObjectPath, UrlData } from "~/helpers/aws";
@@ -141,7 +142,29 @@ const getForClient = async (
   return recommendations;
 };
 
+const hide = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
+  const client = req.auth.artifacts as RecomendationClientArtifacts;
+  const params = req.params as HideRecommendationParams;
+
+  const result = await prisma.recommendation.updateMany({
+    where: {
+      id: Number(params.id),
+      clientId: client.id,
+    },
+    data: {
+      display: false,
+    },
+  });
+
+  if (!result.count) {
+    return throwInvalidError();
+  }
+
+  return h.response().code(200);
+};
+
 export const recommendationHandler = {
   create,
   getForClient,
+  hide,
 };

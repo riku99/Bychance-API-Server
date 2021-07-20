@@ -11,7 +11,7 @@ const getResizeNumber = (domain: string) => {
   switch (domain) {
     case "post":
       return {
-        width: 768,
+        width: 768, //4:3
         height: 1024,
       };
     case "flash":
@@ -33,6 +33,11 @@ const getResizeNumber = (domain: string) => {
       return {
         width: 500,
         height: 500,
+      };
+    case "recommendation":
+      return {
+        width: 960,
+        height: 640,
       };
     default:
       return {

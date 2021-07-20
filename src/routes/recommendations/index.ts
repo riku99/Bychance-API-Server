@@ -36,9 +36,9 @@ export const recommendationsRoute = async (server: Hapi.Server) => {
       },
     },
     {
-      method: "DELETE",
-      path: `${recommendationsPath}/{id}`,
-      handler: () => {},
+      method: "GET",
+      path: `${recommendationsPath}/hide/{id}`,
+      handler: recommendationHandler.hide,
       options: {
         auth: "r-client",
         validate: {
