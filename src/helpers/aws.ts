@@ -36,7 +36,7 @@ const getResizeNumber = (domain: string) => {
       };
     case "recommendation":
       return {
-        width: 960,
+        width: 960, // 3:2
         height: 640,
       };
     default:

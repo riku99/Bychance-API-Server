@@ -15,7 +15,7 @@ export type CreateRecommendatoinPayload = {
 
 const createValidation = {
   payload: Joi.object<CreateRecommendatoinPayload>({
-    title: Joi.string().required(),
+    title: Joi.string().max(35).required(),
     text: Joi.string().allow("").optional(),
     coupon: Joi.boolean().required(),
     endTime: Joi.date().optional(),
