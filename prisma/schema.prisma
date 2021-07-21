@@ -235,6 +235,7 @@ model RecommendationClient {
   instagram String?
   twitter String?
   url String?
+  showedPostModal Boolean @default(false)
   recommendations Recommendation[]
 
   @@index([uid])

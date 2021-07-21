@@ -13,6 +13,7 @@ export type ClientRecommendationClient = Pick<
   | "twitter"
   | "url"
   | "enablePushNotification"
+  | "showedPostModal"
 >;
 
 export type ClientRecommendation = {
