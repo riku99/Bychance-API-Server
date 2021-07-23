@@ -53,7 +53,7 @@ export const checkBeareAccessToken = async (
   return { isValid: true, credentials: {}, artifacts: user };
 };
 
-export type RecomendationClientArtifacts = RecommendationClient;
+export type RecommendationClientArtifacts = RecommendationClient;
 
 export const checkBeareFirebaseJWT = async (
   request: Hapi.Request,

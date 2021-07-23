@@ -48,5 +48,13 @@ export const recommendationClientsRoute = async (server: Hapi.Server) => {
         },
       },
     },
+    {
+      method: "PATCH",
+      path: `${recommendationClientsPath}/showedPostModal`,
+      handler: recommendationClientHandler.changeShowedPostModal,
+      options: {
+        auth: "r-client",
+      },
+    },
   ]);
 };

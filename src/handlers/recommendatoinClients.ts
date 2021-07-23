@@ -9,7 +9,7 @@ import {
   CreateRecommendationClientPayload,
   UpdateRecommendationClientPaylaod,
 } from "~/routes/recommendationClients/validator";
-import { RecomendationClientArtifacts } from "~/auth/bearer";
+import { RecommendationClientArtifacts } from "~/auth/bearer";
 import { createClientRecommendationClient } from "~/helpers/recommendationClients";
 import { createS3ObjectPath } from "~/helpers/aws";
 import { createHash } from "~/helpers/crypto";
@@ -45,13 +45,13 @@ const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
 };
 
 const get = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
-  const client = req.auth.artifacts as RecomendationClientArtifacts;
+  const client = req.auth.artifacts as RecommendationClientArtifacts;
 
   return createClientRecommendationClient(client);
 };
 
 const update = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
-  const client = req.auth.artifacts as RecomendationClientArtifacts;
+  const client = req.auth.artifacts as RecommendationClientArtifacts;
   const {
     name,
     image,
@@ -105,8 +105,27 @@ const update = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   return createClientRecommendationClient(result);
 };
 
+const changeShowedPostModal = async (
+  req: Hapi.Request,
+  h: Hapi.ResponseToolkit
+) => {
+  const client = req.auth.artifacts as RecommendationClientArtifacts;
+
+  await prisma.recommendationClient.update({
+    where: {
+      id: client.id,
+    },
+    data: {
+      showedPostModal: true,
+    },
+  });
+
+  return h.response().code(200);
+};
+
 export const recommendationClientHandler = {
   create,
   get,
   update,
+  changeShowedPostModal,
 };

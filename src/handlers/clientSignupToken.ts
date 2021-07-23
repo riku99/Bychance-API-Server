@@ -20,7 +20,7 @@ const getClientSignupToken = async (
   });
 
   if (!token) {
-    return throwInvalidError("そのトークンは存在しません");
+    return throwInvalidError("文字が間違っています");
   }
 
   await prisma.clientSignupToken.delete({
