@@ -6,23 +6,17 @@ import { clientSignupTokenPath } from "~/routes/clientSignupToken";
 import { checkBeareFirebaseJWT } from "~/auth/bearer";
 import { initializeServer } from "~/server";
 
-const auth = require("~/auth/bearer");
-
 const prisma = new PrismaClient();
-
-jest.mock("~/auth/bearer");
-(checkBeareFirebaseJWT as any).mockResolvedValue({
-  isValid: true,
-  credentials: {},
-  artifacts: {
-    name: "Admin User",
-    admin: true,
-  },
-});
 
 const postRequestSchema = {
   method: "POST",
   url: clientSignupTokenPath,
+  options: {
+    auth: {
+      name: "Admin User",
+      admin: true,
+    },
+  },
 };
 
 describe("clientSignupToken", () => {
@@ -30,44 +24,42 @@ describe("clientSignupToken", () => {
 
   beforeAll(async () => {
     server = await initializeServer();
+    jest.setTimeout(10000);
   });
 
   afterAll(async () => {
     await prisma.$disconnect();
+    await server.stop();
   });
 
-  // beforeEach(async () => {
-  //   console.log("beforeEach");
-  //   await resetDatabase();
-  // });
-
-  test("sample", async () => {
-    const user = await prisma.user.findFirst();
-    console.log(user);
-    expect(user).toBeNull();
+  beforeEach(async () => {
+    console.log("beforeEach");
+    await resetDatabase();
   });
 
   describe("POST clientSignupTokenPath", () => {
     describe("adminユーザー", () => {
       test("トークンを作成してそのトークンを返す", async () => {
-        jest.spyOn(auth, "checkBeareFirebaseJWT").mockImplementation(() => {
-          return {
-            isValid: true,
+        const res = await server.inject({
+          method: "POST",
+          url: clientSignupTokenPath,
+          auth: {
+            strategy: "r-client",
             credentials: {},
             artifacts: {
               name: "Admin User",
               admin: true,
             },
-          };
+          },
         });
-
-        const res = await server.inject(postRequestSchema);
         expect(res.statusCode).toEqual(200);
       });
     });
 
     describe("adminユーザーじゃない", () => {
-      test("invalidエラーを返す", async () => {});
+      test("invalidエラーを返す", async () => {
+        expect(true).toBeTruthy();
+      });
     });
   });
 });
