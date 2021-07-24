@@ -10,6 +10,7 @@ describe("clientSignupToken", () => {
   });
 
   beforeEach(async () => {
+    console.log("beforeEach");
     await resetDatabase();
   });
 

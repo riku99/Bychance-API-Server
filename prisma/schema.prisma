@@ -235,6 +235,7 @@ model RecommendationClient {
   instagram String?
   twitter String?
   url String?
+  admin Boolean @default(false) // 管理ユーザーのみtrue
   showedPostModal Boolean @default(false)
   recommendations Recommendation[]
 
