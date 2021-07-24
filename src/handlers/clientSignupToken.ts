@@ -4,6 +4,8 @@ import { differenceInHours } from "date-fns";
 
 import { GetClientSignupTokenParams } from "~/routes/clientSignupToken/validator";
 import { throwInvalidError } from "~/helpers/errors";
+import { RecommendationClientArtifacts } from "~/auth/bearer";
+import { createRandomString } from "~/helpers/crypto";
 
 const prisma = new PrismaClient();
 
@@ -38,6 +40,25 @@ const getClientSignupToken = async (
   return h.response().code(200);
 };
 
+const create = async (req: Hapi.Request) => {
+  const client = req.auth.artifacts as RecommendationClientArtifacts;
+
+  if (!client.admin) {
+    return throwInvalidError();
+  }
+
+  const str = createRandomString();
+
+  await prisma.clientSignupToken.create({
+    data: {
+      token: str,
+    },
+  });
+
+  return str;
+};
+
 export const clientSignupTokenHandler = {
   getClientSignupToken,
+  create,
 };

@@ -20,5 +20,13 @@ export const clientSignupTokenRoute = async (server: Hapi.Server) => {
         },
       },
     },
+    {
+      method: "POST",
+      path: `${clientSignupTokenPath}`,
+      handler: clientSignupTokenHandler.create,
+      options: {
+        auth: "r-client",
+      },
+    },
   ]);
 };
