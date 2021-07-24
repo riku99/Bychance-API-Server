@@ -4,7 +4,7 @@ import { baseUrl } from "~/constants";
 import { clientSignupTokenValidator } from "./validator";
 import { clientSignupTokenHandler } from "~/handlers/clientSignupToken";
 
-const clientSignupTokenPath = `${baseUrl}/clientSignupToken`;
+export const clientSignupTokenPath = `${baseUrl}/clientSignupToken`;
 
 export const clientSignupTokenRoute = async (server: Hapi.Server) => {
   server.route([
