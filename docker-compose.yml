@@ -16,6 +16,19 @@ services:
     ports:
       - 3306:3306
 
+  mysql_test:
+    image: mysql:5.7.31
+    container_name: bc_mysql_test
+    restart: always
+    networks:
+      - bc-net-dev
+    expose:
+      - 3308
+    environment:
+      MYSQL_ROOT_PASSWORD: test_pass
+    ports:
+      - 3308:3306
+
   api:
     build:
       context: .
@@ -35,6 +48,7 @@ services:
       - 5555:5555
     depends_on:
       - mysql
+      - mysql_test
 
 networks:
   bc-net-dev:

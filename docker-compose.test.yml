@@ -1,22 +1,22 @@
 version: "3.8"
 services:
-  test_server:
-    build:
-      context: "."
-      dockerfile: Dockerfile-test
-    environment:
-      DATABASE_URL: mysql://root:root@bc_mysql_test:3306/bc_mysql_test # テスト環境には.envも含まれているが、こっちの環境変数が使用される
-    ports:
-      - 9999:80
-    volumes:
-      - ./src:/usr/src/app/src
-      - ./tests:/usr/src/app/tests
-      - ./package.json:/usr/src/app/package.json
-      - ./prisma:/usr/src/app/prisma
-    networks:
-      - bc_net_test
-    depends_on:
-      - bc_mysql_test
+  # test_server:
+  #   build:
+  #     context: "."
+  #     dockerfile: Dockerfile-test
+  #   environment:
+  #     DATABASE_URL: mysql://root:root@bc_mysql_test:3306/bc_mysql_test # テスト環境には.envも含まれているが、こっちの環境変数が使用される
+  #   ports:
+  #     - 9999:80
+  #   volumes:
+  #     - ./src:/usr/src/app/src
+  #     - ./tests:/usr/src/app/tests
+  #     - ./package.json:/usr/src/app/package.json
+  #     - ./prisma:/usr/src/app/prisma
+  #   networks:
+  #     - bc_net_test
+  #   depends_on:
+  #     - bc_mysql_test
 
   bc_mysql_test:
     image: mysql:5.7.31
@@ -27,7 +27,7 @@ services:
     expose:
       - 3308
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: test_pass
     ports:
       - 3308:3306
 
