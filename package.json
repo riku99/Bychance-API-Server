@@ -61,6 +61,7 @@
     "start": "node ./dist/bundle.js ",
     "enter": "docker exec -it dev-server bash",
     "test": "DATABASE_URL=mysql://root:test_pass@localhost:3308/bc-mysql-test npx prisma migrate reset --force && DATABASE_URL=mysql://root:test_pass@localhost:3308/bc-mysql-test yarn jest",
+    "test:set:env": "DATABASE_URL=mysql://root:test_pass@localhost:3308/bc-mysql-test",
     "dev:down": "docker-compose down",
     "dev:db:up": "docker-compose up -d",
     "subtest": "yarn test:db:up && sleep 3 && yarn test:db:migrate && docker-compose -f docker-compose.test.yml run test_server yarn jest --runInBand --forceExit",
