@@ -3,21 +3,9 @@ import { PrismaClient } from "@prisma/client";
 
 import { resetDatabase } from "../helpers";
 import { clientSignupTokenPath } from "~/routes/clientSignupToken";
-import { checkBeareFirebaseJWT } from "~/auth/bearer";
 import { initializeServer } from "~/server";
 
 const prisma = new PrismaClient();
-
-const postRequestSchema = {
-  method: "POST",
-  url: clientSignupTokenPath,
-  options: {
-    auth: {
-      name: "Admin User",
-      admin: true,
-    },
-  },
-};
 
 describe("clientSignupToken", () => {
   let server: Hapi.Server;
@@ -52,13 +40,36 @@ describe("clientSignupToken", () => {
             },
           },
         });
+
+        // 返されたトークンが作成されている
+        const token = await prisma.clientSignupToken.findUnique({
+          where: {
+            token: res.payload,
+          },
+        });
         expect(res.statusCode).toEqual(200);
+        expect(token).toBeTruthy();
       });
     });
 
     describe("adminユーザーじゃない", () => {
       test("invalidエラーを返す", async () => {
-        expect(true).toBeTruthy();
+        const res = await server.inject({
+          method: "POST",
+          url: clientSignupTokenPath,
+          auth: {
+            strategy: "r-client",
+            credentials: {},
+            artifacts: {
+              admin: false,
+            },
+          },
+        });
+
+        const token = await prisma.clientSignupToken.findFirst();
+
+        expect(res.statusCode).toEqual(400);
+        expect(token).toBeNull();
       });
     });
   });
