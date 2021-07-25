@@ -6,6 +6,7 @@ import { GetClientSignupTokenParams } from "~/routes/clientSignupToken/validator
 import { throwInvalidError } from "~/helpers/errors";
 import { RecommendationClientArtifacts } from "~/auth/bearer";
 import { createRandomString } from "~/helpers/crypto";
+import { signupTokenExpirationHours } from "~/constants";
 
 const prisma = new PrismaClient();
 
@@ -33,7 +34,7 @@ const getClientSignupToken = async (
 
   const hoursDiff = differenceInHours(new Date(), token.createdAt);
 
-  if (hoursDiff > 6) {
+  if (hoursDiff > signupTokenExpirationHours) {
     return throwInvalidError("有効期限が切れています");
   }
 

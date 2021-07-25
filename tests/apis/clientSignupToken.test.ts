@@ -1,9 +1,11 @@
 import Hapi from "@hapi/hapi";
 import { PrismaClient } from "@prisma/client";
+import { subHours } from "date-fns";
 
 import { resetDatabase } from "../helpers";
 import { clientSignupTokenPath } from "~/routes/clientSignupToken";
 import { initializeServer } from "~/server";
+import { signupTokenExpirationHours } from "~/constants";
 
 const prisma = new PrismaClient();
 
@@ -76,27 +78,65 @@ describe("clientSignupToken", () => {
 
   describe("GET path", () => {
     describe("paramsにDBに存在するデータが入っている", () => {
-      test("200を返し、DBからそのデータを削除する", async () => {
-        const token = "token";
+      describe("有効期限が切れていない", () => {
+        test("200を返し、DBからそのデータを削除する", async () => {
+          const token = "token";
 
-        await prisma.clientSignupToken.create({
-          data: {
-            token,
-          },
+          // トークンを作成
+          await prisma.clientSignupToken.create({
+            data: {
+              token,
+            },
+          });
+
+          const res = await server.inject({
+            method: "GET",
+            url: `${clientSignupTokenPath}/${token}`,
+          });
+
+          // トークンが削除されていることを保証
+          const _token = await prisma.clientSignupToken.findFirst();
+
+          expect(res.statusCode).toEqual(200);
+          expect(_token).toBeNull();
         });
+      });
 
-        const res = await server.inject({
-          method: "GET",
-          url: `${clientSignupTokenPath}/${token}`,
+      describe("有効期限切れである", () => {
+        test("400を返し、DBからそのデータを削除する", async () => {
+          const token = "token";
+
+          // トークンを作成
+          await prisma.clientSignupToken.create({
+            data: {
+              token,
+              createdAt: subHours(new Date(), signupTokenExpirationHours + 1), // 作成時間を手動で指定
+            },
+          });
+
+          const res = await server.inject({
+            method: "GET",
+            url: `${clientSignupTokenPath}/${token}`,
+          });
+
+          // トークンが削除されていることを保証
+          const _token = await prisma.clientSignupToken.findFirst();
+
+          expect(res.statusCode).toEqual(400);
+          expect(_token).toBeNull();
         });
-
-        const _token = await prisma.clientSignupToken.findFirst();
-
-        expect(res.statusCode).toEqual(200);
-        expect(_token).toBeNull();
       });
     });
 
-    describe("paramsのデータがDBに存在しない", () => {});
+    describe("paramsのデータがDBに存在しない", () => {
+      test("400エラーを返す", async () => {
+        const res = await server.inject({
+          method: "GET",
+          url: `${clientSignupTokenPath}/${"token"}`, // tokenはDBに存在しない
+        });
+
+        expect(res.statusCode).toEqual(400);
+      });
+    });
   });
 });
