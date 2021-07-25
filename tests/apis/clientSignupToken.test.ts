@@ -25,7 +25,7 @@ describe("clientSignupToken", () => {
   });
 
   describe("POST clientSignupTokenPath", () => {
-    describe("adminユーザー", () => {
+    describe("adminユーザーである", () => {
       test("トークンを作成してそのトークンを返す", async () => {
         const res = await server.inject({
           method: "POST",
@@ -72,5 +72,31 @@ describe("clientSignupToken", () => {
         expect(token).toBeNull();
       });
     });
+  });
+
+  describe("GET path", () => {
+    describe("paramsにDBに存在するデータが入っている", () => {
+      test("200を返し、DBからそのデータを削除する", async () => {
+        const token = "token";
+
+        await prisma.clientSignupToken.create({
+          data: {
+            token,
+          },
+        });
+
+        const res = await server.inject({
+          method: "GET",
+          url: `${clientSignupTokenPath}/${token}`,
+        });
+
+        const _token = await prisma.clientSignupToken.findFirst();
+
+        expect(res.statusCode).toEqual(200);
+        expect(_token).toBeNull();
+      });
+    });
+
+    describe("paramsのデータがDBに存在しない", () => {});
   });
 });
