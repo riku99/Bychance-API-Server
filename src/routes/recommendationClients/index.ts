@@ -4,7 +4,7 @@ import { baseUrl, maxBytes } from "~/constants";
 import { recommendationClientValidator } from "./validator";
 import { recommendationClientHandler } from "~/handlers/recommendatoinClients";
 
-const recommendationClientsPath = `${baseUrl}/recommendationClients`;
+export const recommendationClientsPath = `${baseUrl}/recommendationClients`;
 
 export const recommendationClientsRoute = async (server: Hapi.Server) => {
   server.route([
