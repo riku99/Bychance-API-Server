@@ -26,34 +26,70 @@ describe("recommendationClients", () => {
   });
 
   describe("POST path", () => {
+    let spy: jest.SpyInstance;
+
+    afterEach(() => {
+      spy.mockRestore();
+    });
+
     describe("firebaseでトークンが認証される", () => {
-      test("ユーザーが作成され、idとnameを返す", async () => {
-        // verifyIdTokenのモック
+      test("クライアントが作成され、idとnameを返す", async () => {
         const admin = require("firebase-admin");
         const mockVerifyIdToken = jest.fn().mockResolvedValue({ uid: "uid" });
         const mockAuth = jest
           .fn()
           .mockReturnValue({ verifyIdToken: mockVerifyIdToken });
-        const spy = jest
-          .spyOn(admin, "app")
-          .mockReturnValue({ auth: mockAuth });
+        spy = jest.spyOn(admin, "app").mockReturnValue({ auth: mockAuth });
 
-        const req = await server.inject({
+        const res = await server.inject({
           method: "POST",
           url: recommendationClientsPath,
           payload: {
-            name: "User",
+            name: "イタチ",
           },
           headers: {
             authorization: "Bearer Token",
           },
         });
 
-        console.log(spy.mock.results[0]);
-        console.log(mockVerifyIdToken.mock.results[0]);
+        const client = await prisma.recommendationClient.findFirst();
+
+        expect(client?.uid).toEqual("uid");
+        expect(res.payload).toEqual(
+          JSON.stringify({
+            id: client?.id,
+            name: client?.name,
+          })
+        );
       });
     });
 
-    describe("firebaseでトークンの認証に失敗する", () => {});
+    describe("firebaseでトークンの認証に失敗する", () => {
+      test("401エラーが返されてクライアントは作成されない", async () => {
+        const admin = require("firebase-admin");
+        const mockVerifyIdToken = jest.fn().mockRejectedValue(undefined); // 失敗させる
+        const mockAuth = jest
+          .fn()
+          .mockReturnValue({ verifyIdToken: mockVerifyIdToken });
+        spy = jest.spyOn(admin, "app").mockReturnValue({ auth: mockAuth });
+
+        const res = await server.inject({
+          method: "POST",
+          url: recommendationClientsPath,
+          payload: {
+            name: "イタチ",
+          },
+          headers: {
+            authorization: "Bearer Token",
+          },
+        });
+
+        // 作成されていないことを保証
+        const client = await prisma.recommendationClient.findFirst();
+
+        expect(res.statusCode).toEqual(401);
+        expect(client).toBeNull();
+      });
+    });
   });
 });
