@@ -42,6 +42,7 @@ services:
       - bc-net-dev
     volumes:
       - .:/app
+      - /app/node_modules
       - ./cred.json:/google_credentials.json
     ports:
       - 4001:4001
