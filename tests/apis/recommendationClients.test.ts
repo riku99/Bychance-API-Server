@@ -1,6 +1,5 @@
 import Hapi from "@hapi/hapi";
 import { PrismaClient } from "@prisma/client";
-import admin from "firebase-admin";
 
 import { initializeServer } from "~/server";
 import { resetDatabase } from "../helpers";
