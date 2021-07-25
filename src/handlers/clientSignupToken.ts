@@ -47,7 +47,7 @@ const create = async (req: Hapi.Request) => {
     return throwInvalidError();
   }
 
-  const str = createRandomString();
+  const str = createRandomString().slice(0, 8);
 
   await prisma.clientSignupToken.create({
     data: {
