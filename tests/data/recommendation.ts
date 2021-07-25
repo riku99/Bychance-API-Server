@@ -4,9 +4,9 @@ import { recommendationClient } from "./recommendationClient";
 
 const prisma = new PrismaClient();
 
-export const recommendation = {
+export const displayedRecommendation = {
   id: 1,
-  title: "お洒落なカフェでまったりしませんか?",
+  title: "お洒落なカフェでまったりしません?",
   text: "",
   coupon: false,
   display: true,
@@ -33,7 +33,7 @@ export const notDisplayedRecommendation = {
 };
 
 const dataList = [
-  recommendation,
+  displayedRecommendation,
   expiredRecommendation,
   notDisplayedRecommendation,
 ];
