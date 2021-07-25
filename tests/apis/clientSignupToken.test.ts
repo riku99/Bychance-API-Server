@@ -21,7 +21,6 @@ describe("clientSignupToken", () => {
   });
 
   beforeEach(async () => {
-    console.log("beforeEach");
     await resetDatabase();
   });
 
@@ -66,6 +65,7 @@ describe("clientSignupToken", () => {
           },
         });
 
+        // トークンが作成されていないことを保証
         const token = await prisma.clientSignupToken.findFirst();
 
         expect(res.statusCode).toEqual(400);

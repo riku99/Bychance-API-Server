@@ -14,6 +14,7 @@ export type ClientRecommendationClient = Pick<
   | "url"
   | "enablePushNotification"
   | "showedPostModal"
+  | "admin"
 >;
 
 export type ClientRecommendation = {

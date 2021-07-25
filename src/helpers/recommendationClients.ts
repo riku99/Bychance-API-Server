@@ -14,6 +14,7 @@ const formRecommendationClient = (client: RecommendationClient) => {
     url,
     enablePushNotification,
     showedPostModal,
+    admin,
   } = client;
 
   return {
@@ -28,6 +29,7 @@ const formRecommendationClient = (client: RecommendationClient) => {
     url,
     enablePushNotification,
     showedPostModal,
+    admin,
   };
 };
 
