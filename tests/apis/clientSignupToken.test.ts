@@ -6,6 +6,7 @@ import { resetDatabase } from "../helpers";
 import { clientSignupTokenPath } from "~/routes/clientSignupToken";
 import { initializeServer } from "~/server";
 import { signupTokenExpirationHours } from "~/constants";
+import { recommendationClient } from "../data/recommendationClient";
 
 const prisma = new PrismaClient();
 
@@ -136,6 +137,26 @@ describe("clientSignupToken", () => {
         });
 
         expect(res.statusCode).toEqual(400);
+      });
+    });
+  });
+
+  // アカウント削除機能
+  describe("DELETE path", () => {
+    test("個人情報に当たるだろうカラムがnullまたは空文字になり、関連する投稿は全てdisplayがfalseになる", async () => {
+      const image = "image";
+      const lat = 1.0;
+      const lng = 1.0;
+      const geohash = "geohash";
+      const address = "address";
+      const instagram = "instagram";
+      const twitter = "twitter";
+      const url = "url";
+      await prisma.recommendationClient.create({
+        data: {
+          ...recommendationClient,
+          image,
+        },
       });
     });
   });

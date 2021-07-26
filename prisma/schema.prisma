@@ -220,8 +220,6 @@ model PrivateTime {
 // おすすめ機能が使えるクライアントのこと。
 model RecommendationClient {
   id String @id @default(uuid())
-  // email String @unique firebaseで管理
-  // password String firebaseで管理
   uid String @unique // firebase内のid。認証認可で使用
   name String
   image String?
@@ -237,6 +235,7 @@ model RecommendationClient {
   url String?
   admin Boolean @default(false) // 管理ユーザーのみtrue
   showedPostModal Boolean @default(false)
+  deleted Boolean @default(false) // アカウント削除を実行した場合はtrue
   recommendations Recommendation[]
 
   @@index([uid])
