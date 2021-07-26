@@ -79,4 +79,33 @@ describe("recommendations", () => {
       });
     });
   });
+
+  describe("GET path/hide", () => {
+    test("指定したデータが非表示になる", async () => {
+      await prisma.recommendationClient.create({
+        data: recommendationClient,
+      });
+
+      await prisma.recommendation.create({
+        data: displayedRecommendation,
+      });
+
+      const _rc = await prisma.recommendation.findFirst();
+      expect(_rc?.display).toBeTruthy();
+
+      const res = await server.inject({
+        method: "GET",
+        url: `${recommendationsPath}/hide/${displayedRecommendation.id}`,
+        auth: {
+          strategy: "r-client",
+          artifacts: recommendationClient,
+          credentials: {},
+        },
+      });
+
+      const rc = await prisma.recommendation.findFirst();
+      expect(rc?.display).toBeFalsy();
+      expect(res.statusCode).toEqual(200);
+    });
+  });
 });
