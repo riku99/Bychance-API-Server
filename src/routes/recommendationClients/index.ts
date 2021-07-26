@@ -56,5 +56,13 @@ export const recommendationClientsRoute = async (server: Hapi.Server) => {
         auth: "r-client",
       },
     },
+    {
+      method: "DELETE",
+      path: recommendationClientsPath,
+      handler: recommendationClientHandler.deleteClient,
+      options: {
+        auth: "r-client",
+      },
+    },
   ]);
 };

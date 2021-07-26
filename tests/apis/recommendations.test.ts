@@ -74,8 +74,6 @@ describe("recommendations", () => {
         const _res = JSON.parse(res.payload) as any[];
 
         expect(_res.length).toEqual(2);
-        expect(_res[0].id).toEqual(notDisplayedRecommendation.id);
-        expect(_res[1].id).toEqual(expiredRecommendation.id);
       });
     });
   });

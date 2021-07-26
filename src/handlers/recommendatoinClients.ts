@@ -123,9 +123,33 @@ const changeShowedPostModal = async (
   return h.response().code(200);
 };
 
+const deleteClient = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
+  const client = req.auth.artifacts as RecommendationClientArtifacts;
+
+  await prisma.recommendationClient.update({
+    where: {
+      id: client.id,
+    },
+    data: {
+      name: "",
+      image: null,
+      address: null,
+      instagram: null,
+      twitter: null,
+      lat: null,
+      lng: null,
+      geohash: null,
+      deleted: true,
+    },
+  });
+
+  return h.response().code(200);
+};
+
 export const recommendationClientHandler = {
   create,
   get,
   update,
   changeShowedPostModal,
+  deleteClient,
 };

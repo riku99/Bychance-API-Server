@@ -4,6 +4,8 @@ import { PrismaClient } from "@prisma/client";
 import { initializeServer } from "~/server";
 import { resetDatabase } from "../helpers";
 import { recommendationClientsPath } from "~/routes/recommendationClients";
+import { recommendationClient } from "../data/recommendationClient";
+import { createRecommendation } from "../data/recommendation";
 
 const prisma = new PrismaClient();
 
@@ -89,6 +91,58 @@ describe("recommendationClients", () => {
         expect(res.statusCode).toEqual(401);
         expect(client).toBeNull();
       });
+    });
+  });
+
+  // アカウント削除機能
+  describe("DELETE path", () => {
+    test("個人情報に当たるだろうカラムがnullまたは空文字になり、deletedはtrue、関連する投稿は全てdisplayがfalseになる", async () => {
+      const c = await prisma.recommendationClient.create({
+        data: recommendationClient,
+      });
+
+      expect(c.name).toEqual(recommendationClient.name);
+      // expect(c.uid).toEqual(recommendationClient.uid);
+      expect(c.image).toEqual(recommendationClient.image);
+      expect(c.address).toEqual(recommendationClient.address);
+      expect(c.instagram).toEqual(recommendationClient.instagram);
+      expect(c.twitter).toEqual(recommendationClient.twitter);
+      expect(c.url).toEqual(recommendationClient.url);
+      expect(c.deleted).toBeFalsy();
+      expect(c.lat).toEqual(recommendationClient.lat);
+      expect(c.lng).toEqual(recommendationClient.lng);
+      expect(c.geohash).toEqual(recommendationClient.geohash);
+
+      const _recommendation = await createRecommendation();
+      expect(_recommendation["displayed"].display);
+
+      const res = await server.inject({
+        method: "DELETE",
+        url: recommendationClientsPath,
+        auth: {
+          strategy: "r-client",
+          credentials: {},
+          artifacts: c,
+        },
+      });
+
+      const deletedClient = await prisma.recommendationClient.findUnique({
+        where: {
+          id: recommendationClient.id,
+        },
+      });
+
+      expect(res.statusCode).toEqual(200);
+      expect(deletedClient?.name).toEqual("");
+      // expect(deletedClient?.uid).toEqual(""); // uidはそのまま
+      expect(deletedClient?.image).toBeNull();
+      expect(deletedClient?.address).toBeNull();
+      expect(deletedClient?.instagram).toBeNull();
+      expect(deletedClient?.twitter).toBeNull();
+      expect(deletedClient?.deleted).toBeTruthy();
+      expect(deletedClient?.lat).toBeNull();
+      expect(deletedClient?.lng).toBeNull();
+      expect(deletedClient?.geohash).toBeNull();
     });
   });
 });

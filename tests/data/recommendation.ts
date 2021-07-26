@@ -1,4 +1,5 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Recommendation } from "@prisma/client";
+import { string } from "joi";
 
 import { recommendationClient } from "./recommendationClient";
 
@@ -38,8 +39,8 @@ const dataList = [
   notDisplayedRecommendation,
 ];
 
-export const createRecommendation = () => {
-  let promise: Promise<any>[] = [];
+export const createRecommendation = async () => {
+  let promise: Promise<Recommendation>[] = [];
   dataList.forEach((data) => {
     promise.push(
       prisma.recommendation.create({
@@ -48,5 +49,23 @@ export const createRecommendation = () => {
     );
   });
 
-  return Promise.all(promise);
+  const result = await Promise.all(promise);
+
+  let data: { [key: string]: Recommendation } = {};
+
+  result.forEach((d) => {
+    if (d.id === 1) {
+      data["displayed"] = d;
+    }
+
+    if (d.id === 2) {
+      data["expired"] = d;
+    }
+
+    if (d.id === 3) {
+      data["notDisplayed"] = d;
+    }
+  });
+
+  return data!;
 };
