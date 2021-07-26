@@ -143,6 +143,15 @@ const deleteClient = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     },
   });
 
+  await prisma.recommendation.updateMany({
+    where: {
+      clientId: client.id,
+    },
+    data: {
+      display: false,
+    },
+  });
+
   return h.response().code(200);
 };
 

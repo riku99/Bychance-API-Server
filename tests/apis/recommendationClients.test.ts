@@ -114,7 +114,8 @@ describe("recommendationClients", () => {
       expect(c.geohash).toEqual(recommendationClient.geohash);
 
       const _recommendation = await createRecommendation();
-      expect(_recommendation["displayed"].display);
+      expect(_recommendation["displayed"].display).toBeTruthy();
+      expect(_recommendation["expired"].display).toBeTruthy();
 
       const res = await server.inject({
         method: "DELETE",
@@ -143,6 +144,16 @@ describe("recommendationClients", () => {
       expect(deletedClient?.lat).toBeNull();
       expect(deletedClient?.lng).toBeNull();
       expect(deletedClient?.geohash).toBeNull();
+
+      const relatedRecommendations = await prisma.recommendation.findMany({
+        where: {
+          clientId: recommendationClient.id,
+        },
+      });
+
+      relatedRecommendations.forEach((d) => {
+        expect(d.display).toBeFalsy();
+      });
     });
   });
 });
