@@ -29,6 +29,7 @@ import { deleteExpiredViewedFlashes } from "~/helpers/viewedFlash";
 import { recommendationClientsPlugin } from "~/plugins/recommendationClients";
 import { clientSignupTokenPlugin } from "~/plugins/clientSignupToken";
 import { recommendationsPlugin } from "~/plugins/recommendations";
+import { recommendationClientNotificationsPlugin } from "~/plugins/recommendationClientNotifications";
 
 const server = Hapi.server({
   port: process.env.PORT || 4001,
@@ -111,6 +112,7 @@ export const initializeServer = async () => {
     recommendationClientsPlugin,
     clientSignupTokenPlugin,
     recommendationsPlugin,
+    recommendationClientNotificationsPlugin,
   ]);
 
   await server.initialize();

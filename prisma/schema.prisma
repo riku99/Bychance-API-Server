@@ -292,6 +292,14 @@ model ClientSignupToken {
   @@index([token])
 }
 
+model RecommendationClientNotification {
+  id Int @id @default(autoincrement())
+  createdAt            DateTime              @default(now())
+  title String
+  text String
+  alreadyRead Boolean @default(false)
+}
+
 
 enum FlashSourceTypeRole {
   image
