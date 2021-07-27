@@ -96,7 +96,20 @@ describe("recommendationClients", () => {
 
   // アカウント削除機能
   describe("DELETE path", () => {
+    let spy: jest.SpyInstance;
+
+    afterEach(() => {
+      spy.mockRestore();
+    });
+
     test("個人情報に当たるだろうカラムがnullまたは空文字になり、deletedはtrue、関連する投稿は全てdisplayがfalseになる", async () => {
+      const admin = require("firebase-admin");
+      const mockDeleteUser = jest.fn().mockResolvedValue("mockId");
+      const mockAuth = jest
+        .fn()
+        .mockReturnValue({ deleteUser: mockDeleteUser });
+      spy = jest.spyOn(admin, "app").mockReturnValue({ auth: mockAuth }); // auth().deleteUser(client.uid)をモック
+
       const c = await prisma.recommendationClient.create({
         data: recommendationClient,
       });

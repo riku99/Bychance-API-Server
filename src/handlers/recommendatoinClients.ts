@@ -125,6 +125,7 @@ const changeShowedPostModal = async (
 
 const deleteClient = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const client = req.auth.artifacts as RecommendationClientArtifacts;
+  const rClientAdmin = admin.app("recommendationClient");
 
   await prisma.recommendationClient.update({
     where: {
@@ -152,6 +153,8 @@ const deleteClient = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       display: false,
     },
   });
+
+  await rClientAdmin.auth().deleteUser(client.uid); // uidからユーザー見つけられなかったらエラー出す
 
   return h.response().code(200);
 };

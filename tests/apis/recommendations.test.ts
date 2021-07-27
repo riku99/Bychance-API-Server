@@ -7,8 +7,6 @@ import { recommendationsPath } from "~/routes/recommendations";
 import {
   createRecommendation,
   displayedRecommendation,
-  expiredRecommendation,
-  notDisplayedRecommendation,
 } from "../data/recommendation";
 import {
   createRecommenadtionClient,
