@@ -101,8 +101,8 @@ describe("recommendationClients", () => {
         data: recommendationClient,
       });
 
+      // この時点では値が存在することを保証
       expect(c.name).toEqual(recommendationClient.name);
-      // expect(c.uid).toEqual(recommendationClient.uid);
       expect(c.image).toEqual(recommendationClient.image);
       expect(c.address).toEqual(recommendationClient.address);
       expect(c.instagram).toEqual(recommendationClient.instagram);
@@ -113,6 +113,7 @@ describe("recommendationClients", () => {
       expect(c.lng).toEqual(recommendationClient.lng);
       expect(c.geohash).toEqual(recommendationClient.geohash);
 
+      // この時点ではdisplayがtrueになっていることを保証
       const _recommendation = await createRecommendation();
       expect(_recommendation["displayed"].display).toBeTruthy();
       expect(_recommendation["expired"].display).toBeTruthy();
@@ -135,7 +136,6 @@ describe("recommendationClients", () => {
 
       expect(res.statusCode).toEqual(200);
       expect(deletedClient?.name).toEqual("");
-      // expect(deletedClient?.uid).toEqual(""); // uidはそのまま
       expect(deletedClient?.image).toBeNull();
       expect(deletedClient?.address).toBeNull();
       expect(deletedClient?.instagram).toBeNull();
@@ -144,6 +144,7 @@ describe("recommendationClients", () => {
       expect(deletedClient?.lat).toBeNull();
       expect(deletedClient?.lng).toBeNull();
       expect(deletedClient?.geohash).toBeNull();
+      expect(deletedClient?.url).toBeNull();
 
       const relatedRecommendations = await prisma.recommendation.findMany({
         where: {

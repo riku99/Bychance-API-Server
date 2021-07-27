@@ -140,6 +140,7 @@ const deleteClient = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       lng: null,
       geohash: null,
       deleted: true,
+      url: null,
     },
   });
 
