@@ -33,12 +33,12 @@ export const usersRoute = async (server: Hapi.Server) => {
       },
     },
     {
-      method: "PATCH",
-      path: `${baseUrl}/users/refresh`,
+      method: "GET",
+      path: `${baseUrl}/users/refresh/{userId}`,
       handler: usersHandler.refreshUser,
       options: {
         validate: {
-          payload: refreshUserValidator.validate.payload,
+          params: refreshUserValidator.validate.params,
           failAction: refreshUserValidator.failAction,
         },
       },

@@ -7,7 +7,7 @@ import geohash from "ngeohash";
 import { Artifacts } from "~/auth/bearer";
 import {
   UpdateUserPayload,
-  RefreshUserPayload,
+  RefreshUserParams,
   UpdateLocationPayload,
   ChangeUserDisplayPayload,
   ChangeVideoEditDescriptionPayload,
@@ -107,12 +107,12 @@ const updateUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
 
 const refreshUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const user = req.auth.artifacts as Artifacts;
-  const payload = req.payload as RefreshUserPayload;
+  const params = req.params as RefreshUserParams;
 
-  const isMyData = user.id === payload.userId;
+  const isMyData = user.id === params.userId;
 
   const refreshData = await prisma.user.findUnique({
-    where: { id: payload.userId },
+    where: { id: params.userId },
     include: {
       ...postIncludes,
       ...flashIncludes,

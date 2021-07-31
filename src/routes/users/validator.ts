@@ -48,12 +48,12 @@ export const updateUserValidator = {
   failAction: updateFailAction,
 };
 
-export type RefreshUserPayload = {
+export type RefreshUserParams = {
   userId: string;
 };
 
 const refresh = {
-  payload: Joi.object<RefreshUserPayload>({
+  params: Joi.object<RefreshUserParams>({
     userId: Joi.string().required(),
   }),
 };
