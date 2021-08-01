@@ -28,12 +28,12 @@ export const createPostValidator = {
   failAction: createFailAction,
 };
 
-export type DeletePostPayload = {
+export type DeletePostParams = {
   postId: number;
 };
 
 const deletePostValidation = {
-  payload: Joi.object<DeletePostPayload>({
+  params: Joi.object<DeletePostParams>({
     postId: Joi.number().required(),
   }),
 };

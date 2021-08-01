@@ -24,11 +24,11 @@ export const postsRoute = async (server: Hapi.Server) => {
     },
     {
       method: "DELETE",
-      path: `${baseUrl}/posts`,
+      path: `${baseUrl}/posts/{postId}`,
       handler: postHandler.deletePost,
       options: {
         validate: {
-          payload: deletePostValidator.validate.payload,
+          params: deletePostValidator.validate.params,
           failAction: deletePostValidator.failAction,
         },
       },
