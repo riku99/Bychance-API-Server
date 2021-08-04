@@ -53,8 +53,8 @@ export const recommendationsRoute = async (server: Hapi.Server) => {
       handler: recommendationHandler.get,
       options: {
         validate: {
-          // query: recommendationValidator.get.validator.query,
-          // failAction: recommendationValidator.get.failAction,
+          query: recommendationValidator.get.validator.query,
+          failAction: recommendationValidator.get.failAction,
         },
       },
     },

@@ -1,4 +1,4 @@
-import Joi, { number } from "joi";
+import Joi from "joi";
 
 import { throwInvalidError } from "~/helpers/errors";
 
@@ -52,12 +52,14 @@ const hideFailAction = () => throwInvalidError();
 export type GetRecommendationsQuery = {
   lat: number;
   lng: number;
+  id: string;
 };
 
 const getRecommendationsValidation = {
   query: Joi.object<GetRecommendationsQuery>({
     lat: Joi.number().required(),
     lng: Joi.number().required(),
+    id: Joi.string().required(), // クエリには認証用idが毎回含まれるので、クエリをバリデーションの対象にする場合はidも許可する
   }),
 };
 
