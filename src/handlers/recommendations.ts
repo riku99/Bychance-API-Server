@@ -1,15 +1,18 @@
 import Hapi from "@hapi/hapi";
-import { PrismaClient, RecommendationClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
+import geohash from "ngeohash";
 
 import {
   CreateRecommendatoinPayload,
   GetRecommendationsForClientQuery,
   HideRecommendationParams,
+  GetRecommendationsQuery,
 } from "~/routes/recommendations/validator";
-import { RecommendationClientArtifacts } from "~/auth/bearer";
+import { RecommendationClientArtifacts, Artifacts } from "~/auth/bearer";
 import { createS3ObjectPath, UrlData } from "~/helpers/aws";
 import { throwInvalidError } from "~/helpers/errors";
 import { ClientRecommendation } from "~/types";
+import { createHash, handleUserLocationCrypt } from "~/helpers/crypto";
 
 const prisma = new PrismaClient();
 
@@ -163,8 +166,69 @@ const hide = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   return h.response().code(200);
 };
 
+const get = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
+  const user = req.auth.artifacts as Artifacts;
+  const query = req.query as GetRecommendationsQuery;
+
+  const gh = geohash.encode(query.lat, query.lng, 7);
+  const hashedGh = createHash(gh);
+  const neighborsHashedGh = geohash.neighbors(gh).map((g) => createHash(g));
+
+  const recommendations = await prisma.recommendation.findMany({
+    where: {
+      display: true,
+      OR: [
+        // endTimeが現在より後、またはそもそも指定さていない場合
+        {
+          endTime: {
+            gt: new Date(),
+          },
+        },
+        {
+          endTime: null,
+        },
+      ],
+      client: {
+        deleted: false,
+        geohash: {
+          in: [hashedGh, ...neighborsHashedGh],
+        },
+      },
+    },
+    select: {
+      id: true,
+      title: true,
+      coupon: true,
+      text: true,
+      images: {
+        select: {
+          url: true,
+        },
+      },
+      client: {
+        select: {
+          name: true,
+          image: true,
+          url: true,
+          instagram: true,
+          twitter: true,
+          address: true,
+          lat: true,
+          lng: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return recommendations;
+};
+
 export const recommendationHandler = {
   create,
   getForClient,
   hide,
+  get,
 };

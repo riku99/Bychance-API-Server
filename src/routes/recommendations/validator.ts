@@ -1,4 +1,4 @@
-import Joi from "joi";
+import Joi, { number } from "joi";
 
 import { throwInvalidError } from "~/helpers/errors";
 
@@ -49,6 +49,20 @@ const hideRecommendationValidation = {
 
 const hideFailAction = () => throwInvalidError();
 
+export type GetRecommendationsQuery = {
+  lat: number;
+  lng: number;
+};
+
+const getRecommendationsValidation = {
+  query: Joi.object<GetRecommendationsQuery>({
+    lat: Joi.number().required(),
+    lng: Joi.number().required(),
+  }),
+};
+
+const getFailActon = () => throwInvalidError();
+
 export const recommendationValidator = {
   create: {
     validator: createValidation,
@@ -61,5 +75,9 @@ export const recommendationValidator = {
   hide: {
     validator: hideRecommendationValidation,
     failAction: hideFailAction,
+  },
+  get: {
+    validator: getRecommendationsValidation,
+    failAction: getFailActon,
   },
 };
