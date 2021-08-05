@@ -12,7 +12,7 @@ import { RecommendationClientArtifacts, Artifacts } from "~/auth/bearer";
 import { createS3ObjectPath, UrlData } from "~/helpers/aws";
 import { throwInvalidError } from "~/helpers/errors";
 import { ClientRecommendation } from "~/types";
-import { createHash, handleUserLocationCrypt } from "~/helpers/crypto";
+import { createHash } from "~/helpers/crypto";
 
 const prisma = new PrismaClient();
 

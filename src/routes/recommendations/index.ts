@@ -36,6 +36,7 @@ export const recommendationsRoute = async (server: Hapi.Server) => {
       },
     },
     {
+      // レコメンデーションクライアントが自分の投稿を非表示にする場合。Userがリストから消すために非表示にするのとは別
       method: "GET",
       path: `${recommendationsPath}/hide/{id}`,
       handler: recommendationHandler.hide,

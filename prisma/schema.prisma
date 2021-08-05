@@ -45,7 +45,7 @@ model User {
   flashStamps FlashStamp[]
   privateZone PrivateZone[]
   privateTime PrivateTime[]
-  deleteRecommendation DeleteRecommendation[]
+  hideRecommendation UserHideRecommendation[]
 
   @@index([display, login, inPrivateZone, geohash])
   @@index([lineId])
@@ -253,7 +253,7 @@ model Recommendation{
   display Boolean @default(true)
   clientId String
   client RecommendationClient @relation(fields: [clientId], references: [id])
-  deleteRecommendation DeleteRecommendation[]
+  hiddenRecommendation UserHideRecommendation[]
   images RecommendationImage[]
 
   @@index([clientId])
@@ -269,11 +269,10 @@ model RecommendationImage {
   @@index([recommendationId])
 }
 
-// ユーザーが削除したレコメンデーションを記録
-model DeleteRecommendation {
+// ユーザーが非表示にしたレコメンデーションを記録。レコメンデーションクライアントが投稿を非表示にしたものとは別
+model UserHideRecommendation {
   id Int @id @default(autoincrement())
   createdAt            DateTime              @default(now())
-  updatedAt            DateTime              @updatedAt
   userId String
   recommendationId Int
   user User @relation(fields: [userId], references: [id])
