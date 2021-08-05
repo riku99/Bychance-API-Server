@@ -39,7 +39,7 @@ const dataList = [
   notDisplayedRecommendation,
 ];
 
-export const createRecommendation = async () => {
+export const createRecommendations = async () => {
   let promise: Promise<Recommendation>[] = [];
   dataList.forEach((data) => {
     promise.push(

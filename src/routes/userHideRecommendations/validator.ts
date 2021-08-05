@@ -2,13 +2,13 @@ import Joi from "joi";
 
 import { throwInvalidError } from "~/helpers/errors";
 
-export type CreateUserHideRecommendationParams = {
-  id: string;
+export type CreateUserHideRecommendationPayload = {
+  id: number;
 };
 
 const createValidation = {
-  params: Joi.object<CreateUserHideRecommendationParams>({
-    id: Joi.string().required(),
+  payload: Joi.object<CreateUserHideRecommendationPayload>({
+    id: Joi.number().required(),
   }),
 };
 

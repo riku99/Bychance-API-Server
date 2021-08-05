@@ -1,19 +1,20 @@
 import Hapi from "@hapi/hapi";
 import { baseUrl } from "~/constants";
 
-export const userHideRecommendationsPath = `${baseUrl}/userHideRecommendations`;
 import { validators } from "./validator";
 import { handlers } from "~/handlers/userHideRecommendations";
+
+export const userHideRecommendationsPath = `${baseUrl}/userHideRecommendations`;
 
 export const userHideRecommendationsRoute = async (server: Hapi.Server) => {
   server.route([
     {
       method: "POST",
-      path: `${userHideRecommendationsPath}/{id}`,
+      path: userHideRecommendationsPath,
       handler: handlers.create,
       options: {
         validate: {
-          params: validators.create.validator.params,
+          payload: validators.create.validator.payload,
           failAction: validators.create.failAction,
         },
       },

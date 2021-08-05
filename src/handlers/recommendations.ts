@@ -194,6 +194,11 @@ const get = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
           in: [hashedGh, ...neighborsHashedGh],
         },
       },
+      hiddenRecommendations: {
+        none: {
+          userId: user.id,
+        },
+      },
     },
     select: {
       id: true,

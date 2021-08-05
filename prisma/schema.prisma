@@ -253,7 +253,7 @@ model Recommendation{
   display Boolean @default(true)
   clientId String
   client RecommendationClient @relation(fields: [clientId], references: [id])
-  hiddenRecommendation UserHideRecommendation[]
+  hiddenRecommendations UserHideRecommendation[]
   images RecommendationImage[]
 
   @@index([clientId])

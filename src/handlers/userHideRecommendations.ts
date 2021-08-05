@@ -2,17 +2,17 @@ import Hapi from "@hapi/hapi";
 import { PrismaClient } from "@prisma/client";
 
 import { Artifacts } from "~/auth/bearer";
-import { CreateUserHideRecommendationParams } from "~/routes/userHideRecommendations/validator";
+import { CreateUserHideRecommendationPayload } from "~/routes/userHideRecommendations/validator";
 
 const prisma = new PrismaClient();
 
 const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const user = req.auth.artifacts as Artifacts;
-  const params = req.params as CreateUserHideRecommendationParams;
+  const payload = req.payload as CreateUserHideRecommendationPayload;
 
   await prisma.userHideRecommendation.create({
     data: {
-      recommendationId: Number(params.id),
+      recommendationId: payload.id,
       userId: user.id,
     },
   });

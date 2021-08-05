@@ -9,7 +9,7 @@ import {
   recommendationClient,
 } from "../data/recommendationClient";
 import {
-  createRecommendation,
+  createRecommendations,
   displayedRecommendation,
 } from "../data/recommendation";
 import { createUser } from "../data/user";
@@ -36,14 +36,17 @@ describe("userHideRecommendations", () => {
   describe("POST path", () => {
     test("非表示データに登録され、200を返す", async () => {
       await createRecommenadtionClient();
-      await createRecommendation();
+      await createRecommendations();
       const user = await createUser();
 
       const targetId = displayedRecommendation.id;
 
       const res = await server.inject({
         method: "POST",
-        url: `${userHideRecommendationsPath}/${targetId}`,
+        url: userHideRecommendationsPath,
+        payload: {
+          id: targetId,
+        },
         auth: {
           strategy: "simple",
           artifacts: {
