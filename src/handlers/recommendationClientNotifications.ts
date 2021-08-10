@@ -1,9 +1,12 @@
 import Hapi from "@hapi/hapi";
 import { PrismaClient } from "@prisma/client";
+import { throwInvalidError } from "~/helpers/errors";
+
+import { GetParams } from "~/routes/recommendationClientNotification/validator";
 
 const prisma = new PrismaClient();
 
-const get = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
+const getAll = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const notifications = await prisma.recommendationClientNotification.findMany({
     orderBy: {
       createdAt: "desc",
@@ -13,6 +16,23 @@ const get = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   return notifications;
 };
 
-export const handler = {
-  get,
+const getData = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
+  const params = req.params as GetParams;
+
+  const text = await prisma.recommendationClientNotification.findUnique({
+    where: {
+      id: Number(params.id),
+    },
+  });
+
+  if (!text) {
+    return throwInvalidError("データが存在しません");
+  }
+
+  return text;
+};
+
+export const handlers = {
+  getAll,
+  getData,
 };

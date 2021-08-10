@@ -1,8 +1,10 @@
 import Hapi from "@hapi/hapi";
 import { baseUrl } from "~/constants";
 
+import { handlers } from "~/handlers/recommendationClientNotifications";
+import { validators } from "./validator";
+
 export const recommendationClientNotificationsPath = `${baseUrl}/recommendationClientNotifications`;
-import { handler } from "~/handlers/recommendationClientNotifications";
 
 export const recommendationClientNotificationRoute = async (
   server: Hapi.Server
@@ -11,9 +13,21 @@ export const recommendationClientNotificationRoute = async (
     {
       method: "GET",
       path: recommendationClientNotificationsPath,
-      handler: handler.get,
+      handler: handlers.getAll,
       options: {
         auth: "r-client",
+      },
+    },
+    {
+      method: "GET",
+      path: `${recommendationClientNotificationsPath}/{id}`,
+      handler: handlers.getData,
+      options: {
+        auth: "r-client",
+        validate: {
+          params: validators.get.validator.params,
+          failAction: validators.get.failAction,
+        },
       },
     },
   ]);

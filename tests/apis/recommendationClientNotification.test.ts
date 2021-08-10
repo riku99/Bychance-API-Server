@@ -45,4 +45,24 @@ describe("recommendationClientNotifications", () => {
       expect(result[1].createdAt > result[2].createdAt).toBeTruthy(); // 降順
     });
   });
+
+  describe("GET path/{id}", () => {
+    test("指定したidのデータを返す", async () => {
+      const data = await createRecommendationClientNotifications();
+      const data1 = data[0];
+
+      const res = await server.inject({
+        method: "GET",
+        url: `${recommendationClientNotificationsPath}/${data1.id}`,
+        auth: {
+          strategy: "r-client",
+          credentials: {},
+          artifacts: {},
+        },
+      });
+
+      expect(res.statusCode).toEqual(200);
+      expect(JSON.parse(res.payload).text).toEqual(data1.text);
+    });
+  });
 });
