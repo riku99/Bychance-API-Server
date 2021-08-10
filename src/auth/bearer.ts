@@ -55,7 +55,7 @@ export const checkBeareAccessToken = async (
 
 export type RecommendationClientArtifacts = RecommendationClient;
 
-export const checkBeareFirebaseJWT = async (
+export const checkRecommendationClient = async (
   request: Hapi.Request,
   token: string,
   h: Hapi.ResponseToolkit
@@ -74,6 +74,25 @@ export const checkBeareFirebaseJWT = async (
     }
 
     return { isValid: true, credentials: {}, artifacts: client };
+  } catch (e) {
+    return invalidReturnData;
+  }
+};
+
+export const checkConsoleAdmin = async (
+  request: Hapi.Request,
+  token: string,
+  h: Hapi.ResponseToolkit
+) => {
+  const consoleAdmin = admin.app("console");
+  try {
+    await consoleAdmin.auth().verifyIdToken(token);
+
+    return {
+      isValid: true,
+      credentials: {},
+      artifacts: {},
+    };
   } catch (e) {
     return invalidReturnData;
   }

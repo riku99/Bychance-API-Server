@@ -65,4 +65,30 @@ describe("recommendationClientNotifications", () => {
       expect(JSON.parse(res.payload).text).toEqual(data1.text);
     });
   });
+
+  describe("POST path", () => {
+    test("お知らせを作成する", async () => {
+      const title = "投稿方法が変更されました";
+      const text = "変更が3点あります";
+
+      const res = await server.inject({
+        method: "POST",
+        url: recommendationClientNotificationsPath,
+        payload: {
+          title,
+          text,
+        },
+        auth: {
+          strategy: "console",
+          credentials: {},
+          artifacts: {},
+        },
+      });
+
+      const result = await prisma.recommendationClientNotification.findFirst();
+
+      expect(res.statusCode).toEqual(200);
+      expect(result?.title).toEqual(title);
+    });
+  });
 });

@@ -30,5 +30,17 @@ export const recommendationClientNotificationRoute = async (
         },
       },
     },
+    {
+      method: "POST",
+      path: `${recommendationClientNotificationsPath}`,
+      handler: handlers.create,
+      options: {
+        auth: "console",
+        validate: {
+          payload: validators.create.validator.payload,
+          failAction: validators.create.failAction,
+        },
+      },
+    },
   ]);
 };

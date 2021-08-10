@@ -6,7 +6,11 @@ import socketio from "socket.io";
 import admin from "firebase-admin";
 import cron from "node-cron";
 
-import { checkBeareAccessToken, checkBeareFirebaseJWT } from "~/auth/bearer";
+import {
+  checkBeareAccessToken,
+  checkRecommendationClient,
+  checkConsoleAdmin,
+} from "~/auth/bearer";
 import { throwLoginError } from "~/helpers/errors";
 import { setupSocketIo } from "~/sokcetIo";
 import { rootPlugin } from "~/plugins/root";
@@ -61,6 +65,20 @@ admin.initializeApp(
   "recommendationClient"
 );
 
+admin.initializeApp(
+  {
+    credential: admin.credential.cert({
+      projectId: process.env.CONSOLE_FIREBASE_PROJECT_ID,
+      clientEmail: process.env.CONSOLE_FIREBASE_EMAIL,
+      privateKey: process.env.CONSOLE_FIREBASE_PRIVATE_KEY!.replace(
+        /\\n/g,
+        "\n"
+      ),
+    }),
+  },
+  "console"
+);
+
 export const initializeServer = async () => {
   // @ts-ignore
   await server.register(AuthBearer); // authをプラグインとして登録する場合、routeの登録よりも先にしないと死ぬ
@@ -75,7 +93,14 @@ export const initializeServer = async () => {
   });
 
   server.auth.strategy("r-client", "bearer-access-token", {
-    validate: checkBeareFirebaseJWT,
+    validate: checkRecommendationClient,
+    unauthorized: () => {
+      throwLoginError();
+    },
+  });
+
+  server.auth.strategy("console", "bearer-access-token", {
+    validate: checkConsoleAdmin,
     unauthorized: () => {
       throwLoginError();
     },

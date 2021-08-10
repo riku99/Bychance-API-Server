@@ -7,7 +7,6 @@ const notification1 = {
   title: "投稿方法が変更されました",
   text: "",
   createdAt: new Date(),
-  alreadyRead: false,
 };
 
 const notification2 = {
@@ -15,7 +14,6 @@ const notification2 = {
   title: "メンテナンスのお知らせ",
   text: "",
   createdAt: new Date("2021/01/01"),
-  alreadyRead: false,
 };
 
 const notification3 = {
@@ -23,7 +21,6 @@ const notification3 = {
   title: "追加機能のお知らせ",
   text: "",
   createdAt: new Date("2021/07/01"),
-  alreadyRead: false,
 };
 
 const dataList = [notification1, notification2, notification3];

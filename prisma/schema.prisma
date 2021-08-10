@@ -296,7 +296,6 @@ model RecommendationClientNotification {
   createdAt            DateTime              @default(now())
   title String
   text String
-  alreadyRead Boolean @default(false)
 }
 
 

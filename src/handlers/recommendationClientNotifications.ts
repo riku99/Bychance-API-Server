@@ -2,7 +2,10 @@ import Hapi from "@hapi/hapi";
 import { PrismaClient } from "@prisma/client";
 import { throwInvalidError } from "~/helpers/errors";
 
-import { GetParams } from "~/routes/recommendationClientNotification/validator";
+import {
+  GetParams,
+  CreatePayload,
+} from "~/routes/recommendationClientNotification/validator";
 
 const prisma = new PrismaClient();
 
@@ -32,7 +35,21 @@ const getData = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   return text;
 };
 
+const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
+  const payload = req.payload as CreatePayload;
+
+  await prisma.recommendationClientNotification.create({
+    data: {
+      title: payload.title,
+      text: payload.text,
+    },
+  });
+
+  return h.response().code(200);
+};
+
 export const handlers = {
   getAll,
   getData,
+  create,
 };
