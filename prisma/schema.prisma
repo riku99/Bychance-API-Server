@@ -237,6 +237,7 @@ model RecommendationClient {
   showedPostModal Boolean @default(false)
   deleted Boolean @default(false) // アカウント削除を実行した場合はtrue
   recommendations Recommendation[]
+  readNotifications RecommendationClientReadNotification[]
 
   @@index([uid])
   @@index([geohash])
@@ -296,6 +297,18 @@ model RecommendationClientNotification {
   createdAt            DateTime              @default(now())
   title String
   text String
+  alreadyRead RecommendationClientReadNotification[]
+}
+
+model RecommendationClientReadNotification {
+  id Int @id @default(autoincrement())
+  createdAt            DateTime              @default(now())
+  clientId String
+  notificationId Int
+  client RecommendationClient @relation(fields: [clientId], references: [id])
+  notification RecommendationClientNotification @relation(fields: [notificationId], references: [id])
+
+  @@index([clientId])
 }
 
 

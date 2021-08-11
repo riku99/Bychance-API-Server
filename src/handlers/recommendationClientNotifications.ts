@@ -6,6 +6,7 @@ import {
   GetParams,
   CreatePayload,
 } from "~/routes/recommendationClientNotification/validator";
+import { RecommendationClientArtifacts } from "~/auth/bearer";
 
 const prisma = new PrismaClient();
 
@@ -48,8 +49,28 @@ const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   return h.response().code(200);
 };
 
+const getUnread = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
+  const client = req.auth.artifacts as RecommendationClientArtifacts;
+
+  const unreadData = await prisma.recommendationClientNotification.findMany({
+    where: {
+      alreadyRead: {
+        none: {
+          clientId: client.id,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return unreadData;
+};
+
 export const handlers = {
   getAll,
   getData,
   create,
+  getUnread,
 };

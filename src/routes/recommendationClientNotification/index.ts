@@ -32,7 +32,7 @@ export const recommendationClientNotificationRoute = async (
     },
     {
       method: "POST",
-      path: `${recommendationClientNotificationsPath}`,
+      path: recommendationClientNotificationsPath,
       handler: handlers.create,
       options: {
         auth: "console",
@@ -40,6 +40,14 @@ export const recommendationClientNotificationRoute = async (
           payload: validators.create.validator.payload,
           failAction: validators.create.failAction,
         },
+      },
+    },
+    {
+      method: "GET",
+      path: `${recommendationClientNotificationsPath}/unread`,
+      handler: handlers.getUnread,
+      options: {
+        auth: "r-client",
       },
     },
   ]);

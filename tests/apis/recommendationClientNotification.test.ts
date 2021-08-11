@@ -5,6 +5,7 @@ import { initializeServer } from "~/server";
 import { resetDatabase } from "../helpers";
 import { recommendationClientNotificationsPath } from "~/routes/recommendationClientNotification";
 import { createRecommendationClientNotifications } from "../data/recommendationClientNotifications";
+import { createRecommenadtionClient } from "../data/recommendationClient";
 
 const prisma = new PrismaClient();
 
@@ -89,6 +90,34 @@ describe("recommendationClientNotifications", () => {
 
       expect(res.statusCode).toEqual(200);
       expect(result?.title).toEqual(title);
+    });
+  });
+
+  describe("GET path/unread", () => {
+    test("未読分のデータを返す", async () => {
+      const client = await createRecommenadtionClient();
+      const notifications = await createRecommendationClientNotifications();
+      const readNotificatoin = notifications[0]; // 作成したお知らせから既読にするデータを指定
+      // 既読データの作成
+      await prisma.recommendationClientReadNotification.create({
+        data: {
+          clientId: client.id,
+          notificationId: readNotificatoin.id,
+        },
+      });
+
+      const res = await server.inject({
+        method: "GET",
+        url: `${recommendationClientNotificationsPath}/unread`,
+        auth: {
+          strategy: "r-client",
+          credentials: {},
+          artifacts: client,
+        },
+      });
+
+      expect(res.statusCode).toEqual(200);
+      expect(JSON.parse(res.payload).length).toEqual(2);
     });
   });
 });

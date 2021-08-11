@@ -26,7 +26,7 @@ export const recommendationClient = {
 };
 
 export const createRecommenadtionClient = async () => {
-  await prisma.recommendationClient.create({
+  return await prisma.recommendationClient.create({
     data: recommendationClient,
   });
 };

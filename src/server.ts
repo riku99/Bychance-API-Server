@@ -35,6 +35,7 @@ import { clientSignupTokenPlugin } from "~/plugins/clientSignupToken";
 import { recommendationsPlugin } from "~/plugins/recommendations";
 import { recommendationClientNotificationsPlugin } from "~/plugins/recommendationClientNotifications";
 import { userHideRecommendatoinsPlugin } from "~/plugins/userHideRecommnedations";
+import { recommendationClientReadNotificationPlugin } from "~/plugins/recommendationClientReadNotification";
 
 const server = Hapi.server({
   port: process.env.PORT || 4001,
@@ -140,6 +141,7 @@ export const initializeServer = async () => {
     recommendationsPlugin,
     recommendationClientNotificationsPlugin,
     userHideRecommendatoinsPlugin,
+    recommendationClientReadNotificationPlugin,
   ]);
 
   await server.initialize();
