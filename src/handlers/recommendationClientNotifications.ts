@@ -60,6 +60,9 @@ const getUnread = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
         },
       },
     },
+    select: {
+      id: true,
+    },
     orderBy: {
       createdAt: "desc",
     },
