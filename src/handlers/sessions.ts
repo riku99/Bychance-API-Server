@@ -176,13 +176,13 @@ export const logout = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
 
 const sampleLogin = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const data = await prisma.user.findUnique({
-    where: { id: "f47b37f1-e078-404e-9de4-e922c4658ed6" },
+    where: { id: "46a4db78-c5c5-4d85-b11d-a32e93f025f1" },
     include: createClientIncludes,
   });
 
   await prisma.user.update({
     where: {
-      id: "f47b37f1-e078-404e-9de4-e922c4658ed6",
+      id: "46a4db78-c5c5-4d85-b11d-a32e93f025f1",
     },
     data: {
       login: true,
@@ -210,6 +210,7 @@ const sampleLogin = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     recipientTalkRooms,
   });
 
+  console.log(createHash("denzi"));
   return {
     ...clientData,
     accessToken: "denzi",

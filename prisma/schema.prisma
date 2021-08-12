@@ -309,6 +309,7 @@ model RecommendationClientReadNotification {
   notification RecommendationClientNotification @relation(fields: [notificationId], references: [id])
 
   @@index([clientId])
+  @@unique([clientId, notificationId])
 }
 
 
