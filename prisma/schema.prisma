@@ -40,7 +40,6 @@ model User {
   senderTalkRooms      TalkRoom[]            @relation("sender")
   talkRoomMessages     TalkRoomMessage[]
   viewedFlashes        ViewedFlash[]
-  deleteTalkRooms DeleteTalkRoom[]
   deviceToken DeviceToken[]
   flashStamps FlashStamp[]
   privateZone PrivateZone[]
@@ -96,7 +95,6 @@ model TalkRoom {
   sender               User                  @relation("sender", fields: [senderId], references: [id])
   readTalkRoomMessages ReadTalkRoomMessage[]
   messages             TalkRoomMessage[]
-  deleteTalkRooms DeleteTalkRoom[]
 
   @@unique([senderId, recipientId], name: "senderId_recipientId_unique")
   @@index([senderId, recipientId], name: "senderId_recipientId_index")
@@ -150,17 +148,17 @@ model ReadTalkRoomMessage {
   @@index([roomId])
 }
 
-model DeleteTalkRoom {
-  id Int @id @default(autoincrement())
-  createdAt DateTime        @default(now())
-  updatedAt DateTime        @updatedAt
-  userId    String
-  talkRoomId Int
-  user User @relation(fields: [userId], references: [id])
-  talkRoom TalkRoom @relation(fields: [talkRoomId], references: [id])
-  @@index([userId, talkRoomId])
-  @@unique([userId, talkRoomId])
-}
+// model DeleteTalkRoom {
+//   id Int @id @default(autoincrement())
+//   createdAt DateTime        @default(now())
+//   updatedAt DateTime        @updatedAt
+//   userId    String
+//   talkRoomId Int
+//   user User @relation(fields: [userId], references: [id])
+//   talkRoom TalkRoom @relation(fields: [talkRoomId], references: [id])
+//   @@index([userId, talkRoomId])
+//   @@unique([userId, talkRoomId])
+// }
 
 // https://rnfirebase.io/messaging/server-integration
 // A user can have more than one token (for example using 2 devices) so it's important to ensure that we store all tokens in the database.
