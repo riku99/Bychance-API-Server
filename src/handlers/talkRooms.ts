@@ -86,7 +86,7 @@ const get = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
 
   if (user.id !== params.userId) return throwInvalidError();
 
-  const talkRooms = await prisma.talkRoom.findMany({
+  const talkRoomData = await prisma.talkRoom.findMany({
     where: {
       OR: [
         {
@@ -105,10 +105,69 @@ const get = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
         },
       ],
     },
+    select: {
+      id: true,
+      updatedAt: true,
+      messages: {
+        where: {
+          OR: [
+            {
+              userId: params.userId,
+            },
+            {
+              userId: {
+                not: params.userId,
+              },
+              receipt: true,
+            },
+          ],
+        },
+        // orderByとtakeの組み合わせで1番最近のデータとる
+        orderBy: {
+          createdAt: "desc",
+        },
+        take: 1,
+      },
+      unreadMessages: {
+        where: {
+          userId: {
+            not: params.userId,
+          },
+          readTalkRoomMessages: {
+            none: {
+              userId: params.userId,
+            },
+          },
+        },
+        select: {
+          id: true,
+        },
+      },
+      sender: {
+        select: {
+          id: true,
+          name: true,
+          avatar: true,
+        },
+      },
+      recipient: {
+        select: {
+          id: true,
+          name: true,
+          avatar: true,
+        },
+      },
+    },
+  });
+
+  await prisma.talkRoom.findMany({
+    select: {
+      messages: {},
+    },
   });
 
   return {
-    talkRooms,
+    talkRooms: talkRoomData,
   };
 };
 

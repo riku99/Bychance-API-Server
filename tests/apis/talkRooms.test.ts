@@ -76,8 +76,6 @@ describe("talkRooms", () => {
     });
 
     describe("作成した側である", () => {
-      describe("メッセージが存在する", () => {});
-
       describe("トークルームに一件もメッセージが存在しない", () => {
         test("トークルームはレスポンスに含まれない", async () => {
           await prisma.talkRoom.create({

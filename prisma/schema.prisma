@@ -94,7 +94,8 @@ model TalkRoom {
   recipient            User                  @relation("recipient", fields: [recipientId], references: [id])
   sender               User                  @relation("sender", fields: [senderId], references: [id])
   readTalkRoomMessages ReadTalkRoomMessage[]
-  messages             TalkRoomMessage[]
+  messages             TalkRoomMessage[]   @relation("Messages")
+  unreadMessages       TalkRoomMessage[]   @relation("UnreadMessages")
 
   @@unique([senderId, recipientId], name: "senderId_recipientId_unique")
   @@index([senderId, recipientId], name: "senderId_recipientId_index")
@@ -109,11 +110,13 @@ model TalkRoomMessage {
   userId               String
   roomId               Int
   receipt              Boolean               @default(true)
-  room                 TalkRoom              @relation(fields: [roomId], references: [id])
+  room                 TalkRoom              @relation("Messages", fields: [roomId], references: [id])
+  unread               TalkRoom              @relation("UnreadMessages", fields: [roomId], references: [id])
   user                 User                  @relation(fields: [userId], references: [id])
   readTalkRoomMessages ReadTalkRoomMessage[]
 
   @@index([userId, roomId])
+  @@index([userId, receipt])
   @@index([roomId])
 }
 
