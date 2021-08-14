@@ -2,9 +2,11 @@ import Hapi from "@hapi/hapi";
 import { PrismaClient } from "@prisma/client";
 
 import { Artifacts } from "~/auth/bearer";
+import { throwInvalidError } from "~/helpers/errors";
 import {
   CreateTalkRoomPayload,
   DeleteTalkRoomParams,
+  GetParams,
 } from "~/routes/talkRooms/validator";
 
 const prisma = new PrismaClient();
@@ -90,7 +92,40 @@ const deleteTalkRoom = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   return h.response().code(200);
 };
 
-export const talkRoomsHandler = {
+const get = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
+  const user = req.auth.artifacts as Artifacts;
+  const params = req.params as GetParams;
+
+  if (user.id !== params.userId) return throwInvalidError();
+
+  const talkRooms = await prisma.talkRoom.findMany({
+    where: {
+      OR: [
+        {
+          senderId: params.userId,
+          messages: {
+            some: {}, // こうすることで、「少なくとも1つのmessagesが存在する ~ 」というフィルタリングができる https://www.prisma.io/docs/concepts/components/prisma-client/relation-queries
+          },
+        },
+        {
+          recipientId: params.userId,
+          messages: {
+            some: {
+              receipt: true,
+            },
+          },
+        },
+      ],
+    },
+  });
+
+  return {
+    talkRooms,
+  };
+};
+
+export const handlers = {
   createTalkRoom,
   deleteTalkRoom,
+  get,
 };

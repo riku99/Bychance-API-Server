@@ -1,30 +1,41 @@
 import Hapi from "@hapi/hapi";
 
 import { baseUrl } from "~/constants";
-import { createTalkRoomValidator, deleteTalkRoomValidator } from "./validator";
-import { talkRoomsHandler } from "~/handlers/talkRooms";
+import { validators } from "./validator";
+import { handlers } from "~/handlers/talkRooms";
 
 export const talkRoomsRoute = async (server: Hapi.Server) => {
   server.route([
     {
       method: "POST",
       path: `${baseUrl}/talkRooms`,
-      handler: talkRoomsHandler.createTalkRoom,
+      handler: handlers.createTalkRoom,
       options: {
         validate: {
-          payload: createTalkRoomValidator.validate.payload,
-          failAction: createTalkRoomValidator.failAction,
+          payload: validators.create.validator.payload,
+          failAction: validators.create.failAction,
         },
       },
     },
     {
       method: "DELETE",
       path: `${baseUrl}/talkRooms/{talkRoomId}`,
-      handler: talkRoomsHandler.deleteTalkRoom,
+      handler: handlers.deleteTalkRoom,
       options: {
         validate: {
-          params: deleteTalkRoomValidator.validate.params,
-          failAction: deleteTalkRoomValidator.failAction,
+          params: validators.delete.validator.params,
+          failAction: validators.delete.failAction,
+        },
+      },
+    },
+    {
+      method: "GET",
+      path: `${baseUrl}/users/{userId}/talk_rooms`,
+      handler: handlers.get,
+      options: {
+        validate: {
+          params: validators.get.validator.params,
+          failAction: validators.get.failAction,
         },
       },
     },

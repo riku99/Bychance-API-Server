@@ -1,185 +1,249 @@
 import Hapi from "@hapi/hapi";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, User as UserType } from "@prisma/client";
 
 import { initializeServer } from "~/server";
 import { baseUrl } from "~/constants";
 import { createHash } from "~/helpers/crypto";
 import { invalidErrorType } from "~/config/apis/errors";
+import { createUser, User } from "../data/user";
+import { resetDatabase } from "../helpers";
 
 const prisma = new PrismaClient();
-
-const accessToken = "生accessToken";
-const hashedAccessToken = createHash(accessToken);
-
-const accessToken2 = "生accessToken2";
-const hashedAccessToken2 = createHash(accessToken2);
-
-const user = {
-  id: "1",
-  lineId: "lineId",
-  accessToken: hashedAccessToken,
-  name: "たん二郎",
-};
-
-const user2 = {
-  id: "2",
-  lineId: "lineId2",
-  accessToken: hashedAccessToken2,
-  name: "姫の",
-};
-
-const talkRoom = {
-  senderId: "1",
-  recipientId: "2",
-};
 
 describe("talkRooms", () => {
   let server: Hapi.Server;
 
   beforeAll(async () => {
     server = await initializeServer();
+    jest.setTimeout(50000);
   });
 
   afterAll(async () => {
-    await prisma.user.deleteMany({});
+    await prisma.$disconnect();
+    await server.stop();
   });
 
-  describe("POST /talkRooms", () => {
-    const successfulRequestSchema = {
-      method: "POST",
-      url: `${baseUrl}/talkRooms?id=${user.id}`,
-      payload: { partnerId: "2" },
-      headers: { Authorization: `Bearer ${accessToken}` },
-    };
+  beforeEach(async () => {
+    await resetDatabase();
+  });
 
-    describe("バリデーションに通る", () => {
-      describe("トークルームが既に存在する", () => {
-        beforeEach(async () => {
-          await prisma.talkRoom.deleteMany({});
-          await prisma.user.deleteMany({});
-        });
+  describe("GET baseUrl/users/userId/talk_rooms", () => {
+    let sender: UserType;
+    let recipient: UserType;
+    let baseRequestShema: Hapi.ServerInjectOptions;
 
-        test("作成されずに200を返す", async () => {
-          await prisma.user.create({ data: user });
-          await prisma.user.create({ data: user2 });
-          await prisma.talkRoom.create({ data: talkRoom });
-
-          const talkRooms = await prisma.talkRoom.findMany({
-            where: {
-              OR: [
-                {
-                  senderId: user.id,
-                  recipientId: user2.id,
-                },
-                {
-                  senderId: user2.id,
-                  recipientId: user.id,
-                },
-              ],
-            },
-          });
-
-          expect(talkRooms.length).toEqual(1); // 既にトークルームが存在していることを保証
-
-          const res = await server.inject(successfulRequestSchema);
-
-          expect(res.statusCode).toEqual(200);
-
-          const afterRequestTalkRooms = await prisma.talkRoom.findMany({
-            where: {
-              OR: [
-                {
-                  senderId: user.id,
-                  recipientId: user2.id,
-                },
-                {
-                  senderId: user2.id,
-                  recipientId: user.id,
-                },
-              ],
-            },
-          });
-
-          expect(afterRequestTalkRooms.length).toEqual(1); // リクエストのあともデータが作成されていないことを検証
-        });
+    beforeEach(async () => {
+      sender = await createUser();
+      recipient = await prisma.user.create({
+        data: {
+          ...User,
+          id: "mkfernfire",
+          lineId: "dfreufnreiu",
+          accessToken: "mckemklfer",
+        },
       });
 
-      describe("トークルームが新規である", () => {
-        test("作成され200を返す", async () => {
-          await prisma.talkRoom.deleteMany({});
-          await prisma.user.deleteMany({});
+      baseRequestShema = {
+        method: "GET",
+        url: `${baseUrl}/users/${sender.id}/talk_rooms`,
+        auth: {
+          strategy: "simple",
+          artifacts: sender,
+          credentials: {},
+        },
+      };
+    });
 
-          await prisma.user.create({ data: user });
-          await prisma.user.create({ data: user2 });
+    test("トークルームデータを返す", async () => {
+      const room = await prisma.talkRoom.create({
+        data: {
+          senderId: sender.id,
+          recipientId: recipient.id,
+        },
+      });
+      await prisma.talkRoomMessage.create({
+        data: {
+          userId: sender.id,
+          roomId: room.id,
+          text: "こんにちは!!",
+        },
+      });
 
-          const talkRooms = await prisma.talkRoom.findMany({
-            where: {
-              OR: [
-                {
-                  senderId: user.id,
-                  recipientId: user2.id,
-                },
-                {
-                  senderId: user2.id,
-                  recipientId: user.id,
-                },
-              ],
+      const res = await server.inject(baseRequestShema);
+
+      expect(res.statusCode).toEqual(200);
+      expect(JSON.parse(res.payload).talkRooms.length).toEqual(1);
+    });
+
+    describe("作成した側である", () => {
+      describe("メッセージが存在する", () => {});
+
+      describe("トークルームに一件もメッセージが存在しない", () => {
+        test("トークルームはレスポンスに含まれない", async () => {
+          await prisma.talkRoom.create({
+            data: {
+              senderId: sender.id,
+              recipientId: recipient.id,
             },
           });
 
-          expect(talkRooms.length).toEqual(0); // トークルームが存在しないことを保証
+          // メッセージを作成しない
 
-          const res = await server.inject(successfulRequestSchema);
+          const res = await server.inject(baseRequestShema);
 
           expect(res.statusCode).toEqual(200);
-
-          const afterRequestTalkRooms = await prisma.talkRoom.findMany({
-            where: {
-              OR: [
-                {
-                  senderId: user.id,
-                  recipientId: user2.id,
-                },
-                {
-                  senderId: user2.id,
-                  recipientId: user.id,
-                },
-              ],
-            },
-          });
-
-          expect(afterRequestTalkRooms.length).toEqual(1); // リクエストの後はデータが作成されていることを検証
+          expect(JSON.parse(res.payload).talkRooms.length).toEqual(0);
         });
       });
     });
 
-    describe("バリデーションに引っかかる", () => {
-      beforeEach(async () => {
-        await prisma.talkRoom.deleteMany({});
-        await prisma.user.deleteMany({});
-      });
+    describe("受け取った側である", () => {
+      describe("メッセージが存在する", () => {
+        describe("1件も受け取ったメッセージが存在しない(receipがtrueのデータがない)", () => {
+          test("そのトークルームは返さない", async () => {
+            const room = await prisma.talkRoom.create({
+              data: {
+                senderId: sender.id,
+                recipientId: recipient.id,
+              },
+            });
 
-      test("必要なデータが存在しないので400を返す", async () => {
-        await prisma.user.create({ data: user });
+            await prisma.talkRoomMessage.create({
+              data: {
+                userId: sender.id,
+                roomId: room.id,
+                text: "Hello!!",
+                receipt: false,
+              },
+            });
 
-        const res = await server.inject({
-          ...successfulRequestSchema,
-          payload: {}, // payloadが空
+            const res = await server.inject({
+              ...baseRequestShema,
+              url: `${baseUrl}/users/${recipient.id}/talk_rooms`,
+              auth: {
+                strategy: "simple",
+                artifacts: recipient,
+                credentials: {},
+              },
+            });
+
+            expect(res.statusCode).toEqual(200);
+            expect(JSON.parse(res.payload).talkRooms.length).toEqual(0);
+          });
         });
-
-        expect(res.statusCode).toEqual(400);
       });
 
-      test("余計なデータが存在するので400を返す", async () => {
-        await prisma.user.create({ data: user });
-
-        const res = await server.inject({
-          ...successfulRequestSchema,
-          payload: { accessToken: "11112222" }, // payloadにいらないデータ(accessToken)がある
-        });
-
-        expect(res.statusCode).toEqual(400);
-      });
+      describe("メッセージが存在しない", () => {});
     });
   });
+
+  // describe("POST /talkRooms", () => {
+  //   const successfulRequestSchema = {
+  //     method: "POST",
+  //     url: `${baseUrl}/talkRooms?id=${user.id}`,
+  //     payload: { partnerId: "2" },
+  //     headers: { Authorization: `Bearer ${accessToken}` },
+  //   };
+
+  //   describe("バリデーションに通る", () => {
+  //     describe("トークルームが既に存在する", () => {
+  //       beforeEach(async () => {
+  //         await prisma.talkRoom.deleteMany({});
+  //         await prisma.user.deleteMany({});
+  //       });
+
+  //       test("作成されずに200を返す", async () => {
+  //         await prisma.user.create({ data: user });
+  //         await prisma.user.create({ data: user2 });
+  //         await prisma.talkRoom.create({ data: talkRoom });
+
+  //         const talkRooms = await prisma.talkRoom.findMany({
+  //           where: {
+  //             OR: [
+  //               {
+  //                 senderId: user.id,
+  //                 recipientId: user2.id,
+  //               },
+  //               {
+  //                 senderId: user2.id,
+  //                 recipientId: user.id,
+  //               },
+  //             ],
+  //           },
+  //         });
+
+  //         expect(talkRooms.length).toEqual(1); // 既にトークルームが存在していることを保証
+
+  //         const res = await server.inject(successfulRequestSchema);
+
+  //         expect(res.statusCode).toEqual(200);
+
+  //         const afterRequestTalkRooms = await prisma.talkRoom.findMany({
+  //           where: {
+  //             OR: [
+  //               {
+  //                 senderId: user.id,
+  //                 recipientId: user2.id,
+  //               },
+  //               {
+  //                 senderId: user2.id,
+  //                 recipientId: user.id,
+  //               },
+  //             ],
+  //           },
+  //         });
+
+  //         expect(afterRequestTalkRooms.length).toEqual(1); // リクエストのあともデータが作成されていないことを検証
+  //       });
+  //     });
+
+  //     describe("トークルームが新規である", () => {
+  //       test("作成され200を返す", async () => {
+  //         await prisma.talkRoom.deleteMany({});
+  //         await prisma.user.deleteMany({});
+
+  //         await prisma.user.create({ data: user });
+  //         await prisma.user.create({ data: user2 });
+
+  //         const talkRooms = await prisma.talkRoom.findMany({
+  //           where: {
+  //             OR: [
+  //               {
+  //                 senderId: user.id,
+  //                 recipientId: user2.id,
+  //               },
+  //               {
+  //                 senderId: user2.id,
+  //                 recipientId: user.id,
+  //               },
+  //             ],
+  //           },
+  //         });
+
+  //         expect(talkRooms.length).toEqual(0); // トークルームが存在しないことを保証
+
+  //         const res = await server.inject(successfulRequestSchema);
+
+  //         expect(res.statusCode).toEqual(200);
+
+  //         const afterRequestTalkRooms = await prisma.talkRoom.findMany({
+  //           where: {
+  //             OR: [
+  //               {
+  //                 senderId: user.id,
+  //                 recipientId: user2.id,
+  //               },
+  //               {
+  //                 senderId: user2.id,
+  //                 recipientId: user.id,
+  //               },
+  //             ],
+  //           },
+  //         });
+
+  //         expect(afterRequestTalkRooms.length).toEqual(1); // リクエストの後はデータが作成されていることを検証
+  //       });
+  //     });
+  //   });
+  // });
 });
