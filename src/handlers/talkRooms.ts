@@ -31,24 +31,12 @@ const createTalkRoom = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   });
 
   const existingTalkRoom = talkRooms.length ? talkRooms[0] : null;
-
   if (existingTalkRoom) {
-    const deleteData = await prisma.deleteTalkRoom.findUnique({
-      where: {
-        userId_talkRoomId: {
-          userId: user.id,
-          talkRoomId: existingTalkRoom.id,
-        },
-      },
-    });
-
-    if (!deleteData) {
-      return {
-        presence: true,
-        roomId: existingTalkRoom.id,
-        timestamp: existingTalkRoom.updatedAt.toString(),
-      };
-    }
+    return {
+      presence: true,
+      roomId: existingTalkRoom.id,
+      timestamp: existingTalkRoom.updatedAt.toString(),
+    };
   }
 
   const newTalkRoom = await prisma.talkRoom.create({
