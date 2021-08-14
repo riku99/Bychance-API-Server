@@ -143,6 +143,30 @@ const get = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
           id: true,
         },
       },
+      lastMessage: {
+        where: {
+          OR: [
+            {
+              userId: params.userId,
+            },
+            {
+              userId: {
+                not: params.userId,
+              },
+              receipt: true,
+            },
+          ],
+        },
+        // orderByとtakeの組み合わせで1番最近のデータとる
+        orderBy: {
+          createdAt: "desc",
+        },
+        take: 1,
+        select: {
+          id: true,
+          text: true,
+        },
+      },
       sender: {
         select: {
           id: true,

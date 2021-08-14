@@ -94,6 +94,7 @@ model TalkRoom {
   recipient            User                  @relation("recipient", fields: [recipientId], references: [id])
   sender               User                  @relation("sender", fields: [senderId], references: [id])
   readTalkRoomMessages ReadTalkRoomMessage[]
+  lastMessage          TalkRoomMessage[]    @relation("lastMessage")
   messages             TalkRoomMessage[]   @relation("Messages")
   unreadMessages       TalkRoomMessage[]   @relation("UnreadMessages")
 
@@ -112,6 +113,7 @@ model TalkRoomMessage {
   receipt              Boolean               @default(true)
   room                 TalkRoom              @relation("Messages", fields: [roomId], references: [id])
   unread               TalkRoom              @relation("UnreadMessages", fields: [roomId], references: [id])
+  last                 TalkRoom              @relation("lastMessage", fields: [roomId], references: [id])
   user                 User                  @relation(fields: [userId], references: [id])
   readTalkRoomMessages ReadTalkRoomMessage[]
 
