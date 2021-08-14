@@ -108,31 +108,12 @@ const get = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     select: {
       id: true,
       updatedAt: true,
-      messages: {
-        where: {
-          OR: [
-            {
-              userId: params.userId,
-            },
-            {
-              userId: {
-                not: params.userId,
-              },
-              receipt: true,
-            },
-          ],
-        },
-        // orderByとtakeの組み合わせで1番最近のデータとる
-        orderBy: {
-          createdAt: "desc",
-        },
-        take: 1,
-      },
       unreadMessages: {
         where: {
           userId: {
             not: params.userId,
           },
+          receipt: true,
           readTalkRoomMessages: {
             none: {
               userId: params.userId,
@@ -184,15 +165,7 @@ const get = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     },
   });
 
-  await prisma.talkRoom.findMany({
-    select: {
-      messages: {},
-    },
-  });
-
-  return {
-    talkRooms: talkRoomData,
-  };
+  return talkRoomData;
 };
 
 export const handlers = {

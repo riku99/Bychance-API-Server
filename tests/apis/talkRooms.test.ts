@@ -3,8 +3,6 @@ import { PrismaClient, User as UserType } from "@prisma/client";
 
 import { initializeServer } from "~/server";
 import { baseUrl } from "~/constants";
-import { createHash } from "~/helpers/crypto";
-import { invalidErrorType } from "~/config/apis/errors";
 import { createUser, User } from "../data/user";
 import { resetDatabase } from "../helpers";
 
@@ -31,6 +29,7 @@ describe("talkRooms", () => {
     let sender: UserType;
     let recipient: UserType;
     let baseRequestShema: Hapi.ServerInjectOptions;
+    let baseRecipientRequestShema: Hapi.ServerInjectOptions;
 
     beforeEach(async () => {
       sender = await createUser();
@@ -49,6 +48,16 @@ describe("talkRooms", () => {
         auth: {
           strategy: "simple",
           artifacts: sender,
+          credentials: {},
+        },
+      };
+
+      baseRecipientRequestShema = {
+        method: "GET",
+        url: `${baseUrl}/users/${recipient.id}/talk_rooms`,
+        auth: {
+          strategy: "simple",
+          artifacts: recipient,
           credentials: {},
         },
       };
@@ -72,33 +81,33 @@ describe("talkRooms", () => {
       const res = await server.inject(baseRequestShema);
 
       expect(res.statusCode).toEqual(200);
-      expect(JSON.parse(res.payload).talkRooms.length).toEqual(1);
+      expect(JSON.parse(res.payload).length).toEqual(1);
     });
 
-    describe("作成した側である", () => {
-      describe("トークルームに一件もメッセージが存在しない", () => {
-        test("トークルームはレスポンスに含まれない", async () => {
-          await prisma.talkRoom.create({
-            data: {
-              senderId: sender.id,
-              recipientId: recipient.id,
-            },
+    describe("senderかrecipientかによるテスト", () => {
+      describe("作成した側(sender)である", () => {
+        describe("トークルームに一件もメッセージが存在しない", () => {
+          test("トークルームはレスポンスに含まれない", async () => {
+            await prisma.talkRoom.create({
+              data: {
+                senderId: sender.id,
+                recipientId: recipient.id,
+              },
+            });
+
+            // メッセージを作成しない
+
+            const res = await server.inject(baseRequestShema);
+
+            expect(res.statusCode).toEqual(200);
+            expect(JSON.parse(res.payload).length).toEqual(0);
           });
-
-          // メッセージを作成しない
-
-          const res = await server.inject(baseRequestShema);
-
-          expect(res.statusCode).toEqual(200);
-          expect(JSON.parse(res.payload).talkRooms.length).toEqual(0);
         });
       });
-    });
 
-    describe("受け取った側である", () => {
-      describe("メッセージが存在する", () => {
-        describe("1件も受け取ったメッセージが存在しない(receipがtrueのデータがない)", () => {
-          test("そのトークルームは返さない", async () => {
+      describe("受け取った側(recipient)である", () => {
+        describe("メッセージ自体は存在するが、1件も受け取ったメッセージが存在しない(receipがtrueのデータがない)", () => {
+          test("トークルームはレスポンスに含まれない", async () => {
             const room = await prisma.talkRoom.create({
               data: {
                 senderId: sender.id,
@@ -115,23 +124,47 @@ describe("talkRooms", () => {
               },
             });
 
-            const res = await server.inject({
-              ...baseRequestShema,
-              url: `${baseUrl}/users/${recipient.id}/talk_rooms`,
-              auth: {
-                strategy: "simple",
-                artifacts: recipient,
-                credentials: {},
-              },
-            });
+            const res = await server.inject(baseRecipientRequestShema);
 
             expect(res.statusCode).toEqual(200);
-            expect(JSON.parse(res.payload).talkRooms.length).toEqual(0);
+            expect(JSON.parse(res.payload).length).toEqual(0);
           });
         });
       });
+    });
 
-      describe("メッセージが存在しない", () => {});
+    describe("未読データと最後のメッセージのテスト", () => {
+      test("reciptがtrueのデータはレスポンスに含んでfalseのものは含めない", async () => {
+        const talkRoom = await prisma.talkRoom.create({
+          data: {
+            senderId: sender.id,
+            recipientId: recipient.id,
+          },
+        });
+        const reciptMessage = await prisma.talkRoomMessage.create({
+          data: {
+            userId: sender.id,
+            roomId: talkRoom.id,
+            text: "Hey!",
+            receipt: true,
+          },
+        });
+        const notReciptMessage = await prisma.talkRoomMessage.create({
+          data: {
+            userId: sender.id,
+            roomId: talkRoom.id,
+            text: "Hello!",
+            receipt: false,
+          },
+        });
+
+        const res = await server.inject(baseRecipientRequestShema);
+        const data = JSON.parse(res.payload)[0];
+
+        expect(res.statusCode).toEqual(200);
+        expect(data.unreadMessages[0].id).toEqual(reciptMessage.id);
+        expect(data.lastMessage[0].id).toEqual(reciptMessage.id);
+      });
     });
   });
 
