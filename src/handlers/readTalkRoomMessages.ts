@@ -2,7 +2,11 @@ import Hapi from "@hapi/hapi";
 import { PrismaClient } from "@prisma/client";
 
 import { Artifacts } from "~/auth/bearer";
-import { CreateReadTalkRoomMessaagePayload } from "~/routes/readTalkRoomMessages/validator";
+import {
+  CreateReadTalkRoomMessaagePayload,
+  CreatePayload,
+  CreateParams,
+} from "~/routes/readTalkRoomMessages/validator";
 
 const prisma = new PrismaClient();
 
@@ -47,6 +51,26 @@ const createReadTalkRoomMessage = async (
   return h.response().code(200);
 };
 
-export const readTalkRoomMessageHandler = {
+const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
+  const payload = req.payload as CreatePayload;
+  const params = req.params as CreateParams;
+  const user = req.auth.artifacts as Artifacts;
+
+  const data = payload.ids.map((d) => ({
+    userId: user.id,
+    roomId: Number(params.talkRoomId),
+    messageId: d,
+  }));
+  try {
+    await prisma.readTalkRoomMessage.createMany({
+      data,
+    });
+  } catch (e) {}
+
+  return h.response().code(200);
+};
+
+export const handlers = {
   createReadTalkRoomMessage,
+  create,
 };

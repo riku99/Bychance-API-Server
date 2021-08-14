@@ -1,10 +1,5 @@
 import Hapi from "@hapi/hapi";
-import {
-  PrismaClient,
-  Prisma,
-  RecommendationClientReadNotification,
-  User,
-} from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { throwInvalidError } from "~/helpers/errors";
 
 import { CreatePayload } from "~/routes/recommendationClientReadNotifications/validator";
@@ -27,6 +22,7 @@ const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     });
   } catch (e) {
     // 仮にデータ被ってエラーになっても特にハンドリングしなくていい
+    return throwInvalidError(e);
   }
 
   return h.response().code(200);

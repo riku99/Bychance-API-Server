@@ -210,7 +210,6 @@ const sampleLogin = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     recipientTalkRooms,
   });
 
-  console.log(createHash("denzi"));
   return {
     ...clientData,
     accessToken: "denzi",

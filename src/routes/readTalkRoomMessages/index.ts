@@ -1,19 +1,31 @@
 import Hapi from "@hapi/hapi";
 
 import { baseUrl } from "~/constants";
-import { createReadTalkRoomMessagesValidator } from "./validator";
-import { readTalkRoomMessageHandler } from "~/handlers/readTalkRoomMessages";
+import { createReadTalkRoomMessagesValidator, validators } from "./validator";
+import { handlers } from "~/handlers/readTalkRoomMessages";
 
 export const readTalkRoomMessagesRoute = async (server: Hapi.Server) => {
   server.route([
     {
       method: "POST",
       path: `${baseUrl}/readTalkRoomMessages`,
-      handler: readTalkRoomMessageHandler.createReadTalkRoomMessage,
+      handler: handlers.createReadTalkRoomMessage,
       options: {
         validate: {
           payload: createReadTalkRoomMessagesValidator.validate.payload,
           failAction: createReadTalkRoomMessagesValidator.failAction,
+        },
+      },
+    },
+    {
+      method: "POST",
+      path: `${baseUrl}/talk_rooms/{talkRoomId}/messages/read`,
+      handler: handlers.create,
+      options: {
+        validate: {
+          payload: validators.create.validator.payload,
+          params: validators.create.validator.params,
+          failAction: validators.create.failAction,
         },
       },
     },
