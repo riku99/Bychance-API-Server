@@ -4,6 +4,7 @@ import { PrismaClient } from "@prisma/client";
 import { Artifacts } from "~/auth/bearer";
 import {
   CreateTalkRoomMessagePayload,
+  CreateParams,
   GetsParams,
 } from "~/routes/talkRoomMessages/validator";
 import { serializeTalkRoomMessage } from "~/serializers/talkRoomMessage";
@@ -12,179 +13,122 @@ import { talkRoomMessageNameSpace } from "~/server";
 import { throwInvalidError } from "~/helpers/errors";
 import { createAnotherUser } from "~/helpers/anotherUser";
 import { pushNotificationToMany } from "~/helpers/pushNotification";
+import { IotData } from "aws-sdk";
 
 const prisma = new PrismaClient();
 
 const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const user = req.auth.artifacts as Artifacts;
   const payload = req.payload as CreateTalkRoomMessagePayload;
+  const params = req.params as CreateParams;
+  const talkRoomId = Number(params.talkRoomId);
 
-  const partner = await prisma.user.findUnique({
+  const talkRoom = await prisma.talkRoom.findFirst({
     where: {
-      id: payload.partnerId,
+      id: talkRoomId,
+      OR: [
+        {
+          senderId: user.id,
+          recipientId: payload.partnerId,
+        },
+        {
+          recipientId: user.id,
+          senderId: payload.partnerId,
+        },
+      ],
     },
-    include: {
-      readTalkRoomMessages: true,
-    },
-  });
-
-  if (!partner) {
-    return throwInvalidError("ユーザーが存在しません");
-  }
-
-  const room = await prisma.talkRoom.findUnique({
-    where: {
-      id: payload.talkRoomId,
+    select: {
+      id: true,
+      updatedAt: true,
+      messages: {
+        // 送信相手から見てそのトークルームのメッセージが存在するか。具体的には送信したメッセージまたは受け取ったメッセージが存在するか
+        where: {
+          OR: [
+            {
+              userId: payload.partnerId,
+            },
+            {
+              userId: {
+                not: user.id,
+              },
+              receipt: true,
+            },
+          ],
+        },
+      },
+      recipient: {
+        include: {
+          deviceToken: true,
+        },
+      },
+      sender: {
+        include: {
+          deviceToken: true,
+        },
+      },
     },
   });
 
   // 既にルームが削除されていた場合はその時点でリターン。メッセージのデータも作成しなくて良い
-  if (!room) {
+  if (!talkRoom) {
     return {
-      talkRoomPresence: false,
-      talkRoomId: payload.talkRoomId,
+      talkRoomPrecence: false,
+      talkRoomId,
     };
   }
 
-  const talkRoomMessage = await prisma.talkRoomMessage.create({
+  const partner =
+    talkRoom.sender.id === payload.partnerId
+      ? talkRoom.sender
+      : talkRoom.recipient;
+
+  const message = await prisma.talkRoomMessage.create({
     data: {
       userId: user.id,
-      roomId: payload.talkRoomId,
+      roomId: talkRoomId,
       text: payload.text,
       receipt: partner.talkRoomMessageReceipt, // 送信相手のtalkRoomMessageReceiptがfalseなら「受け取られない」という意味でrecieptがfalseになる
     },
+    select: {
+      id: true,
+      userId: true,
+      roomId: true,
+      text: true,
+      createdAt: true,
+    },
   });
-
-  const clientMessage = serializeTalkRoomMessage({ talkRoomMessage });
 
   // 送信相手がログアウト中 or メッセージを受け取らない設定にしている場合はこの時点でリターン。push通知もsocketのイベントも起こさない
   if (!partner.talkRoomMessageReceipt || !partner.login) {
     return {
-      talkRoomPresence: true,
-      message: clientMessage,
-      talkRoomId: payload.talkRoomId,
+      talkRoomPrecence: true,
+      message,
     };
   }
 
-  // 送信者から見たらそれは初回メッセージではなくても、受け取る側から見たらそれは初回メッセージの可能性がある(相手がメッセージを送った時に受け取りがfalseになってる時とか)
-  // なので初回メッセージかどうかはpayloadの情報(送信者から見たデータ)ではなく、受け取り側視点も考慮しなければいけない
-  const allMessagesBelongingToTheTalkRoom = await prisma.talkRoomMessage.findMany(
-    {
-      where: {
-        roomId: payload.talkRoomId,
-      },
-    }
-  );
-
-  const firstMessageSent = allMessagesBelongingToTheTalkRoom.find(
-    (m) => m.userId === payload.partnerId && m.receipt
-  );
-
-  let ioData: any;
-
-  // このメッセージが送信相手との初めてのメッセージか否かで処理分ける
-  if (firstMessageSent) {
-    const sender = await prisma.user.findUnique({
-      where: { id: user.id },
-    });
-
-    if (!sender) {
-      return throwInvalidError();
-    }
-
-    // トークルームが新規のものでなく既に存在している場合はメッセージのみをwsで送れば良い
-    ioData = {
-      isFirstMessage: false,
-      roomId: payload.talkRoomId,
-      message: clientMessage,
-      sender: {
-        id: sender.id,
-        avatar: sender.avatar,
-        name: sender.name,
-      },
-      show: partner.showReceiveMessage,
-    };
-  } else {
-    const sender = await prisma.user.findUnique({
-      where: { id: user.id },
-      include: {
-        posts: true,
-        flashes: {
-          include: {
-            viewed: true,
-            stamps: true,
-          },
-        },
-        viewedFlashes: true,
-      },
-    });
-
-    const room = await prisma.talkRoom.findUnique({
-      where: { id: payload.talkRoomId },
-      include: { messages: true },
-    });
-
-    if (!room) {
-      return throwInvalidError();
-    }
-
-    const { messages, ...restRoomData } = room;
-
-    const readTalkRoomMessages = await prisma.readTalkRoomMessage.findMany({
-      where: {
-        userId: payload.partnerId,
-      },
-    });
-
-    if (!sender) {
-      return throwInvalidError("ユーザーが存在しません");
-    }
-
-    const { posts, flashes, viewedFlashes, ...restSenderData } = sender;
-
-    const serializedRoom = serializeTalkRoom({
-      talkRoom: restRoomData,
-      talkRoomMessages: messages,
-      readTalkRoomMessages,
-      userId: payload.partnerId,
-    });
-
-    const clientSenderData = createAnotherUser({
-      user: restSenderData,
-      posts,
-      flashes,
-      viewedFlashes,
-    });
-
-    // トークルームが新規のものの場合は相手にメッセージ + トークルームと送信したユーザーのデータも送る
-    ioData = {
-      isFirstMessage: true,
-      room: serializedRoom,
-      message: clientMessage,
-      sender: clientSenderData,
-      show: partner.showReceiveMessage,
-    };
-  }
+  const ioData = {
+    message,
+    sender: {
+      id: user.id,
+      name: user.name,
+      avatar: user.avatar,
+    },
+    show: partner.showReceiveMessage,
+  };
 
   talkRoomMessageNameSpace
     .to(payload.partnerId)
-    .emit("recieveTalkRoomMessage", ioData);
+    .emit("ecieveTalkRoomMessage", ioData);
 
-  const tokenData = await prisma.deviceToken.findMany({
-    where: {
-      userId: payload.partnerId,
-    },
-  });
-  const tokens = tokenData.map((data) => data.token);
-
+  const deviceTokens = partner.deviceToken.map((data) => data.token);
   pushNotificationToMany({
-    tokens,
+    tokens: deviceTokens,
     notification: {
       title: "メッセージが届きました",
     },
     data: {
       type: "talkRoomMessages",
-      talkRoomId: String(payload.talkRoomId),
+      talkRoomId: String(talkRoomId),
       partnerId: user.id, // 送信相手から見たパートナー(リクエストしたユーザー)
     },
     apns: {
@@ -198,9 +142,8 @@ const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   });
 
   return {
-    talkRoomPresence: true,
-    message: clientMessage,
-    talkRoomId: payload.talkRoomId,
+    talkRoomPrecence: true,
+    message,
   };
 };
 
@@ -240,6 +183,7 @@ const gets = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
           id: true,
           userId: true,
           text: true,
+          createdAt: true,
         },
       },
     },

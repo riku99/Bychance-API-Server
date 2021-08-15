@@ -3,10 +3,8 @@ import { PrismaClient, User as UserType, TalkRoom } from "@prisma/client";
 
 import { initializeServer } from "~/server";
 import { baseUrl } from "~/constants";
-import { createHash } from "~/helpers/crypto";
 import { resetDatabase } from "../helpers";
-import { createUser, User, createRamdomUser } from "../data/user";
-import { user } from "../data";
+import { createRamdomUser } from "../data/user";
 
 const prisma = new PrismaClient();
 
@@ -46,13 +44,6 @@ describe("talkRoomMessages", () => {
     });
 
     test("メッセージデータを返す", async () => {
-      // const talkRoom1 = await prisma.talkRoom.create({
-      //   data: {
-      //     senderId: user1.id,
-      //     recipientId: user2.id,
-      //   },
-      // });
-
       const talkRoom2 = await prisma.talkRoom.create({
         data: {
           senderId: user2.id,
@@ -101,13 +92,6 @@ describe("talkRoomMessages", () => {
 
     describe("指定したトークルームとユーザーの関連がない", () => {
       test("400を返す", async () => {
-        // const talkRoom1 = await prisma.talkRoom.create({
-        //   data: {
-        //     senderId: user1.id,
-        //     recipientId: user2.id,
-        //   },
-        // });
-
         const res = await server.inject({
           method: "GET",
           url: `${baseUrl}/talk_rooms/${talkRoom1.id}/messages`,

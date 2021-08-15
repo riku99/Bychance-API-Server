@@ -3,15 +3,19 @@ import Joi from "joi";
 import { throwInvalidError } from "~/helpers/errors";
 
 export type CreateTalkRoomMessagePayload = {
-  talkRoomId: number;
   partnerId: string;
   text: string;
 };
+export type CreateParams = {
+  talkRoomId: string;
+};
 const createValidation = {
   payload: Joi.object<CreateTalkRoomMessagePayload>({
-    talkRoomId: Joi.number().required(),
     text: Joi.string().required(),
     partnerId: Joi.string().required(),
+  }),
+  params: Joi.object<CreateParams>({
+    talkRoomId: Joi.string().required(),
   }),
 };
 const createFailAction = () => throwInvalidError();

@@ -8,11 +8,12 @@ export const talkRoomMessagesRoute = async (server: Hapi.Server) => {
   server.route([
     {
       method: "POST",
-      path: `${baseUrl}/talkRoomMessages`,
+      path: `${baseUrl}/talk_rooms/{talkRoomId}/messages`,
       handler: handlers.create,
       options: {
         validate: {
           payload: validators.create.validator.payload,
+          params: validators.create.validator.params,
           failAction: validators.create.failAction,
         },
       },
