@@ -2,7 +2,10 @@ import Hapi from "@hapi/hapi";
 import { PrismaClient } from "@prisma/client";
 
 import { Artifacts } from "~/auth/bearer";
-import { CreateTalkRoomMessagePayload } from "~/routes/talkRoomMessages/validator";
+import {
+  CreateTalkRoomMessagePayload,
+  GetsParams,
+} from "~/routes/talkRoomMessages/validator";
 import { serializeTalkRoomMessage } from "~/serializers/talkRoomMessage";
 import { serializeTalkRoom } from "~/serializers/talkRoom";
 import { talkRoomMessageNameSpace } from "~/server";
@@ -12,10 +15,7 @@ import { pushNotificationToMany } from "~/helpers/pushNotification";
 
 const prisma = new PrismaClient();
 
-const createTalkRoomMessage = async (
-  req: Hapi.Request,
-  h: Hapi.ResponseToolkit
-) => {
+const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const user = req.auth.artifacts as Artifacts;
   const payload = req.payload as CreateTalkRoomMessagePayload;
 
@@ -204,6 +204,56 @@ const createTalkRoomMessage = async (
   };
 };
 
-export const talkRoomMessagesHandler = {
-  createTalkRoomMessage,
+const gets = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
+  // 認可クリアしたユーザーがなんでもメッセージの情報取れるのはダメ
+  // そのトークルームがそのユーザーと紐づいているかの検証が必要
+  // authでとったユーザーとparamsで検証する
+  const user = req.auth.artifacts as Artifacts;
+  const params = req.params as GetsParams;
+  const talkRoomId = Number(params.talkRoomId);
+
+  const talkRoom = await prisma.talkRoom.findFirst({
+    where: {
+      id: talkRoomId,
+      OR: [
+        {
+          senderId: user.id,
+        },
+        {
+          recipientId: user.id,
+        },
+      ],
+    },
+    select: {
+      messages: {
+        where: {
+          OR: [
+            {
+              userId: user.id,
+            },
+            {
+              userId: {
+                not: user.id,
+              },
+              receipt: true,
+            },
+          ],
+        },
+        select: {
+          id: true,
+          userId: true,
+          text: true,
+        },
+      },
+    },
+  });
+
+  if (!talkRoom) {
+    return throwInvalidError();
+  }
+};
+
+export const handlers = {
+  create,
+  gets,
 };

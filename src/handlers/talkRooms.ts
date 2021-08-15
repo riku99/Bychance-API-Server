@@ -111,12 +111,12 @@ const get = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       unreadMessages: {
         where: {
           userId: {
-            not: params.userId,
+            not: params.userId, // 既読未読の対象は自分が送ったメッセージじゃないよね
           },
           receipt: true,
           readTalkRoomMessages: {
             none: {
-              userId: params.userId,
+              userId: params.userId, // 既読データに存在しないものを取得したいよね
             },
           },
         },
@@ -134,7 +134,7 @@ const get = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
               userId: {
                 not: params.userId,
               },
-              receipt: true,
+              receipt: true, // このルームの一番最近のメッセージが相手からのメッセージでも、そのreciptがfalseなら(受け取り拒否していたら)そのメッセージは取得しないよね
             },
           ],
         },

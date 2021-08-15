@@ -120,7 +120,7 @@ describe("talkRooms", () => {
                 userId: sender.id,
                 roomId: room.id,
                 text: "Hello!!",
-                receipt: false,
+                receipt: false, // メッセージを作成したが受け取らなかった
               },
             });
 
@@ -146,7 +146,7 @@ describe("talkRooms", () => {
             userId: sender.id,
             roomId: talkRoom.id,
             text: "Hey!",
-            receipt: true,
+            receipt: true, // こいつは受け取った
           },
         });
         const notReciptMessage = await prisma.talkRoomMessage.create({
@@ -154,7 +154,7 @@ describe("talkRooms", () => {
             userId: sender.id,
             roomId: talkRoom.id,
             text: "Hello!",
-            receipt: false,
+            receipt: false, // こいつは受け取らなかった
           },
         });
 
