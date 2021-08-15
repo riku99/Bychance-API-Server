@@ -185,15 +185,22 @@ const gets = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
           text: true,
           createdAt: true,
         },
+        orderBy: {
+          createdAt: "desc",
+        },
       },
     },
   });
 
   if (!talkRoom) {
-    return throwInvalidError();
+    return {
+      roomPresence: false,
+      messages: [],
+    };
   }
 
   return {
+    roomPresence: true,
     messages: talkRoom.messages,
   };
 };
