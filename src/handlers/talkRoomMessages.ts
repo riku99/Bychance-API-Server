@@ -205,9 +205,6 @@ const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
 };
 
 const gets = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
-  // 認可クリアしたユーザーがなんでもメッセージの情報取れるのはダメ
-  // そのトークルームがそのユーザーと紐づいているかの検証が必要
-  // authでとったユーザーとparamsで検証する
   const user = req.auth.artifacts as Artifacts;
   const params = req.params as GetsParams;
   const talkRoomId = Number(params.talkRoomId);
@@ -251,6 +248,10 @@ const gets = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   if (!talkRoom) {
     return throwInvalidError();
   }
+
+  return {
+    messages: talkRoom.messages,
+  };
 };
 
 export const handlers = {
