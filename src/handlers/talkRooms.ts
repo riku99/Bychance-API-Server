@@ -146,6 +146,8 @@ const get = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
         select: {
           id: true,
           text: true,
+          userId: true,
+          createdAt: true,
         },
       },
       sender: {

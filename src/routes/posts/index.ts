@@ -1,8 +1,12 @@
 import Hapi from "@hapi/hapi";
 
 import { baseUrl } from "~/constants";
-import { createPostValidator, deletePostValidator } from "./validator";
-import { postHandler } from "~/handlers/posts";
+import {
+  createPostValidator,
+  deletePostValidator,
+  validators,
+} from "./validator";
+import { handlers } from "~/handlers/posts";
 import { maxBytes } from "~/config/apis/size";
 
 export const postsRoute = async (server: Hapi.Server) => {
@@ -10,7 +14,7 @@ export const postsRoute = async (server: Hapi.Server) => {
     {
       method: "POST",
       path: `${baseUrl}/posts`,
-      handler: postHandler.createPost,
+      handler: handlers.createPost,
       options: {
         validate: {
           payload: createPostValidator.validate.payload,
@@ -25,11 +29,22 @@ export const postsRoute = async (server: Hapi.Server) => {
     {
       method: "DELETE",
       path: `${baseUrl}/posts/{postId}`,
-      handler: postHandler.deletePost,
+      handler: handlers.deletePost,
       options: {
         validate: {
           params: deletePostValidator.validate.params,
           failAction: deletePostValidator.failAction,
+        },
+      },
+    },
+    {
+      method: "GET",
+      path: `${baseUrl}/users/{userId}/posts`,
+      handler: handlers.getUserPosts,
+      options: {
+        validate: {
+          params: validators.gets.validator.params,
+          failAction: validators.gets.failAction,
         },
       },
     },

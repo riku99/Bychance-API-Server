@@ -2,7 +2,11 @@ import Hapi from "@hapi/hapi";
 import { PrismaClient } from "@prisma/client";
 
 import { Artifacts } from "~/auth/bearer";
-import { CreatePostPayload, DeletePostParams } from "~/routes/posts/validator";
+import {
+  CreatePostPayload,
+  DeletePostParams,
+  GetUserPostsParams,
+} from "~/routes/posts/validator";
 import { serializePost } from "~/serializers/post";
 import { createS3ObjectPath } from "~/helpers/aws";
 import { throwInvalidError } from "~/helpers/errors";
@@ -56,7 +60,31 @@ const deletePost = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   return h.response().code(200);
 };
 
-export const postHandler = {
+const getUserPosts = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
+  const params = req.params as GetUserPostsParams;
+
+  const posts = await prisma.post.findMany({
+    where: {
+      userId: params.userId,
+    },
+    select: {
+      id: true,
+      text: true,
+      url: true,
+      createdAt: true,
+      userId: true,
+      sourceType: true,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return posts;
+};
+
+export const handlers = {
   createPost,
   deletePost,
+  getUserPosts,
 };

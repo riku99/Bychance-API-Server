@@ -118,7 +118,7 @@ const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
 
   talkRoomMessageNameSpace
     .to(payload.partnerId)
-    .emit("ecieveTalkRoomMessage", ioData);
+    .emit("recieveTalkRoomMessage", ioData);
 
   const deviceTokens = partner.deviceToken.map((data) => data.token);
   pushNotificationToMany({
