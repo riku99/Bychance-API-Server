@@ -155,3 +155,20 @@ export const changeShowReceiveMessageValidator = {
   validator: changeShowReceiveMessageValidation,
   failAction: () => throwInvalidError(),
 };
+
+export type GetUserParams = {
+  userId: string;
+};
+const getValidation = {
+  params: Joi.object<GetUserParams>({
+    userId: Joi.string().required(),
+  }),
+};
+const getFailAction = () => throwInvalidError();
+
+export const validators = {
+  getUser: {
+    validator: getValidation,
+    failAction: getFailAction,
+  },
+};

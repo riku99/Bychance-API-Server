@@ -13,6 +13,7 @@ import {
   ChangeVideoEditDescriptionPayload,
   ChangeTalkRoomMessageReceipt,
   ChangeShowReceiveMessage,
+  GetUserParams,
 } from "~/routes/users/validator";
 import { serializeUser } from "~/serializers/user";
 import { createS3ObjectPath } from "~/helpers/aws";
@@ -26,6 +27,9 @@ import {
 } from "~/helpers/flashes";
 import { createClientPosts } from "~/helpers/posts";
 import { geohashPrecision } from "~/constants";
+import Joi from "joi";
+import { GetParams } from "~/routes/talkRooms/validator";
+import { user } from "~/../tests/data";
 
 const prisma = new PrismaClient();
 
@@ -318,7 +322,49 @@ const changeShowReceiveMessage = async (
   return h.response().code(200);
 };
 
-export const usersHandler = {
+const getUserPageInfo = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
+  const me = req.auth.artifacts as Artifacts;
+  const params = req.params as GetUserParams;
+
+  const isMe = me.id === params.userId;
+
+  const user = await prisma.user.findUnique({
+    where: {
+      id: params.userId,
+    },
+    select: {
+      id: true,
+      name: true,
+      avatar: true,
+      introduce: true,
+      backGroundItem: true,
+      backGroundItemType: true,
+      instagram: true,
+      twitter: true,
+      youtube: true,
+      tiktok: true,
+      videoEditDescription: isMe,
+      posts: {
+        orderBy: {
+          createdAt: "desc",
+        },
+      },
+      flashes: {
+        include: {
+          stamps: true,
+        },
+      },
+    },
+  });
+
+  if (!user) {
+    return throwInvalidError();
+  }
+
+  return user;
+};
+
+export const handlers = {
   updateUser,
   refreshUser,
   updateLocation,
@@ -327,4 +373,5 @@ export const usersHandler = {
   changeTalkRoomMessageReceipt,
   changeShowReceiveMessage,
   deleteLocation,
+  getUserPageInfo,
 };

@@ -8,8 +8,9 @@ import {
   changeVideoEditDescriptionValidator,
   changeTalkRoomMessageReceiptValidator,
   changeShowReceiveMessageValidator,
+  validators,
 } from "./validator";
-import { usersHandler } from "~/handlers/users";
+import { handlers } from "~/handlers/users";
 import { baseUrl } from "~/constants";
 import { maxBytes } from "~/config/apis/size";
 
@@ -19,9 +20,20 @@ const usersLocation = `${baseUrl}/users/location`;
 export const usersRoute = async (server: Hapi.Server) => {
   server.route([
     {
+      method: "GET",
+      path: `${baseUrl}/users/{userId}/page_info`,
+      handler: handlers.getUserPageInfo,
+      options: {
+        validate: {
+          params: validators.getUser.validator.params,
+          failAction: validators.getUser.failAction,
+        },
+      },
+    },
+    {
       method: "PATCH",
       path: `${baseUrl}/users`,
-      handler: usersHandler.updateUser,
+      handler: handlers.updateUser,
       options: {
         validate: {
           ...updateUserValidator.validate,
@@ -35,7 +47,7 @@ export const usersRoute = async (server: Hapi.Server) => {
     {
       method: "GET",
       path: `${baseUrl}/users/refresh/{userId}`,
-      handler: usersHandler.refreshUser,
+      handler: handlers.refreshUser,
       options: {
         validate: {
           params: refreshUserValidator.validate.params,
@@ -46,7 +58,7 @@ export const usersRoute = async (server: Hapi.Server) => {
     {
       method: "PATCH",
       path: `${baseUrl}/users/location`,
-      handler: usersHandler.updateLocation,
+      handler: handlers.updateLocation,
       options: {
         validate: {
           payload: updateLocationValidator.validate.payload,
@@ -57,12 +69,12 @@ export const usersRoute = async (server: Hapi.Server) => {
     {
       method: "DELETE",
       path: usersLocation,
-      handler: usersHandler.deleteLocation,
+      handler: handlers.deleteLocation,
     },
     {
       method: "PATCH",
       path: `${baseUrl}/users/display`,
-      handler: usersHandler.changeDisplay,
+      handler: handlers.changeDisplay,
       options: {
         validate: {
           payload: changeUserDisplayValidator.validator.payload,
@@ -73,7 +85,7 @@ export const usersRoute = async (server: Hapi.Server) => {
     {
       method: "PATCH",
       path: `${baseUrl}/users/videoEditDescription`,
-      handler: usersHandler.changeVideoEditDescription,
+      handler: handlers.changeVideoEditDescription,
       options: {
         validate: {
           payload: changeVideoEditDescriptionValidator.validator.payload,
@@ -84,7 +96,7 @@ export const usersRoute = async (server: Hapi.Server) => {
     {
       method: "PATCH",
       path: `${baseUrl}/users/talkRoomMessageReceipt`,
-      handler: usersHandler.changeTalkRoomMessageReceipt,
+      handler: handlers.changeTalkRoomMessageReceipt,
       options: {
         validate: {
           payload: changeTalkRoomMessageReceiptValidator.validator.payload,
@@ -95,7 +107,7 @@ export const usersRoute = async (server: Hapi.Server) => {
     {
       method: "PATCH",
       path: changeShowReceiveMessagePath,
-      handler: usersHandler.changeShowReceiveMessage,
+      handler: handlers.changeShowReceiveMessage,
       options: {
         validate: {
           payload: changeShowReceiveMessageValidator.validator.payload,
