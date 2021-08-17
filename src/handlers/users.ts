@@ -352,6 +352,14 @@ const getUserPageInfo = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       flashes: {
         include: {
           stamps: true,
+          viewed: {
+            where: {
+              userId: me.id,
+            },
+            select: {
+              flashId: true,
+            },
+          },
         },
       },
     },
@@ -361,7 +369,21 @@ const getUserPageInfo = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     return throwInvalidError();
   }
 
-  return user;
+  const viewedFlasheIds = user.flashes
+    .filter((f) => f.viewed.length)
+    .map((f) => f.viewed[0].flashId);
+  const viewedAllFlashes = viewedFlasheIds.length === user.flashes.length;
+
+  const { flashes, ...restData } = user;
+
+  return {
+    ...restData,
+    flashesData: {
+      entities: user.flashes,
+      viewedFlasheIds,
+      viewedAllFlashes,
+    },
+  };
 };
 
 export const handlers = {

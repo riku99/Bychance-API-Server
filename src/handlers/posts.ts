@@ -40,7 +40,7 @@ const createPost = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     },
   });
 
-  return serializePost({ post });
+  return post;
 };
 
 const deletePost = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
