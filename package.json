@@ -23,7 +23,7 @@
     "ngeohash": "^0.6.3",
     "node-cron": "^3.0.0",
     "nodemon": "^2.0.7",
-    "sharp": "^0.28.3",
+    "sharp": "^0.29.0",
     "socket.io": "^4.0.1",
     "ts-loader": "^9.2.3",
     "uuid": "^8.3.2",

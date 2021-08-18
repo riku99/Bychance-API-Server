@@ -326,8 +326,6 @@ const getUserPageInfo = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const me = req.auth.artifacts as Artifacts;
   const params = req.params as GetUserParams;
 
-  const isMe = me.id === params.userId;
-
   const user = await prisma.user.findUnique({
     where: {
       id: params.userId,
@@ -343,7 +341,6 @@ const getUserPageInfo = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       twitter: true,
       youtube: true,
       tiktok: true,
-      videoEditDescription: isMe,
       posts: {
         orderBy: {
           createdAt: "desc",
@@ -353,6 +350,11 @@ const getUserPageInfo = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
         include: {
           stamps: true,
           viewed: {
+            select: {
+              userId: true,
+            },
+          },
+          specificUserViewed: {
             where: {
               userId: me.id,
             },
@@ -369,10 +371,11 @@ const getUserPageInfo = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     return throwInvalidError();
   }
 
-  const viewedFlasheIds = user.flashes
-    .filter((f) => f.viewed.length)
-    .map((f) => f.viewed[0].flashId);
-  const viewedAllFlashes = viewedFlasheIds.length === user.flashes.length;
+  const viewerViewedFlasheIds = user.flashes
+    .map((f) => f.specificUserViewed)
+    .filter((f) => f.length)
+    .map((f) => f[0].flashId);
+  const viewedAllFlashes = viewerViewedFlasheIds.length === user.flashes.length;
 
   const { flashes, ...restData } = user;
 
@@ -380,7 +383,7 @@ const getUserPageInfo = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     ...restData,
     flashesData: {
       entities: user.flashes,
-      viewedFlasheIds,
+      viewerViewedFlasheIds,
       viewedAllFlashes,
     },
   };

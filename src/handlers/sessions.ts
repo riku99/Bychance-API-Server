@@ -131,6 +131,46 @@ export const sessionLogin = async (
     include: createClientIncludes,
   });
 
+  const _data = await prisma.user.findUnique({
+    where: {
+      id: user.id,
+    },
+    select: {
+      id: true,
+      name: true,
+      avatar: true,
+      introduce: true,
+      backGroundItem: true,
+      backGroundItemType: true,
+      instagram: true,
+      twitter: true,
+      youtube: true,
+      tiktok: true,
+      videoEditDescription: true,
+      statusMessage: true,
+      lat: true,
+      lng: true,
+      display: true,
+      talkRoomMessageReceipt: true,
+      showReceiveMessage: true,
+      posts: {
+        orderBy: {
+          createdAt: "desc",
+        },
+      },
+      flashes: {
+        include: {
+          stamps: true,
+          viewed: {
+            select: {
+              userId: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
   const {
     posts,
     flashes,
@@ -142,7 +182,7 @@ export const sessionLogin = async (
     ...rest
   } = data!;
 
-  return createClientData({
+  const result = createClientData({
     user: rest,
     posts,
     flashes,
@@ -151,6 +191,11 @@ export const sessionLogin = async (
     senderTalkRooms,
     recipientTalkRooms,
   });
+
+  return {
+    ...result,
+    sub: _data,
+  };
 };
 
 export const logout = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {

@@ -56,7 +56,6 @@ model Post {
   text      String?
   url       String
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
   userId    String
   sourceType PostSourceTypeRole @default(image)
   user      User     @relation(fields: [userId], references: [id])
@@ -68,11 +67,11 @@ model Flash {
   id         Int                 @id @default(autoincrement())
   source     String
   createdAt  DateTime            @default(now())
-  updatedAt  DateTime            @updatedAt
   sourceType FlashSourceTypeRole
   userId     String
   user       User                @relation(fields: [userId], references: [id])
-  viewed     ViewedFlash[]
+  viewed     ViewedFlash[]       @relation("allViewed")
+  specificUserViewed ViewedFlash[]  @relation("specificUserViewed")
   stamps FlashStamp[]
 
   @@index([userId])
@@ -128,8 +127,9 @@ model ViewedFlash {
   updatedAt DateTime @updatedAt
   userId    String
   flashId   Int
-  flash     Flash    @relation(fields: [flashId], references: [id])
+  flash     Flash    @relation("allViewed", fields: [flashId], references: [id])
   user      User     @relation(fields: [userId], references: [id])
+  specificUserViewed  Flash @relation("specificUserViewed", fields: [flashId], references: [id])
 
   @@unique([userId, flashId], name: "userId_flashId_unique") // viewedFlash.userId_flashId_uniqueのように.つけて定義するとエラーになる
   @@index([flashId])
