@@ -182,7 +182,6 @@ model DeviceToken {
 model FlashStamp {
   id Int @id @default(autoincrement())
   createdAt DateTime        @default(now())
-  updatedAt DateTime        @updatedAt
   value FlashStampValue
   userId String
   flashId Int

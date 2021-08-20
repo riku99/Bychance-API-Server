@@ -2,7 +2,11 @@ import Hapi from "@hapi/hapi";
 import axios, { AxiosResponse } from "axios";
 import { PrismaClient } from "@prisma/client";
 
-import { createHash, createRandomString } from "~/helpers/crypto";
+import {
+  createHash,
+  createRandomString,
+  handleUserLocationCrypt,
+} from "~/helpers/crypto";
 import { LineLoginHeaders } from "~/routes/sessions/validator";
 import { throwLoginError } from "~/helpers/errors";
 import { createClientData } from "~/helpers/clientData";
@@ -126,12 +130,12 @@ export const sessionLogin = async (
     });
   }
 
-  const data = await prisma.user.findUnique({
-    where: { id: user.id },
-    include: createClientIncludes,
-  });
+  // const data = await prisma.user.findUnique({
+  //   where: { id: user.id },
+  //   include: createClientIncludes,
+  // });
 
-  const _data = await prisma.user.findUnique({
+  const data = await prisma.user.findUnique({
     where: {
       id: user.id,
     },
@@ -171,31 +175,62 @@ export const sessionLogin = async (
     },
   });
 
-  const {
+  if (!data) {
+    return throwLoginError();
+  }
+
+  const { posts, flashes, ...userData } = data;
+  const { lat, lng, ...restUserData } = userData;
+  let decryptedLat: number | null = null;
+  let decryptedLng: number | null = null;
+  if (lat && lng) {
+    const { lat: _lat, lng: _lng } = handleUserLocationCrypt(
+      lat,
+      lng,
+      "decrypt"
+    );
+
+    decryptedLat = _lat;
+    decryptedLng = _lng;
+  }
+
+  const response = {
+    user: {
+      ...restUserData,
+      lat: decryptedLat,
+      lng: decryptedLng,
+    },
     posts,
     flashes,
-    senderTalkRooms,
-    recipientTalkRooms,
-    talkRoomMessages,
-    readTalkRoomMessages,
-    viewedFlashes,
-    ...rest
-  } = data!;
-
-  const result = createClientData({
-    user: rest,
-    posts,
-    flashes,
-    readTalkRoomMessages,
-    viewedFlashes,
-    senderTalkRooms,
-    recipientTalkRooms,
-  });
-
-  return {
-    ...result,
-    sub: _data,
   };
+
+  return response;
+
+  // const {
+  //   posts,
+  //   flashes,
+  //   senderTalkRooms,
+  //   recipientTalkRooms,
+  //   talkRoomMessages,
+  //   readTalkRoomMessages,
+  //   viewedFlashes,
+  //   ...rest
+  // } = data!;
+
+  // const result = createClientData({
+  //   user: rest,
+  //   posts,
+  //   flashes,
+  //   readTalkRoomMessages,
+  //   viewedFlashes,
+  //   senderTalkRooms,
+  //   recipientTalkRooms,
+  // });
+
+  // return {
+  //   ...result,
+  //   sub: _data,
+  // };
 };
 
 export const logout = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {

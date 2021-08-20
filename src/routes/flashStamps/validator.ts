@@ -7,7 +7,6 @@ export type CreateFlashStampPayload = {
   flashId: number;
   value: FlashStamp["value"];
 };
-
 const createValidation = {
   payload: Joi.object<CreateFlashStampPayload>({
     flashId: Joi.number().required(),
@@ -16,10 +15,25 @@ const createValidation = {
       .required(),
   }),
 };
-
 const createFaliAction = () => throwInvalidError();
 
-export const createFlashStampValidator = {
-  validate: createValidation,
-  failAction: createFaliAction,
+export type GetParams = {
+  flashId: string;
+};
+const getValidation = {
+  params: Joi.object<GetParams>({
+    flashId: Joi.string().required(),
+  }),
+};
+const getFailAction = () => throwInvalidError();
+
+export const validators = {
+  get: {
+    validator: getValidation,
+    failAction: getFailAction,
+  },
+  create: {
+    validator: createValidation,
+    failAction: createFaliAction,
+  },
 };
