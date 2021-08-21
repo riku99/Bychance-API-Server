@@ -130,11 +130,6 @@ export const sessionLogin = async (
     });
   }
 
-  // const data = await prisma.user.findUnique({
-  //   where: { id: user.id },
-  //   include: createClientIncludes,
-  // });
-
   const data = await prisma.user.findUnique({
     where: {
       id: user.id,
@@ -164,7 +159,6 @@ export const sessionLogin = async (
       },
       flashes: {
         include: {
-          stamps: true,
           viewed: {
             select: {
               userId: true,
@@ -205,32 +199,6 @@ export const sessionLogin = async (
   };
 
   return response;
-
-  // const {
-  //   posts,
-  //   flashes,
-  //   senderTalkRooms,
-  //   recipientTalkRooms,
-  //   talkRoomMessages,
-  //   readTalkRoomMessages,
-  //   viewedFlashes,
-  //   ...rest
-  // } = data!;
-
-  // const result = createClientData({
-  //   user: rest,
-  //   posts,
-  //   flashes,
-  //   readTalkRoomMessages,
-  //   viewedFlashes,
-  //   senderTalkRooms,
-  //   recipientTalkRooms,
-  // });
-
-  // return {
-  //   ...result,
-  //   sub: _data,
-  // };
 };
 
 export const logout = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {

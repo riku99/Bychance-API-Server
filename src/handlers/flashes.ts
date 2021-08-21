@@ -7,9 +7,7 @@ import {
   DeleteFlashParams,
 } from "~/routes/flashes/validator";
 import { createS3ObjectPath } from "~/helpers/aws";
-import { serializeFlash } from "~/serializers/flash";
 import { throwInvalidError } from "~/helpers/errors";
-import { createClientFlashStampValuesData } from "~/helpers/flashes";
 
 const prisma = new PrismaClient();
 
@@ -35,46 +33,49 @@ const createFlash = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       sourceType: payload.sourceType,
       userId: user.id,
     },
-    include: {
-      viewed: true,
-      stamps: true,
-    },
   });
 
-  const defaultStampsData = createClientFlashStampValuesData([], flash.id);
-
-  return {
-    flash: serializeFlash({ flash }),
-    stamps: defaultStampsData,
-  };
+  return flash;
 };
 
 const deleteFlash = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const user = req.auth.artifacts as Artifacts;
   const params = req.params as DeleteFlashParams;
 
-  await prisma.flashStamp.deleteMany({
-    where: {
-      flashId: Number(params.flashId),
-    },
-  });
-
-  await prisma.viewedFlash.deleteMany({
-    where: {
-      flashId: Number(params.flashId),
-    },
-  });
-
-  const result = await prisma.flash.deleteMany({
+  const f = await prisma.flash.findFirst({
     where: {
       id: Number(params.flashId),
       userId: user.id,
     },
   });
 
-  if (!result.count) {
+  if (!f) {
     return throwInvalidError();
   }
+
+  const deleteStamps = prisma.flashStamp.deleteMany({
+    where: {
+      flashId: Number(params.flashId),
+    },
+  });
+
+  const deleteViewed = prisma.viewedFlash.deleteMany({
+    where: {
+      flashId: Number(params.flashId),
+    },
+  });
+
+  const deleteFlash = prisma.flash.delete({
+    where: {
+      id: Number(params.flashId),
+    },
+  });
+
+  const transaction = await prisma.$transaction([
+    deleteStamps,
+    deleteViewed,
+    deleteFlash,
+  ]);
 
   return h.response().code(200);
 };

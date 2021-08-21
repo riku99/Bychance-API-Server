@@ -348,7 +348,6 @@ const getUserPageInfo = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       },
       flashes: {
         include: {
-          stamps: true,
           viewed: {
             select: {
               userId: true,
