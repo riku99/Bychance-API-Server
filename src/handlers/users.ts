@@ -27,9 +27,6 @@ import {
 } from "~/helpers/flashes";
 import { createClientPosts } from "~/helpers/posts";
 import { geohashPrecision } from "~/constants";
-import Joi from "joi";
-import { GetParams } from "~/routes/talkRooms/validator";
-import { user } from "~/../tests/data";
 
 const prisma = new PrismaClient();
 
@@ -388,6 +385,76 @@ const getUserPageInfo = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   };
 };
 
+const refreshMyData = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
+  const user = req.auth.artifacts as Artifacts;
+
+  const data = await prisma.user.findUnique({
+    where: {
+      id: user.id,
+    },
+    select: {
+      id: true,
+      name: true,
+      avatar: true,
+      introduce: true,
+      backGroundItem: true,
+      backGroundItemType: true,
+      instagram: true,
+      twitter: true,
+      youtube: true,
+      tiktok: true,
+      videoEditDescription: true,
+      statusMessage: true,
+      lat: true,
+      lng: true,
+      display: true,
+      talkRoomMessageReceipt: true,
+      showReceiveMessage: true,
+      posts: {
+        orderBy: {
+          createdAt: "desc",
+        },
+      },
+      flashes: {
+        include: {
+          viewed: {
+            select: {
+              userId: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!data) {
+    return throwInvalidError();
+  }
+
+  const { posts, flashes, ...userData } = data;
+  const { lat, lng, ...restUserData } = userData;
+  let decryptedLat: number | null = null;
+  let decryptedLng: number | null = null;
+  if (lat && lng) {
+    const { lat: _lat, lng: _lng } = handleUserLocationCrypt(
+      lat,
+      lng,
+      "decrypt"
+    );
+
+    decryptedLat = _lat;
+    decryptedLng = _lng;
+  }
+
+  return {
+    ...userData,
+    lat: decryptedLat,
+    lng: decryptedLng,
+    posts,
+    flashes,
+  };
+};
+
 export const handlers = {
   updateUser,
   refreshUser,
@@ -398,4 +465,5 @@ export const handlers = {
   changeShowReceiveMessage,
   deleteLocation,
   getUserPageInfo,
+  refreshMyData,
 };

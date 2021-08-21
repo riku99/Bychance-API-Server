@@ -7,7 +7,6 @@ import {
   DeletePostParams,
   GetUserPostsParams,
 } from "~/routes/posts/validator";
-import { serializePost } from "~/serializers/post";
 import { createS3ObjectPath } from "~/helpers/aws";
 import { throwInvalidError } from "~/helpers/errors";
 

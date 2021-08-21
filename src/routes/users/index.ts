@@ -31,6 +31,11 @@ export const usersRoute = async (server: Hapi.Server) => {
       },
     },
     {
+      method: "GET",
+      path: `${baseUrl}/my_refresh_data`,
+      handler: handlers.refreshMyData,
+    },
+    {
       method: "PATCH",
       path: `${baseUrl}/users`,
       handler: handlers.updateUser,
