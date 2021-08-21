@@ -46,7 +46,7 @@ model User {
   privateTime PrivateTime[]
   hideRecommendation UserHideRecommendation[]
 
-  @@index([display, login, inPrivateZone, geohash])
+  @@index([display, login, inPrivateZone, geohash, lat, lng])
   @@index([lineId])
   @@index([accessToken])
 }
