@@ -5,32 +5,29 @@ import { point } from "@turf/helpers";
 import geohash from "ngeohash";
 
 import { Artifacts } from "~/auth/bearer";
-import { GetnearbyUsersQuery } from "~/routes/nearbyUsers/validator";
+import { GetNearbyUsersQuery } from "~/routes/nearbyUsers/validator";
 import { handleUserLocationCrypt, createHash } from "~/helpers/crypto";
-import { createAnotherUser } from "~/helpers/anotherUser";
-import { postIncludes, flashIncludes } from "~/prisma/includes";
-import { createClientFlashStamps } from "~/helpers/flashes";
-import { ClientFlashStamp } from "~/types/clientData";
 import { confirmInTime } from "~/utils";
 import { geohashPrecision } from "~/constants";
+import { throwInvalidError } from "~/helpers/errors";
 
 const prisma = new PrismaClient();
 
-const getNearbyUsers = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
+const get = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const user = req.auth.artifacts as Artifacts;
-  const query = req.query as GetnearbyUsersQuery;
+  const query = req.query as GetNearbyUsersQuery;
 
-  const requestUserPoint = point([query.lng, query.lat]); // 経度緯度の順で渡す
+  if (!user.lat || !user.lng) {
+    return throwInvalidError();
+  }
 
-  const gh = geohash.encode(query.lat, query.lng, geohashPrecision);
+  const { lat, lng } = handleUserLocationCrypt(user.lat, user.lng, "decrypt");
+
+  const requestUserPoint = point([lng, lat]); // 経度緯度の順で渡す
+
+  const gh = geohash.encode(lat, lng, geohashPrecision);
   const hashedGh = createHash(gh);
   const neighborsHashedGh = geohash.neighbors(gh).map((g) => createHash(g));
-
-  const viewedFlashes = await prisma.viewedFlash.findMany({
-    where: {
-      userId: user.id,
-    },
-  });
 
   const displayedUsers = await prisma.user.findMany({
     where: {
@@ -40,79 +37,85 @@ const getNearbyUsers = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       geohash: {
         in: [hashedGh, ...neighborsHashedGh],
       },
+      lat: {
+        not: null,
+      },
+      lng: {
+        not: null,
+      },
     },
-    include: {
-      ...postIncludes,
-      ...flashIncludes,
+    select: {
+      id: true,
+      name: true,
+      avatar: true,
+      statusMessage: true,
       privateTime: true,
+      lat: true,
+      lng: true,
     },
   });
 
   const date = new Date();
   const hours = date.getHours();
   const minutes = date.getMinutes();
-  const nearbyUsers = displayedUsers.filter((user) => {
-    if (!user.lat || !user.lng) {
-      return false;
-    }
+  const filteredUsers = displayedUsers
+    .filter((_user) => {
+      if (!_user.lat || !_user.lng) {
+        return false;
+      }
 
-    const inPrivateTime = user.privateTime.find((p) => {
-      const { startHours, startMinutes, endHours, endMinutes } = p;
-      return confirmInTime({
-        startHours,
-        startMinutes,
-        endHours,
-        endMinutes,
-        h: hours,
-        m: minutes,
+      const inPrivateTime = _user.privateTime.find((p) => {
+        const { startHours, startMinutes, endHours, endMinutes } = p;
+        return confirmInTime({
+          startHours,
+          startMinutes,
+          endHours,
+          endMinutes,
+          h: hours,
+          m: minutes,
+        });
       });
+
+      if (inPrivateTime) {
+        return false;
+      }
+
+      const { lat: _lat, lng: _lng } = handleUserLocationCrypt(
+        _user.lat,
+        _user.lng,
+        "decrypt"
+      );
+
+      const anotherUserPoint = point([_lng, _lat]);
+      const distanceResult = distance(requestUserPoint, anotherUserPoint, {
+        units: "kilometers",
+      });
+
+      return distanceResult < query.range;
+    })
+    .sort((a, b) => {
+      const locationA = handleUserLocationCrypt(a.lat!, a.lng!, "decrypt");
+      const locationB = handleUserLocationCrypt(b.lat!, b.lng!, "decrypt");
+
+      const distanceA = distance(
+        point([locationA.lng, locationA.lat]),
+        requestUserPoint
+      );
+      const distanceB = distance(
+        point([locationB.lng, locationB.lat]),
+        requestUserPoint
+      );
+
+      return distanceA < distanceB ? -1 : 1;
+    })
+    .map((f) => {
+      const { lat, lng, privateTime, ...filteredData } = f;
+      return filteredData;
     });
 
-    if (inPrivateTime) {
-      return false;
-    }
-
-    const { lat, lng } = handleUserLocationCrypt(user.lat, user.lng, "decrypt");
-    const anotherUserPoint = point([lng, lat]);
-    const distanceResult = distance(requestUserPoint, anotherUserPoint, {
-      units: "kilometers",
-    });
-
-    return distanceResult < query.range;
-  });
-
-  const sortedUsers = nearbyUsers.sort((a, b) => {
-    const locationA = handleUserLocationCrypt(a.lat!, a.lng!, "decrypt");
-    const locationB = handleUserLocationCrypt(b.lat!, b.lng!, "decrypt");
-
-    const distanceA = distance(
-      point([locationA.lng, locationA.lat]),
-      requestUserPoint
-    );
-    const distanceB = distance(
-      point([locationB.lng, locationB.lat]),
-      requestUserPoint
-    );
-
-    return distanceA < distanceB ? -1 : 1;
-  });
-
-  let flashStampsData: ClientFlashStamp[] = [];
-
-  const returnData = sortedUsers.map((user) => {
-    const { posts, flashes, ...userData } = user;
-
-    const nearbyUserFlashStampsData = createClientFlashStamps(flashes);
-    flashStampsData.push(...nearbyUserFlashStampsData);
-    return createAnotherUser({ user: userData, posts, flashes, viewedFlashes });
-  });
-
-  return {
-    usersData: returnData,
-    flashStampsData,
-  };
+  return filteredUsers;
 };
 
-export const nearbyUsersHandler = {
-  getNearbyUsers,
+export const handlers = {
+  get,
 };

@@ -1,19 +1,19 @@
 import Hapi from "@hapi/hapi";
 
 import { baseUrl } from "~/constants";
-import { getNearbyUsersValidator } from "./validator";
-import { nearbyUsersHandler } from "~/handlers/nearbyUsers";
+import { validators } from "./validator";
+import { handlers } from "~/handlers/nearbyUsers";
 
 export const nearbyUsersRoute = async (server: Hapi.Server) => {
   server.route([
     {
       method: "GET",
-      path: `${baseUrl}/nearbyUsers`,
-      handler: nearbyUsersHandler.getNearbyUsers,
+      path: `${baseUrl}/users/nearby`,
+      handler: handlers.get,
       options: {
         validate: {
-          query: getNearbyUsersValidator.validate.query,
-          failAction: getNearbyUsersValidator.failAction,
+          query: validators.get.validator.query,
+          failAction: validators.get.failAction,
         },
       },
     },
