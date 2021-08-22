@@ -52,6 +52,23 @@ const get = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       privateTime: true,
       lat: true,
       lng: true,
+      flashes: {
+        include: {
+          viewed: {
+            select: {
+              userId: true,
+            },
+          },
+          specificUserViewed: {
+            where: {
+              userId: user.id,
+            },
+            select: {
+              flashId: true,
+            },
+          },
+        },
+      },
     },
   });
 
@@ -109,8 +126,21 @@ const get = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       return distanceA < distanceB ? -1 : 1;
     })
     .map((f) => {
-      const { lat, lng, privateTime, ...filteredData } = f;
-      return filteredData;
+      const { lat, lng, privateTime, flashes, ...filteredData } = f;
+      const viewerViewedFlasheIds = flashes
+        .map((f) => f.specificUserViewed)
+        .filter((f) => f.length)
+        .map((f) => f[0].flashId);
+      const viewedAllFlashes = viewerViewedFlasheIds.length === flashes.length;
+
+      return {
+        ...filteredData,
+        flashesData: {
+          entities: flashes,
+          viewerViewedFlasheIds,
+          viewedAllFlashes,
+        },
+      };
     });
 
   return filteredUsers;
