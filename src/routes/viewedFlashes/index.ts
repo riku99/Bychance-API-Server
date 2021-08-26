@@ -8,7 +8,7 @@ export const viewedFlashesRoute = async (server: Hapi.Server) => {
   server.route([
     {
       method: "POST",
-      path: `${baseUrl}/viewedFlashes`,
+      path: `${baseUrl}/flashes/viewed`,
       handler: viewedFlashHandler.createViewedFlash,
       options: {
         validate: {

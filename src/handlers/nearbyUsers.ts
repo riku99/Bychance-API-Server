@@ -49,6 +49,7 @@ const get = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       name: true,
       avatar: true,
       statusMessage: true,
+      introduce: true,
       privateTime: true,
       lat: true,
       lng: true,
@@ -57,14 +58,6 @@ const get = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
           viewed: {
             select: {
               userId: true,
-            },
-          },
-          specificUserViewed: {
-            where: {
-              userId: user.id,
-            },
-            select: {
-              flashId: true,
             },
           },
         },
@@ -76,9 +69,9 @@ const get = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const hours = date.getHours();
   const minutes = date.getMinutes();
   const filteredUsers = displayedUsers
-    .filter((_user) => {
+    .map((_user) => {
       if (!_user.lat || !_user.lng) {
-        return false;
+        return;
       }
 
       const inPrivateTime = _user.privateTime.find((p) => {
@@ -94,7 +87,7 @@ const get = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       });
 
       if (inPrivateTime) {
-        return false;
+        return;
       }
 
       const { lat: _lat, lng: _lng } = handleUserLocationCrypt(
@@ -108,11 +101,33 @@ const get = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
         units: "kilometers",
       });
 
-      return distanceResult < query.range;
+      if (distanceResult > query.range) {
+        return;
+      }
+
+      const { lat, lng, privateTime, flashes, ...userData } = _user;
+      // const viewerViewedFlasheIds = flashes
+      //   .map((f) => f.specificUserViewed)
+      //   .filter((f) => f.length)
+      //   .map((f) => f[0].flashId);
+      // const viewedAllFlashes = viewerViewedFlasheIds.length === flashes.length;
+
+      return {
+        ...userData,
+        lat: _lat,
+        lng: _lng,
+        flashes,
+        // flashesData: {
+        //   entities: flashes,
+        //   viewerViewedFlasheIds,
+        //   viewedAllFlashes,
+        // },
+      };
     })
+    .filter((a): a is Exclude<typeof a, undefined> => a !== undefined)
     .sort((a, b) => {
-      const locationA = handleUserLocationCrypt(a.lat!, a.lng!, "decrypt");
-      const locationB = handleUserLocationCrypt(b.lat!, b.lng!, "decrypt");
+      const locationA = { lat: a.lat, lng: b.lng };
+      const locationB = { lat: b.lat, lng: b.lng };
 
       const distanceA = distance(
         point([locationA.lng, locationA.lat]),
@@ -124,23 +139,6 @@ const get = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       );
 
       return distanceA < distanceB ? -1 : 1;
-    })
-    .map((f) => {
-      const { lat, lng, privateTime, flashes, ...filteredData } = f;
-      const viewerViewedFlasheIds = flashes
-        .map((f) => f.specificUserViewed)
-        .filter((f) => f.length)
-        .map((f) => f[0].flashId);
-      const viewedAllFlashes = viewerViewedFlasheIds.length === flashes.length;
-
-      return {
-        ...filteredData,
-        flashesData: {
-          entities: flashes,
-          viewerViewedFlasheIds,
-          viewedAllFlashes,
-        },
-      };
     });
 
   return filteredUsers;
