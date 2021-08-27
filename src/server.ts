@@ -36,6 +36,7 @@ import { recommendationsPlugin } from "~/plugins/recommendations";
 import { recommendationClientNotificationsPlugin } from "~/plugins/recommendationClientNotifications";
 import { userHideRecommendatoinsPlugin } from "~/plugins/userHideRecommnedations";
 import { recommendationClientReadNotificationPlugin } from "~/plugins/recommendationClientReadNotification";
+import { blockesRoute } from "~/routes/block";
 
 const server = Hapi.server({
   port: process.env.PORT || 4001,
@@ -143,6 +144,8 @@ export const initializeServer = async () => {
     userHideRecommendatoinsPlugin,
     recommendationClientReadNotificationPlugin,
   ]);
+  // シンプルにルート定義するためだけにplugin設定する必要ない。
+  blockesRoute(server);
 
   await server.initialize();
 
