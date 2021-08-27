@@ -45,6 +45,8 @@ model User {
   privateZone PrivateZone[]
   privateTime PrivateTime[]
   hideRecommendation UserHideRecommendation[]
+  blocks Block[] @relation("blockBy") // 自分がブロックした側
+  blocked Block[] @relation("blockTo") // ブロックされた側
 
   @@index([display, login, inPrivateZone, geohash, lat, lng])
   @@index([lineId])
@@ -312,6 +314,17 @@ model RecommendationClientReadNotification {
 
   @@index([clientId])
   @@unique([clientId, notificationId])
+}
+
+model Block {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  blockBy String // ブロックした方
+  blockTo String // ブロックされた方
+  blocker User @relation("blockBy", fields: [blockBy], references: [id])
+  blocked User @relation("blockTo", fields: [blockTo], references: [id])
+
+  @@unique([blockBy, blockTo])
 }
 
 
