@@ -352,6 +352,16 @@ const getUserPageInfo = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
           },
         },
       },
+      blocks: {
+        select: {
+          blockTo: true,
+        },
+      },
+      blocked: {
+        select: {
+          blockBy: true,
+        },
+      },
     },
   });
 
@@ -359,7 +369,17 @@ const getUserPageInfo = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     return throwInvalidError();
   }
 
-  return user;
+  const { blocked, blocks, ...userwithoutBlockData } = user;
+
+  const blockTo = blocked.some((b) => b.blockBy === me.id); // リクエストしたユーザーが取得したユーザーをブロックしてるかどうか
+  const blockBy = blocks.some((b) => b.blockTo === me.id); // リクエストしたユーザーが取得したユーザーにブロックされているかどうか
+
+  return {
+    ...userwithoutBlockData,
+    posts: blockTo || blockBy ? [] : user.posts,
+    flashes: blockTo || blockBy ? [] : user.flashes,
+    blockTo,
+  };
 };
 
 const refreshMyData = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {

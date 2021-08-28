@@ -17,5 +17,16 @@ export const blockesRoute = async (server: Hapi.Server) => {
         },
       },
     },
+    {
+      method: "DELETE",
+      path: `${baseUrl}/users/{userId}/block`,
+      handler: handlers._delete,
+      options: {
+        validate: {
+          params: validaotors.delete.validaotor.params,
+          failAction: validaotors.delete.failAction,
+        },
+      },
+    },
   ]);
 };
