@@ -43,6 +43,16 @@ const get = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       lng: {
         not: null,
       },
+      blocks: {
+        none: {
+          blockTo: user.id,
+        },
+      },
+      blocked: {
+        none: {
+          blockBy: user.id,
+        },
+      },
     },
     select: {
       id: true,
