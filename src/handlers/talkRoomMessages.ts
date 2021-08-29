@@ -23,6 +23,20 @@ const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const params = req.params as CreateParams;
   const talkRoomId = Number(params.talkRoomId);
 
+  const blcokPartner = await prisma.block.findUnique({
+    where: {
+      blockBy_blockTo: {
+        blockBy: user.id,
+        blockTo: payload.partnerId,
+      },
+    },
+  });
+
+  // メッセージを送った側が相手をブロックしている場合何もしないでエラー返す
+  if (blcokPartner) {
+    return throwInvalidError("このユーザーをブロックしています");
+  }
+
   const talkRoom = await prisma.talkRoom.findFirst({
     where: {
       id: talkRoomId,
