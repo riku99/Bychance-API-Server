@@ -373,11 +373,17 @@ const getUserPageInfo = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
 
   const blockTo = blocked.some((b) => b.blockBy === me.id); // リクエストしたユーザーが取得したユーザーをブロックしてるかどうか
   const blockBy = blocks.some((b) => b.blockTo === me.id); // リクエストしたユーザーが取得したユーザーにブロックされているかどうか
+  const block = blockTo || blockBy;
 
   return {
     ...userwithoutBlockData,
-    posts: blockTo || blockBy ? [] : user.posts,
-    flashes: blockTo || blockBy ? [] : user.flashes,
+    posts: block ? [] : user.posts,
+    flashes: block ? [] : user.flashes,
+    introduce: block ? "" : user.introduce,
+    instagram: block ? null : user.instagram,
+    twitter: block ? null : user.twitter,
+    youtube: block ? null : user.youtube,
+    tiktok: block ? null : user.tiktok,
     blockTo,
   };
 };
