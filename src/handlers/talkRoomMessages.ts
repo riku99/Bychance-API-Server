@@ -73,11 +73,23 @@ const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       recipient: {
         include: {
           deviceToken: true,
+          blocks: {
+            where: {
+              blockBy: payload.partnerId,
+              blockTo: user.id,
+            },
+          },
         },
       },
       sender: {
         include: {
           deviceToken: true,
+          blocks: {
+            where: {
+              blockBy: payload.partnerId,
+              blockTo: user.id,
+            },
+          },
         },
       },
     },
@@ -96,12 +108,22 @@ const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       ? talkRoom.sender
       : talkRoom.recipient;
 
+  // 送信した側のユーザーが相手にブロックされているかどうか
+  const blockedByPartner = await prisma.block.findUnique({
+    where: {
+      blockBy_blockTo: {
+        blockBy: payload.partnerId,
+        blockTo: user.id,
+      },
+    },
+  });
+
   const message = await prisma.talkRoomMessage.create({
     data: {
       userId: user.id,
       roomId: talkRoomId,
       text: payload.text,
-      receipt: partner.talkRoomMessageReceipt, // 送信相手のtalkRoomMessageReceiptがfalseなら「受け取られない」という意味でrecieptがfalseになる
+      receipt: blockedByPartner ? false : partner.talkRoomMessageReceipt, // 送信した側のユーザーが相手にブロックされていた場合相手には届けない。送信相手のtalkRoomMessageReceiptがfalseなら「受け取られない」という意味でfalse
     },
     select: {
       id: true,
@@ -112,8 +134,8 @@ const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     },
   });
 
-  // 送信相手がログアウト中 or メッセージを受け取らない設定にしている場合はこの時点でリターン。push通知もsocketのイベントも起こさない
-  if (!partner.talkRoomMessageReceipt || !partner.login) {
+  // メッセージを受け取らない設定にしている or 送信相手がログアウト中 or 相手にブロックされている場合はこの時点でリターン。push通知もsocketのイベントも起こさない
+  if (!partner.talkRoomMessageReceipt || !partner.login || blockedByPartner) {
     return {
       talkRoomPrecence: true,
       message,
