@@ -155,6 +155,7 @@ const get = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
           id: true,
           name: true,
           avatar: true,
+          blocked: true,
         },
       },
       recipient: {
@@ -162,6 +163,7 @@ const get = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
           id: true,
           name: true,
           avatar: true,
+          blocked: true,
         },
       },
     },
