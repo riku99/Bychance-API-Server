@@ -240,41 +240,6 @@ const deleteLocation = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   return h.response().code(200);
 };
 
-const changeDisplay = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
-  const user = req.auth.artifacts as Artifacts;
-  const payload = req.payload as ChangeUserDisplayPayload;
-
-  await prisma.user.update({
-    where: { id: user.id },
-    data: {
-      display: payload.display,
-    },
-  });
-
-  return h.response().code(200);
-};
-
-const changeVideoEditDescription = async (
-  req: Hapi.Request,
-  h: Hapi.ResponseToolkit
-) => {
-  const user = req.auth.artifacts as Artifacts;
-  const payload = req.payload as ChangeVideoEditDescriptionPayload;
-
-  try {
-    await prisma.user.update({
-      where: {
-        id: user.id,
-      },
-      data: {
-        videoEditDescription: payload.videoEditDescription,
-      },
-    });
-  } catch {}
-
-  return h.response().code(200);
-};
-
 const changeTalkRoomMessageReceipt = async (
   req: Hapi.Request,
   h: Hapi.ResponseToolkit

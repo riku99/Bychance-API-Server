@@ -76,28 +76,28 @@ export const usersRoute = async (server: Hapi.Server) => {
       path: usersLocation,
       handler: handlers.deleteLocation,
     },
-    {
-      method: "PATCH",
-      path: `${baseUrl}/users/display`,
-      handler: handlers.changeDisplay,
-      options: {
-        validate: {
-          payload: changeUserDisplayValidator.validator.payload,
-          failAction: changeUserDisplayValidator.failAction,
-        },
-      },
-    },
-    {
-      method: "PATCH",
-      path: `${baseUrl}/users/videoEditDescription`,
-      handler: handlers.changeVideoEditDescription,
-      options: {
-        validate: {
-          payload: changeVideoEditDescriptionValidator.validator.payload,
-          failAction: changeVideoEditDescriptionValidator.failAction,
-        },
-      },
-    },
+    // {
+    //   method: "PATCH",
+    //   path: `${baseUrl}/users/display`,
+    //   handler: handlers.changeDisplay,
+    //   options: {
+    //     validate: {
+    //       payload: changeUserDisplayValidator.validator.payload,
+    //       failAction: changeUserDisplayValidator.failAction,
+    //     },
+    //   },
+    // },
+    // {
+    //   method: "PATCH",
+    //   path: `${baseUrl}/users/videoEditDescription`,
+    //   handler: handlers.changeVideoEditDescription,
+    //   options: {
+    //     validate: {
+    //       payload: changeVideoEditDescriptionValidator.validator.payload,
+    //       failAction: changeVideoEditDescriptionValidator.failAction,
+    //     },
+    //   },
+    // },
     {
       method: "PATCH",
       path: `${baseUrl}/users/talkRoomMessageReceipt`,
