@@ -7,6 +7,7 @@ import {
   ChangeDisplayPaylaod,
   ChangeVideoEditDescriptionPayload,
   ChangeTalkRoomMessageReceipt,
+  ChangeShowReceiveMessage,
 } from "~/routes/userSettings/validator";
 
 const prisma = new PrismaClient();
@@ -73,8 +74,28 @@ const changeTalkRoomMessageReceipt = async (
   return h.response().code(200);
 };
 
+const changeShowReceiveMessage = async (
+  req: Hapi.Request,
+  h: Hapi.ResponseToolkit
+) => {
+  const user = req.auth.artifacts as Artifacts;
+  const payload = req.payload as ChangeShowReceiveMessage;
+
+  await prisma.user.update({
+    where: {
+      id: user.id,
+    },
+    data: {
+      showReceiveMessage: payload.showReceiveMessage,
+    },
+  });
+
+  return h.response().code(200);
+};
+
 export const handlers = {
   changeDisplay,
   changeVideoEditDescription,
   changeTalkRoomMessageReceipt,
+  changeShowReceiveMessage,
 };

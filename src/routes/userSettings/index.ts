@@ -40,5 +40,16 @@ export const userSettingsRoute = async (server: Hapi.Server) => {
         },
       },
     },
+    {
+      method: "PUT",
+      path: `${baseUrl}/users/showReceiveMessage`,
+      handler: handlers.changeShowReceiveMessage,
+      options: {
+        validate: {
+          payload: validators.changeShowReceiveMessage.validator.payload,
+          failAction: validators.changeShowReceiveMessage.failAction,
+        },
+      },
+    },
   ]);
 };

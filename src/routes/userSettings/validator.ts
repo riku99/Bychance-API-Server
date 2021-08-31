@@ -31,6 +31,15 @@ const talkRoomMessageReceiptValidation = {
   }),
 };
 
+export type ChangeShowReceiveMessage = {
+  showReceiveMessage: boolean;
+};
+const changeShowReceiveMessageValidation = {
+  payload: Joi.object<ChangeShowReceiveMessage>({
+    showReceiveMessage: Joi.boolean().required(),
+  }),
+};
+
 export const validators = {
   changeDisplay: {
     validator: changeDisplayValidation,
@@ -42,6 +51,10 @@ export const validators = {
   },
   changeTalkRoomMessageReceipt: {
     validator: talkRoomMessageReceiptValidation,
+    failAction,
+  },
+  changeShowReceiveMessage: {
+    validator: changeShowReceiveMessageValidation,
     failAction,
   },
 };

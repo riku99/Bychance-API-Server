@@ -240,50 +240,6 @@ const deleteLocation = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   return h.response().code(200);
 };
 
-const changeTalkRoomMessageReceipt = async (
-  req: Hapi.Request,
-  h: Hapi.ResponseToolkit
-) => {
-  const user = req.auth.artifacts as Artifacts;
-  const payload = req.payload as ChangeTalkRoomMessageReceipt;
-
-  try {
-    await prisma.user.update({
-      where: {
-        id: user.id,
-      },
-      data: {
-        talkRoomMessageReceipt: payload.receipt,
-      },
-    });
-  } catch {}
-
-  return h.response().code(200);
-};
-
-const changeShowReceiveMessage = async (
-  req: Hapi.Request,
-  h: Hapi.ResponseToolkit
-) => {
-  const user = req.auth.artifacts as Artifacts;
-  const payload = req.payload as ChangeShowReceiveMessage;
-
-  try {
-    await prisma.user.update({
-      where: {
-        id: user.id,
-      },
-      data: {
-        showReceiveMessage: payload.showReceiveMessage,
-      },
-    });
-  } catch {
-    return throwInvalidError("変更に失敗しました");
-  }
-
-  return h.response().code(200);
-};
-
 const getUserPageInfo = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const me = req.auth.artifacts as Artifacts;
   const params = req.params as GetUserParams;
@@ -427,10 +383,6 @@ export const handlers = {
   updateUser,
   refreshUser,
   updateLocation,
-  changeDisplay,
-  changeVideoEditDescription,
-  changeTalkRoomMessageReceipt,
-  changeShowReceiveMessage,
   deleteLocation,
   getUserPageInfo,
   refreshMyData,
