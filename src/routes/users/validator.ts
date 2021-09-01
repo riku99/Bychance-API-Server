@@ -1,5 +1,4 @@
 import Joi, { boolean } from "joi";
-import { User } from "@prisma/client";
 
 import { throwInvalidError } from "~/helpers/errors";
 
@@ -86,74 +85,6 @@ const locationFailAction = () => {
 export const updateLocationValidator = {
   validate: location,
   failAction: locationFailAction,
-};
-
-export type ChangeUserDisplayPayload = {
-  display: boolean;
-};
-
-const displayValidation = {
-  payload: Joi.object<ChangeUserDisplayPayload>({
-    display: Joi.boolean().required(),
-  }),
-};
-
-const changeUserDisplayFailAction = () => {
-  return throwInvalidError();
-};
-
-export const changeUserDisplayValidator = {
-  validator: displayValidation,
-  failAction: changeUserDisplayFailAction,
-};
-
-export type ChangeVideoEditDescriptionPayload = {
-  videoEditDescription: boolean;
-};
-
-const videoEditDesctiptionValidation = {
-  payload: Joi.object<ChangeVideoEditDescriptionPayload>({
-    videoEditDescription: Joi.boolean().required(),
-  }),
-};
-
-const videoEditDescriptionFailAction = () => throwInvalidError();
-
-export const changeVideoEditDescriptionValidator = {
-  validator: videoEditDesctiptionValidation,
-  failAction: videoEditDescriptionFailAction,
-};
-
-export type ChangeTalkRoomMessageReceipt = {
-  receipt: boolean;
-};
-
-const talkRoomMessageReceiptValidation = {
-  payload: Joi.object<ChangeTalkRoomMessageReceipt>({
-    receipt: Joi.boolean().required(),
-  }),
-};
-
-const talkRoomMessageReceiptFailAction = () => throwInvalidError();
-
-export const changeTalkRoomMessageReceiptValidator = {
-  validator: talkRoomMessageReceiptValidation,
-  failAction: talkRoomMessageReceiptFailAction,
-};
-
-export type ChangeShowReceiveMessage = {
-  showReceiveMessage: boolean;
-};
-
-const changeShowReceiveMessageValidation = {
-  payload: Joi.object<ChangeShowReceiveMessage>({
-    showReceiveMessage: Joi.boolean().required(),
-  }),
-};
-
-export const changeShowReceiveMessageValidator = {
-  validator: changeShowReceiveMessageValidation,
-  failAction: () => throwInvalidError(),
 };
 
 export type GetUserParams = {

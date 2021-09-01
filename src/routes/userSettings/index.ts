@@ -31,7 +31,7 @@ export const userSettingsRoute = async (server: Hapi.Server) => {
     },
     {
       method: "PUT",
-      path: `${baseUrl}/talkRoomMessageReceipt`,
+      path: `${baseUrl}/users/talkRoomMessageReceipt`,
       handler: handlers.changeTalkRoomMessageReceipt,
       options: {
         validate: {

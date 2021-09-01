@@ -9,10 +9,6 @@ import {
   UpdateUserPayload,
   RefreshUserParams,
   UpdateLocationPayload,
-  ChangeUserDisplayPayload,
-  ChangeVideoEditDescriptionPayload,
-  ChangeTalkRoomMessageReceipt,
-  ChangeShowReceiveMessage,
   GetUserParams,
 } from "~/routes/users/validator";
 import { serializeUser } from "~/serializers/user";
