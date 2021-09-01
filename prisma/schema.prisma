@@ -33,6 +33,7 @@ model User {
   inPrivateZone        Boolean                @default(false)
   geohash              String? // 6桁のgeohashのハッシュ。Userの取得などで使用
   geohash7             String? // 7桁のgeohashのハッシュ。Recommendationの取得などで使用
+  intro                Boolean                @default(false)
   flashes              Flash[]
   posts                Post[]
   readTalkRoomMessages ReadTalkRoomMessage[]
