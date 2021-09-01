@@ -152,6 +152,7 @@ export const sessionLogin = async (
       display: true,
       talkRoomMessageReceipt: true,
       showReceiveMessage: true,
+      intro: true,
       posts: {
         orderBy: {
           createdAt: "desc",
