@@ -26,6 +26,17 @@ const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     endTime,
   } = req.payload as CreateRecommendatoinPayload;
 
+  const existing = await prisma.recommendation.findFirst({
+    where: {
+      display: true,
+      clientId: client.id,
+    },
+  });
+
+  if (existing) {
+    return throwInvalidError("一度に複数の掲載をすることはできません");
+  }
+
   let s3PromiseData: Promise<void | UrlData>[] = [];
   images.forEach((data) => {
     s3PromiseData.push(

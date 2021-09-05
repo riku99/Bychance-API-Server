@@ -51,5 +51,16 @@ export const userSettingsRoute = async (server: Hapi.Server) => {
         },
       },
     },
+    {
+      method: "PUT",
+      path: `${baseUrl}/users/intro`,
+      handler: handlers.changeIntro,
+      options: {
+        validate: {
+          payload: validators.changeIntro.validator.payload,
+          failAction: validators.changeIntro.failAction,
+        },
+      },
+    },
   ]);
 };

@@ -40,6 +40,15 @@ const changeShowReceiveMessageValidation = {
   }),
 };
 
+export type ChangeIntro = {
+  intro: boolean;
+};
+const changeIntroValidation = {
+  payload: Joi.object<ChangeIntro>({
+    intro: Joi.boolean().required(),
+  }),
+};
+
 export const validators = {
   changeDisplay: {
     validator: changeDisplayValidation,
@@ -55,6 +64,10 @@ export const validators = {
   },
   changeShowReceiveMessage: {
     validator: changeShowReceiveMessageValidation,
+    failAction,
+  },
+  changeIntro: {
+    validator: changeIntroValidation,
     failAction,
   },
 };
