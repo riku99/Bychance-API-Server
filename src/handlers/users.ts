@@ -7,7 +7,6 @@ import geohash from "ngeohash";
 import { Artifacts } from "~/auth/bearer";
 import {
   UpdateUserPayload,
-  RefreshUserParams,
   UpdateLocationPayload,
   GetUserParams,
 } from "~/routes/users/validator";
@@ -15,13 +14,6 @@ import { serializeUser } from "~/serializers/user";
 import { createS3ObjectPath } from "~/helpers/aws";
 import { throwInvalidError } from "~/helpers/errors";
 import { handleUserLocationCrypt, createHash } from "~/helpers/crypto";
-import { createAnotherUser } from "~/helpers/anotherUser";
-import { flashIncludes, postIncludes } from "~/prisma/includes";
-import {
-  createClientFlashes,
-  createClientFlashStamps,
-} from "~/helpers/flashes";
-import { createClientPosts } from "~/helpers/posts";
 import { geohashPrecision } from "~/constants";
 
 const prisma = new PrismaClient();
@@ -100,64 +92,6 @@ const updateUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   });
 
   return serializeUser({ user: updatedUser });
-};
-
-const refreshUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
-  const user = req.auth.artifacts as Artifacts;
-  const params = req.params as RefreshUserParams;
-
-  const isMyData = user.id === params.userId;
-
-  const refreshData = await prisma.user.findUnique({
-    where: { id: params.userId },
-    include: {
-      ...postIncludes,
-      ...flashIncludes,
-    },
-  });
-
-  if (!refreshData) {
-    return throwInvalidError("ユーザーが存在しません");
-  }
-
-  if (isMyData) {
-    const { posts: _posts, flashes: _flashes, ...restUserData } = refreshData;
-    const user = serializeUser({ user: restUserData });
-    const posts = createClientPosts(_posts);
-    const flashes = createClientFlashes(_flashes);
-    const flashStamps = createClientFlashStamps(_flashes);
-
-    return {
-      isMyData,
-      user,
-      posts,
-      flashes,
-      flashStamps,
-    };
-  } else {
-    const viewedFlashes = await prisma.viewedFlash.findMany({
-      where: {
-        userId: user.id,
-      },
-    });
-    const { posts, flashes, ...userData } = refreshData;
-    const flashStamps = createClientFlashStamps(flashes);
-
-    const data = createAnotherUser({
-      user: userData,
-      posts,
-      flashes,
-      viewedFlashes,
-    });
-
-    return {
-      isMyData,
-      data: {
-        user: data,
-        flashStamps,
-      },
-    };
-  }
 };
 
 const updateLocation = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
@@ -377,7 +311,6 @@ const refreshMyData = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
 
 export const handlers = {
   updateUser,
-  refreshUser,
   updateLocation,
   deleteLocation,
   getUserPageInfo,

@@ -2,7 +2,6 @@ import Hapi from "@hapi/hapi";
 
 import {
   updateUserValidator,
-  refreshUserValidator,
   updateLocationValidator,
   validators,
 } from "./validator";
@@ -41,17 +40,6 @@ export const usersRoute = async (server: Hapi.Server) => {
         },
         payload: {
           maxBytes,
-        },
-      },
-    },
-    {
-      method: "GET",
-      path: `${baseUrl}/users/refresh/{userId}`,
-      handler: handlers.refreshUser,
-      options: {
-        validate: {
-          params: refreshUserValidator.validate.params,
-          failAction: refreshUserValidator.failAction,
         },
       },
     },

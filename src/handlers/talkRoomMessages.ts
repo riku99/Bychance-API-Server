@@ -7,11 +7,8 @@ import {
   CreateParams,
   GetsParams,
 } from "~/routes/talkRoomMessages/validator";
-import { serializeTalkRoomMessage } from "~/serializers/talkRoomMessage";
-import { serializeTalkRoom } from "~/serializers/talkRoom";
 import { talkRoomMessageNameSpace } from "~/server";
 import { throwInvalidError } from "~/helpers/errors";
-import { createAnotherUser } from "~/helpers/anotherUser";
 import { pushNotificationToMany } from "~/helpers/pushNotification";
 import { IotData } from "aws-sdk";
 

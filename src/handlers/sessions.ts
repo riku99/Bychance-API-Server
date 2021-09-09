@@ -1,6 +1,6 @@
 import Hapi from "@hapi/hapi";
 import axios, { AxiosResponse } from "axios";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, UnwrapPromise } from "@prisma/client";
 
 import {
   createHash,
@@ -9,11 +9,43 @@ import {
 } from "~/helpers/crypto";
 import { LineLoginHeaders } from "~/routes/sessions/validator";
 import { throwLoginError } from "~/helpers/errors";
-import { createClientData } from "~/helpers/clientData";
 import { createClientIncludes } from "~/prisma/includes";
 import { Artifacts } from "~/auth/bearer";
+import { getLoginData } from "~/db/query/sessions";
 
 const prisma = new PrismaClient();
+
+const formLoginData = (
+  data: UnwrapPromise<NonNullable<ReturnType<typeof getLoginData>>>
+) => {
+  if (!data) {
+    return;
+  }
+  const { posts, flashes, ...userData } = data;
+  const { lat, lng, ...restUserData } = userData;
+  let decryptedLat: number | null = null;
+  let decryptedLng: number | null = null;
+  if (lat && lng) {
+    const { lat: _lat, lng: _lng } = handleUserLocationCrypt(
+      lat,
+      lng,
+      "decrypt"
+    );
+
+    decryptedLat = _lat;
+    decryptedLng = _lng;
+  }
+
+  return {
+    user: {
+      ...restUserData,
+      lat: decryptedLat,
+      lng: decryptedLng,
+    },
+    posts,
+    flashes,
+  };
+};
 
 const lineLogin = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const headers = req.headers as LineLoginHeaders;
@@ -45,72 +77,53 @@ const lineLogin = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
 
   const lineId = res!.data.sub as string;
   const hashedLineId = createHash(lineId); // lineIdのDBへの保存はハッシュ化
-
-  const existingUser = await prisma.user.findFirst({
-    where: { lineId: hashedLineId },
-  });
-
   const accessToken = createRandomString(); // ユーザー側で保存
   const hashededAccessToken = createHash(accessToken); // DBに保存
-
   const name = res!.data.name;
   const avatar = res!.data.picture ? (res!.data.picture as string) : null;
 
-  const user = existingUser
-    ? // userが存在する場合はそれを返す
-      await prisma.user.update({
-        where: {
-          id: existingUser.id,
-        },
-        data: {
-          accessToken: hashededAccessToken,
-        },
-        include: createClientIncludes,
-      })
-    : // 新規の場合は新たに作成
-      await prisma.user.create({
-        data: {
-          lineId: hashedLineId,
-          accessToken: hashededAccessToken,
-          name,
-          avatar,
-        },
-        include: createClientIncludes,
-      });
+  const existingUser = await prisma.user.findUnique({
+    where: { lineId: hashedLineId },
+    select: {
+      id: true,
+    },
+  });
 
-  if (!user.login) {
+  let loginData;
+
+  if (existingUser) {
+    console.log(existingUser);
+    console.log(accessToken);
+    console.log(hashededAccessToken);
+    // 既に存在していた場合はアクセストークンと、(おそらくログアウト状態だったので)loginを更新
     await prisma.user.update({
       where: {
-        id: user.id,
+        id: existingUser.id,
       },
       data: {
+        accessToken: hashededAccessToken,
         login: true,
       },
     });
+
+    loginData = await getLoginData(existingUser.id);
+  } else {
+    const newUser = await prisma.user.create({
+      data: {
+        lineId: hashedLineId,
+        accessToken: hashededAccessToken,
+        name,
+        avatar,
+      },
+    });
+
+    loginData = await getLoginData(newUser.id);
   }
 
-  const {
-    posts,
-    flashes,
-    senderTalkRooms,
-    recipientTalkRooms,
-    talkRoomMessages,
-    readTalkRoomMessages,
-    viewedFlashes,
-    ...rest
-  } = user;
-
-  const clientData = createClientData({
-    user: rest,
-    posts,
-    flashes,
-    readTalkRoomMessages,
-    viewedFlashes,
-    senderTalkRooms,
-    recipientTalkRooms,
-  });
-
-  return { ...clientData, accessToken };
+  return {
+    ...formLoginData(loginData),
+    accessToken,
+  };
 };
 
 export const sessionLogin = async (
@@ -130,76 +143,13 @@ export const sessionLogin = async (
     });
   }
 
-  const data = await prisma.user.findUnique({
-    where: {
-      id: user.id,
-    },
-    select: {
-      id: true,
-      name: true,
-      avatar: true,
-      introduce: true,
-      backGroundItem: true,
-      backGroundItemType: true,
-      instagram: true,
-      twitter: true,
-      youtube: true,
-      tiktok: true,
-      videoEditDescription: true,
-      statusMessage: true,
-      lat: true,
-      lng: true,
-      display: true,
-      talkRoomMessageReceipt: true,
-      showReceiveMessage: true,
-      intro: true,
-      posts: {
-        orderBy: {
-          createdAt: "desc",
-        },
-      },
-      flashes: {
-        include: {
-          viewed: {
-            select: {
-              userId: true,
-            },
-          },
-        },
-      },
-    },
-  });
+  const data = await getLoginData(user.id);
 
   if (!data) {
     return throwLoginError();
   }
 
-  const { posts, flashes, ...userData } = data;
-  const { lat, lng, ...restUserData } = userData;
-  let decryptedLat: number | null = null;
-  let decryptedLng: number | null = null;
-  if (lat && lng) {
-    const { lat: _lat, lng: _lng } = handleUserLocationCrypt(
-      lat,
-      lng,
-      "decrypt"
-    );
-
-    decryptedLat = _lat;
-    decryptedLng = _lng;
-  }
-
-  const response = {
-    user: {
-      ...restUserData,
-      lat: decryptedLat,
-      lng: decryptedLng,
-    },
-    posts,
-    flashes,
-  };
-
-  return response;
+  return formLoginData(data);
 };
 
 export const logout = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
@@ -224,12 +174,18 @@ export const logout = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
 };
 
 const sampleLogin = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
-  const data = await prisma.user.findUnique({
+  const sampleUser = await prisma.user.findUnique({
     where: { id: "46a4db78-c5c5-4d85-b11d-a32e93f025f1" },
-    include: createClientIncludes,
+    select: {
+      id: true,
+    },
   });
 
-  await prisma.user.update({
+  if (!sampleUser) {
+    return throwLoginError();
+  }
+
+  prisma.user.update({
     where: {
       id: "46a4db78-c5c5-4d85-b11d-a32e93f025f1",
     },
@@ -238,29 +194,10 @@ const sampleLogin = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     },
   });
 
-  const {
-    posts,
-    flashes,
-    senderTalkRooms,
-    recipientTalkRooms,
-    talkRoomMessages,
-    readTalkRoomMessages,
-    viewedFlashes,
-    ...rest
-  } = data!;
-
-  const clientData = createClientData({
-    user: rest,
-    posts,
-    flashes,
-    readTalkRoomMessages,
-    viewedFlashes,
-    senderTalkRooms,
-    recipientTalkRooms,
-  });
+  const data = await getLoginData(sampleUser.id);
 
   return {
-    ...clientData,
+    ...formLoginData(data),
     accessToken: "denzi",
   };
 };

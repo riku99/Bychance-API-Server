@@ -47,25 +47,6 @@ export const updateUserValidator = {
   failAction: updateFailAction,
 };
 
-export type RefreshUserParams = {
-  userId: string;
-};
-
-const refresh = {
-  params: Joi.object<RefreshUserParams>({
-    userId: Joi.string().required(),
-  }),
-};
-
-const refreshFailAction = () => {
-  return throwInvalidError();
-};
-
-export const refreshUserValidator = {
-  validate: refresh,
-  failAction: refreshFailAction,
-};
-
 export type UpdateLocationPayload = {
   lat: number;
   lng: number;
