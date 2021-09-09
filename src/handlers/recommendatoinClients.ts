@@ -1,5 +1,5 @@
 import Hapi from "@hapi/hapi";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, RecommendationClient } from "@prisma/client";
 import admin from "firebase-admin";
 import { throwInvalidError, throwLoginError } from "~/helpers/errors";
 import ngeohash from "ngeohash";
@@ -10,11 +10,42 @@ import {
   UpdateRecommendationClientPaylaod,
 } from "~/routes/recommendationClients/validator";
 import { RecommendationClientArtifacts } from "~/auth/bearer";
-import { createClientRecommendationClient } from "~/helpers/recommendationClients";
 import { createS3ObjectPath } from "~/helpers/aws";
 import { createHash } from "~/helpers/crypto";
 
 const prisma = new PrismaClient();
+
+const formRecommendationClient = (client: RecommendationClient) => {
+  const {
+    id,
+    name,
+    image,
+    lat,
+    lng,
+    address,
+    instagram,
+    twitter,
+    url,
+    enablePushNotification,
+    showedPostModal,
+    admin,
+  } = client;
+
+  return {
+    id,
+    name,
+    image,
+    lat,
+    lng,
+    address,
+    instagram,
+    twitter,
+    url,
+    enablePushNotification,
+    showedPostModal,
+    admin,
+  };
+};
 
 const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const payload = req.payload as CreateRecommendationClientPayload;
@@ -47,7 +78,7 @@ const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
 const get = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const client = req.auth.artifacts as RecommendationClientArtifacts;
 
-  return createClientRecommendationClient(client);
+  return formRecommendationClient(client);
 };
 
 const update = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
@@ -102,7 +133,7 @@ const update = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     },
   });
 
-  return createClientRecommendationClient(result);
+  return formRecommendationClient(result);
 };
 
 const changeShowedPostModal = async (

@@ -9,7 +9,6 @@ import {
 } from "~/helpers/crypto";
 import { LineLoginHeaders } from "~/routes/sessions/validator";
 import { throwLoginError } from "~/helpers/errors";
-import { createClientIncludes } from "~/prisma/includes";
 import { Artifacts } from "~/auth/bearer";
 import { getLoginData } from "~/db/query/sessions";
 
