@@ -10,7 +10,6 @@ import {
   UpdateLocationPayload,
   GetUserParams,
 } from "~/routes/users/validator";
-import { serializeUser } from "~/serializers/user";
 import { createS3ObjectPath } from "~/helpers/aws";
 import { throwInvalidError } from "~/helpers/errors";
 import { handleUserLocationCrypt, createHash } from "~/helpers/crypto";
@@ -89,9 +88,22 @@ const updateUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       backGroundItem: newBackGroundItem,
       backGroundItemType: newBackGroundItemType,
     },
+    select: {
+      id: true,
+      name: true,
+      avatar: true,
+      introduce: true,
+      statusMessage: true,
+      backGroundItem: true,
+      backGroundItemType: true,
+      instagram: true,
+      twitter: true,
+      youtube: true,
+      tiktok: true,
+    },
   });
 
-  return serializeUser({ user: updatedUser });
+  return updatedUser;
 };
 
 const updateLocation = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {

@@ -11,7 +11,6 @@ import {
 import { RecommendationClientArtifacts, Artifacts } from "~/auth/bearer";
 import { createS3ObjectPath, UrlData } from "~/helpers/aws";
 import { throwInvalidError } from "~/helpers/errors";
-import { ClientRecommendation } from "~/types";
 import { createHash } from "~/helpers/crypto";
 
 const prisma = new PrismaClient();
@@ -87,10 +86,7 @@ const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   return h.response().code(200);
 };
 
-const getForClient = async (
-  req: Hapi.Request,
-  h: Hapi.ResponseToolkit
-): Promise<ClientRecommendation[]> => {
+const getForClient = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const client = req.auth.artifacts as RecommendationClientArtifacts;
   const { type } = req.query as GetRecommendationsForClientQuery;
 
