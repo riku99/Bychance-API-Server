@@ -31,6 +31,9 @@ model User {
   login                Boolean                @default(true)
   showReceiveMessage   Boolean                @default(true)
   inPrivateZone        Boolean                @default(false)
+  geohash              String? // 6桁のgeohashのハッシュ。Userの取得などで使用
+  geohash7             String? // 7桁のgeohashのハッシュ。Recommendationの取得などで使用
+  intro                Boolean                @default(false)
   flashes              Flash[]
   posts                Post[]
   readTalkRoomMessages ReadTalkRoomMessage[]
@@ -38,13 +41,15 @@ model User {
   senderTalkRooms      TalkRoom[]            @relation("sender")
   talkRoomMessages     TalkRoomMessage[]
   viewedFlashes        ViewedFlash[]
-  deleteTalkRooms DeleteTalkRoom[]
   deviceToken DeviceToken[]
   flashStamps FlashStamp[]
   privateZone PrivateZone[]
   privateTime PrivateTime[]
+  hideRecommendation UserHideRecommendation[]
+  blocks Block[] @relation("blockBy") // 自分がブロックした側
+  blocked Block[] @relation("blockTo") // ブロックされた側
 
-  @@index([display, login, inPrivateZone])
+  @@index([display, login, inPrivateZone, geohash, lat, lng])
   @@index([lineId])
   @@index([accessToken])
 }
@@ -54,7 +59,6 @@ model Post {
   text      String?
   url       String
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
   userId    String
   sourceType PostSourceTypeRole @default(image)
   user      User     @relation(fields: [userId], references: [id])
@@ -66,11 +70,11 @@ model Flash {
   id         Int                 @id @default(autoincrement())
   source     String
   createdAt  DateTime            @default(now())
-  updatedAt  DateTime            @updatedAt
   sourceType FlashSourceTypeRole
   userId     String
   user       User                @relation(fields: [userId], references: [id])
-  viewed     ViewedFlash[]
+  viewed     ViewedFlash[]       @relation("allViewed")
+  specificUserViewed ViewedFlash[]  @relation("specificUserViewed")
   stamps FlashStamp[]
 
   @@index([userId])
@@ -92,8 +96,9 @@ model TalkRoom {
   recipient            User                  @relation("recipient", fields: [recipientId], references: [id])
   sender               User                  @relation("sender", fields: [senderId], references: [id])
   readTalkRoomMessages ReadTalkRoomMessage[]
-  messages             TalkRoomMessage[]
-  deleteTalkRooms DeleteTalkRoom[]
+  lastMessage          TalkRoomMessage[]    @relation("lastMessage")
+  messages             TalkRoomMessage[]   @relation("Messages")
+  unreadMessages       TalkRoomMessage[]   @relation("UnreadMessages")
 
   @@unique([senderId, recipientId], name: "senderId_recipientId_unique")
   @@index([senderId, recipientId], name: "senderId_recipientId_index")
@@ -108,11 +113,14 @@ model TalkRoomMessage {
   userId               String
   roomId               Int
   receipt              Boolean               @default(true)
-  room                 TalkRoom              @relation(fields: [roomId], references: [id])
+  room                 TalkRoom              @relation("Messages", fields: [roomId], references: [id])
+  unread               TalkRoom              @relation("UnreadMessages", fields: [roomId], references: [id])
+  last                 TalkRoom              @relation("lastMessage", fields: [roomId], references: [id])
   user                 User                  @relation(fields: [userId], references: [id])
   readTalkRoomMessages ReadTalkRoomMessage[]
 
   @@index([userId, roomId])
+  @@index([userId, receipt])
   @@index([roomId])
 }
 
@@ -122,8 +130,9 @@ model ViewedFlash {
   updatedAt DateTime @updatedAt
   userId    String
   flashId   Int
-  flash     Flash    @relation(fields: [flashId], references: [id])
+  flash     Flash    @relation("allViewed", fields: [flashId], references: [id])
   user      User     @relation(fields: [userId], references: [id])
+  specificUserViewed  Flash @relation("specificUserViewed", fields: [flashId], references: [id])
 
   @@unique([userId, flashId], name: "userId_flashId_unique") // viewedFlash.userId_flashId_uniqueのように.つけて定義するとエラーになる
   @@index([flashId])
@@ -147,17 +156,17 @@ model ReadTalkRoomMessage {
   @@index([roomId])
 }
 
-model DeleteTalkRoom {
-  id Int @id @default(autoincrement())
-  createdAt DateTime        @default(now())
-  updatedAt DateTime        @updatedAt
-  userId    String
-  talkRoomId Int
-  user User @relation(fields: [userId], references: [id])
-  talkRoom TalkRoom @relation(fields: [talkRoomId], references: [id])
-  @@index([userId, talkRoomId])
-  @@unique([userId, talkRoomId])
-}
+// model DeleteTalkRoom {
+//   id Int @id @default(autoincrement())
+//   createdAt DateTime        @default(now())
+//   updatedAt DateTime        @updatedAt
+//   userId    String
+//   talkRoomId Int
+//   user User @relation(fields: [userId], references: [id])
+//   talkRoom TalkRoom @relation(fields: [talkRoomId], references: [id])
+//   @@index([userId, talkRoomId])
+//   @@unique([userId, talkRoomId])
+// }
 
 // https://rnfirebase.io/messaging/server-integration
 // A user can have more than one token (for example using 2 devices) so it's important to ensure that we store all tokens in the database.
@@ -176,7 +185,6 @@ model DeviceToken {
 model FlashStamp {
   id Int @id @default(autoincrement())
   createdAt DateTime        @default(now())
-  updatedAt DateTime        @updatedAt
   value FlashStampValue
   userId String
   flashId Int
@@ -213,6 +221,113 @@ model PrivateTime {
 
   @@index([userId])
 }
+
+// おすすめ機能が使えるクライアントのこと。
+model RecommendationClient {
+  id String @id @default(uuid())
+  uid String @unique // firebase内のid。認証認可で使用
+  name String
+  image String?
+  lat Float?
+  lng Float?
+  geohash String? // 7桁のgeohashのハッシュ
+  address String?
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  enablePushNotification Boolean             @default(false)
+  instagram String?
+  twitter String?
+  url String?
+  admin Boolean @default(false) // 管理ユーザーのみtrue
+  showedPostModal Boolean @default(false)
+  deleted Boolean @default(false) // アカウント削除を実行した場合はtrue
+  recommendations Recommendation[]
+  readNotifications RecommendationClientReadNotification[]
+
+  @@index([uid])
+  @@index([geohash])
+}
+
+model Recommendation{
+  id Int @id @default(autoincrement())
+  title String
+  text String
+  coupon Boolean
+  endTime DateTime?
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  display Boolean @default(true)
+  clientId String
+  client RecommendationClient @relation(fields: [clientId], references: [id])
+  hiddenRecommendations UserHideRecommendation[]
+  images RecommendationImage[]
+
+  @@index([clientId])
+}
+
+model RecommendationImage {
+  id Int @id @default(autoincrement())
+  createdAt            DateTime              @default(now())
+  url String
+  recommendationId Int
+  recommendation Recommendation @relation(fields: [recommendationId], references: [id])
+
+  @@index([recommendationId])
+}
+
+// ユーザーが非表示にしたレコメンデーションを記録。レコメンデーションクライアントが投稿を非表示にしたものとは別
+model UserHideRecommendation {
+  id Int @id @default(autoincrement())
+  createdAt            DateTime              @default(now())
+  userId String
+  recommendationId Int
+  user User @relation(fields: [userId], references: [id])
+  recommendation Recommendation @relation(fields: [recommendationId], references: [id])
+
+  @@index([userId])
+  @@index([recommendationId])
+}
+
+// RecommendationClientは誰でも作成できるわけではない。作成に必要なトークン
+model ClientSignupToken {
+  id Int @id @default(autoincrement())
+  createdAt            DateTime              @default(now())
+  token String @unique
+
+  @@index([token])
+}
+
+model RecommendationClientNotification {
+  id Int @id @default(autoincrement())
+  createdAt            DateTime              @default(now())
+  title String
+  text String
+  alreadyRead RecommendationClientReadNotification[]
+}
+
+model RecommendationClientReadNotification {
+  id Int @id @default(autoincrement())
+  createdAt            DateTime              @default(now())
+  clientId String
+  notificationId Int
+  client RecommendationClient @relation(fields: [clientId], references: [id])
+  notification RecommendationClientNotification @relation(fields: [notificationId], references: [id])
+
+  @@index([clientId])
+  @@unique([clientId, notificationId])
+}
+
+model Block {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  blockBy String // ブロックした方
+  blockTo String // ブロックされた方
+  blocker User @relation("blockBy", fields: [blockBy], references: [id])
+  blocked User @relation("blockTo", fields: [blockTo], references: [id])
+
+  @@unique([blockBy, blockTo])
+}
+
 
 enum FlashSourceTypeRole {
   image

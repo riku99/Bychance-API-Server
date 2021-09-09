@@ -9,6 +9,6 @@ COPY . /app
 RUN rm -rf node_modules/sharp
 RUN yarn add --arch=x64 --platform=linux sharp
 RUN chmod 744 ./prod.sh
-RUN ./prod.sh
+# RUN ./prod.sh
 RUN chmod 744 ./start.sh
 CMD ["./start.sh"]
