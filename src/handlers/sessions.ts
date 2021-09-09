@@ -92,9 +92,6 @@ const lineLogin = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   let loginData;
 
   if (existingUser) {
-    console.log(existingUser);
-    console.log(accessToken);
-    console.log(hashededAccessToken);
     // 既に存在していた場合はアクセストークンと、(おそらくログアウト状態だったので)loginを更新
     await prisma.user.update({
       where: {
@@ -185,7 +182,7 @@ const sampleLogin = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     return throwLoginError();
   }
 
-  prisma.user.update({
+  await prisma.user.update({
     where: {
       id: "46a4db78-c5c5-4d85-b11d-a32e93f025f1",
     },
