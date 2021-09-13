@@ -26,6 +26,7 @@ export const getLoginData = async (id: string) =>
       talkRoomMessageReceipt: true,
       showReceiveMessage: true,
       intro: true,
+      displayedToolTipAboutUserDisplay: true,
       posts: {
         orderBy: {
           createdAt: "desc",

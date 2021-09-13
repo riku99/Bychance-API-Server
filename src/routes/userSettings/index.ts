@@ -4,7 +4,7 @@ import { baseUrl } from "~/constants";
 import { validators } from "./validator";
 import { handlers } from "~/handlers/userSettings";
 
-// Userの中でも設定に関するリソース
+// Userの中でも設定(とか)に関するリソース
 export const userSettingsRoute = async (server: Hapi.Server) => {
   server.route([
     {

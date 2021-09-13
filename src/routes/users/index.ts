@@ -59,5 +59,24 @@ export const usersRoute = async (server: Hapi.Server) => {
       path: usersLocation,
       handler: handlers.deleteLocation,
     },
+    {
+      method: "PUT",
+      path: `${baseUrl}/users/displayedToolTipAboutUserDisplayToUser`,
+      handler: handlers.changeDisplayedToolTipAboutUserDisplayToUser,
+      options: {
+        validate: {
+          payload:
+            validators.changeDisplayedToolTipAboutUserDisplayToUser.validator
+              .payload,
+          failAction:
+            validators.changeDisplayedToolTipAboutUserDisplayToUser.failAction,
+        },
+      },
+    },
+    {
+      method: "GET",
+      path: `${baseUrl}/users/is_displayed`,
+      handler: handlers.isDisplayed,
+    },
   ]);
 };

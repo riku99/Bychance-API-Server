@@ -26,28 +26,23 @@ export const confirmInTime = ({
   h: number; // 今の時間
   m: number; // 今の分数
 }) => {
-  if (startHours < endHours) {
-    if (startHours === h) {
-      return startMinutes <= m;
-    }
-    if (endHours === h) {
-      return m <= endMinutes;
-    }
-    return startHours < h && h < endHours;
-  } else if (startHours === endHours) {
-    if (startMinutes === endMinutes) {
-      return startHours === h && startMinutes === m;
-    } else {
-      return startHours === h && startMinutes <= m && m <= endMinutes;
-    }
-  } else {
-    if (startHours === h) {
-      return startMinutes <= m;
-    }
-    if (endHours === h) {
-      return m <= endMinutes;
-    }
+  const sDate = new Date(0);
+  const eDate = new Date(0);
+  const date = new Date(0);
 
-    return h > startHours || h < endHours;
+  sDate.setHours(startHours, startMinutes);
+  eDate.setHours(endHours, endMinutes);
+  date.setHours(h, m);
+
+  if (sDate.getTime() > eDate.getTime()) {
+    eDate.setDate(eDate.getDate() + 1);
   }
+
+  const t = date.getTime(),
+    t2 = t + 864e5;
+
+  return (sDate.getTime() <= t && t <= eDate.getTime()) ||
+    (sDate.getTime() <= t2 && t2 <= eDate.getTime())
+    ? true
+    : false;
 };

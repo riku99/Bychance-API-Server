@@ -9,11 +9,13 @@ import {
   UpdateUserPayload,
   UpdateLocationPayload,
   GetUserParams,
+  ChangeDisplayedToolTipAboutUserDisplayToUserPayload,
 } from "~/routes/users/validator";
 import { createS3ObjectPath } from "~/helpers/aws";
 import { throwInvalidError } from "~/helpers/errors";
 import { handleUserLocationCrypt, createHash } from "~/helpers/crypto";
 import { geohashPrecision } from "~/constants";
+import { getUserIsInPrivateTime } from "~/helpers/privateTime";
 
 const prisma = new PrismaClient();
 
@@ -321,10 +323,55 @@ const refreshMyData = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   };
 };
 
+const changeDisplayedToolTipAboutUserDisplayToUser = async (
+  req: Hapi.Request,
+  h: Hapi.ResponseToolkit
+) => {
+  const user = req.auth.artifacts as Artifacts;
+  const payload = req.payload as ChangeDisplayedToolTipAboutUserDisplayToUserPayload;
+
+  await prisma.user.update({
+    where: {
+      id: user.id,
+    },
+    data: {
+      displayedToolTipAboutUserDisplay:
+        payload.displayedToolTipAboutUserDisplayToUser,
+    },
+  });
+
+  return h.response().code(200);
+};
+
+const isDisplayed = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
+  const user = req.auth.artifacts as Artifacts;
+
+  const privateTimes = await prisma.privateTime.findMany({
+    where: {
+      userId: user.id,
+    },
+  });
+
+  const inPrivateTime = getUserIsInPrivateTime(privateTimes);
+
+  console.log(inPrivateTime);
+
+  return (
+    user.login &&
+    user.display &&
+    user.lat &&
+    user.lng &&
+    !user.inPrivateZone &&
+    !inPrivateTime
+  );
+};
+
 export const handlers = {
   updateUser,
   updateLocation,
   deleteLocation,
   getUserPageInfo,
   refreshMyData,
+  changeDisplayedToolTipAboutUserDisplayToUser,
+  isDisplayed,
 };
