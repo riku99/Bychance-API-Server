@@ -78,24 +78,23 @@ const getValidation = {
 };
 const getFailAction = () => throwInvalidError();
 
-export type ChangeDisplayedToolTipAboutUserDisplayToUserPayload = {
-  displayedToolTipAboutUserDisplayToUser: boolean;
+export type ChangeTooltipOfUsersDisplayShowedPayload = {
+  value: boolean;
 };
-const changeDisplayedToolTipAboutUserDisplayToUserValidation = {
-  payload: Joi.object<ChangeDisplayedToolTipAboutUserDisplayToUserPayload>({
-    displayedToolTipAboutUserDisplayToUser: Joi.boolean().required(),
+const changeTooltipOfUsersDisplayShowedValidation = {
+  payload: Joi.object<ChangeTooltipOfUsersDisplayShowedPayload>({
+    value: Joi.boolean().required(),
   }),
 };
-const changeDisplayedToolTipAboutUserDisplayToUserFailAction = () =>
-  throwInvalidError();
+const changeTooltipOfUsersDisplayShowedFailAction = () => throwInvalidError();
 
 export const validators = {
   getUser: {
     validator: getValidation,
     failAction: getFailAction,
   },
-  changeDisplayedToolTipAboutUserDisplayToUser: {
-    validator: changeDisplayedToolTipAboutUserDisplayToUserValidation,
-    failAction: changeDisplayedToolTipAboutUserDisplayToUserFailAction,
+  changeTooltipOfUsersDisplayShowed: {
+    validator: changeTooltipOfUsersDisplayShowedValidation,
+    failAction: changeTooltipOfUsersDisplayShowedFailAction,
   },
 };

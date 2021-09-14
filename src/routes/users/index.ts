@@ -61,15 +61,13 @@ export const usersRoute = async (server: Hapi.Server) => {
     },
     {
       method: "PUT",
-      path: `${baseUrl}/users/displayedToolTipAboutUserDisplayToUser`,
-      handler: handlers.changeDisplayedToolTipAboutUserDisplayToUser,
+      path: `${baseUrl}/users/tooltip_of_user_display_showed`,
+      handler: handlers.changeTooltipOfUsersDisplayShowed,
       options: {
         validate: {
           payload:
-            validators.changeDisplayedToolTipAboutUserDisplayToUser.validator
-              .payload,
-          failAction:
-            validators.changeDisplayedToolTipAboutUserDisplayToUser.failAction,
+            validators.changeTooltipOfUsersDisplayShowed.validator.payload,
+          failAction: validators.changeTooltipOfUsersDisplayShowed.failAction,
         },
       },
     },

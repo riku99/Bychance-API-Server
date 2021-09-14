@@ -9,7 +9,7 @@ import {
   UpdateUserPayload,
   UpdateLocationPayload,
   GetUserParams,
-  ChangeDisplayedToolTipAboutUserDisplayToUserPayload,
+  ChangeTooltipOfUsersDisplayShowedPayload,
 } from "~/routes/users/validator";
 import { createS3ObjectPath } from "~/helpers/aws";
 import { throwInvalidError } from "~/helpers/errors";
@@ -323,20 +323,19 @@ const refreshMyData = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   };
 };
 
-const changeDisplayedToolTipAboutUserDisplayToUser = async (
+const changeTooltipOfUsersDisplayShowed = async (
   req: Hapi.Request,
   h: Hapi.ResponseToolkit
 ) => {
   const user = req.auth.artifacts as Artifacts;
-  const payload = req.payload as ChangeDisplayedToolTipAboutUserDisplayToUserPayload;
+  const payload = req.payload as ChangeTooltipOfUsersDisplayShowedPayload;
 
   await prisma.user.update({
     where: {
       id: user.id,
     },
     data: {
-      displayedToolTipAboutUserDisplay:
-        payload.displayedToolTipAboutUserDisplayToUser,
+      tooltipOfUsersDisplayShowed: payload.value,
     },
   });
 
@@ -354,13 +353,11 @@ const isDisplayed = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
 
   const inPrivateTime = getUserIsInPrivateTime(privateTimes);
 
-  console.log(inPrivateTime);
-
   return (
     user.login &&
     user.display &&
-    user.lat &&
-    user.lng &&
+    !!user.lat &&
+    !!user.lng &&
     !user.inPrivateZone &&
     !inPrivateTime
   );
@@ -372,6 +369,6 @@ export const handlers = {
   deleteLocation,
   getUserPageInfo,
   refreshMyData,
-  changeDisplayedToolTipAboutUserDisplayToUser,
+  changeTooltipOfUsersDisplayShowed,
   isDisplayed,
 };

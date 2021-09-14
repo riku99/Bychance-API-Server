@@ -7,11 +7,7 @@ export const getUserIsInPrivateTime = (privateTimes: PrivateTime[]) => {
   const hours = date.getHours();
   const minutes = date.getMinutes();
 
-  console.log(hours);
-  console.log(minutes);
-
   return privateTimes.some((p) => {
-    console.log(p);
     const { startHours, startMinutes, endHours, endMinutes } = p;
     return confirmInTime({
       startHours,
