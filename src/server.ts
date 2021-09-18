@@ -49,6 +49,7 @@ const server = Hapi.server({
 
 export const io = new socketio.Server(server.listener);
 export const talkRoomMessageNameSpace = io.of("/talkRoomMessages");
+export const applyingGroupNameSpace = io.of("/applying_group");
 setupSocketIo();
 
 admin.initializeApp({
