@@ -35,6 +35,7 @@ model User {
   geohash7             String? // 7桁のgeohashのハッシュ。Recommendationの取得などで使用
   intro                Boolean                @default(false)
   tooltipOfUsersDisplayShowed      Boolean    @default(false)
+  groupId String?
   flashes              Flash[]
   posts                Post[]
   readTalkRoomMessages ReadTalkRoomMessage[]
@@ -49,10 +50,15 @@ model User {
   hideRecommendation UserHideRecommendation[]
   blocks Block[] @relation("blockBy") // 自分がブロックした側
   blocked Block[] @relation("blockTo") // ブロックされた側
+  group Group? @relation("members", fields: [groupId], references: [id])
+  ownedGroup Group? @relation("groupOwner")
+  appliedGroup ApplyingGroup[] @relation("appliedGroup")
+  applyingGroup ApplyingGroup[] @relation("applyingGroup")
 
   @@index([display, login, inPrivateZone, geohash, lat, lng])
   @@index([lineId])
   @@index([accessToken])
+  @@index([groupId])
 }
 
 model Post {
@@ -327,6 +333,25 @@ model Block {
   blocked User @relation("blockTo", fields: [blockTo], references: [id])
 
   @@unique([blockBy, blockTo])
+}
+
+model Group {
+  id String  @id @default(uuid())
+  createdAt DateTime @default(now())
+  ownerId String
+  members User[] @relation("members")
+  owener User @relation("groupOwner", fields: [ownerId], references: [id])
+}
+
+model ApplyingGroup {
+  id Int @id @default(autoincrement())
+  applyingUserId String
+  appliedUserId String
+
+  applyingUser User @relation("applyingGroup", fields: [applyingUserId],references: [id])
+  appliedUser User @relation("appliedGroup", fields: [appliedUserId], references: [id])
+
+  @@index([applyingUserId, appliedUserId])
 }
 
 
