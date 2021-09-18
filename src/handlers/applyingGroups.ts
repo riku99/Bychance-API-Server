@@ -41,6 +41,29 @@ const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   return h.response().code(200);
 };
 
+const getApplyedGroups = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
+  const user = req.auth.artifacts as Artifacts;
+
+  const applyedGroups = await prisma.applyingGroup.findMany({
+    where: {
+      appliedUserId: user.id,
+    },
+    select: {
+      id: true,
+      applyingUser: {
+        select: {
+          id: true,
+          name: true,
+          avatar: true,
+        },
+      },
+    },
+  });
+
+  return applyedGroups;
+};
+
 export const handlers = {
   create,
+  getApplyedGroups,
 };

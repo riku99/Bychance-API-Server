@@ -4,13 +4,13 @@ import { baseUrl } from "~/constants";
 import { validators } from "./validator";
 import { handlers } from "~/handlers/applyingGroups";
 
-const url = `${baseUrl}/applying_groups`;
+const path = `${baseUrl}/applying_groups`;
 
 export const applyingGroupsRoute = async (server: Hapi.Server) => {
   server.route([
     {
       method: "POST",
-      path: url,
+      path,
       handler: handlers.create,
       options: {
         validate: {
@@ -18,6 +18,11 @@ export const applyingGroupsRoute = async (server: Hapi.Server) => {
           failAction: validators.createApplyingGroup.failAction,
         },
       },
+    },
+    {
+      method: "GET",
+      path: `${path}/applyed`,
+      handler: handlers.getApplyedGroups,
     },
   ]);
 };
