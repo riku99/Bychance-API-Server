@@ -110,19 +110,19 @@ const _delete = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   }
 
   if (
-    applyingGroup.appliedUser.id !== user.id ||
+    applyingGroup.appliedUser.id !== user.id &&
     applyingGroup.applyingUser.id !== user.id
   ) {
     return throwInvalidError();
   }
 
-  await prisma.applyingGroup.delete({
+  const g = await prisma.applyingGroup.delete({
     where: {
       id: Number(params.id),
     },
   });
 
-  return h.response().code(200);
+  return g.id;
 };
 
 export const handlers = {
