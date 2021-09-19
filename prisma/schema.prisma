@@ -352,7 +352,7 @@ model ApplyingGroup {
   appliedUser User @relation("appliedGroup", fields: [appliedUserId], references: [id])
 
   @@index([applyingUserId, appliedUserId])
-  // @@unique([applyingUserId, appliedUserId])
+  @@unique([applyingUserId, appliedUserId])
 }
 
 
