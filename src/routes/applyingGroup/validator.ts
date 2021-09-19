@@ -24,6 +24,17 @@ const deleteApplyingGroupValidation = {
   }),
 };
 
+export type GetApplyingGroupsQuery = {
+  type: "applied" | undefined;
+  id: string;
+};
+const getValidation = {
+  query: Joi.object<GetApplyingGroupsQuery>({
+    id: Joi.string().required(),
+    type: Joi.string().allow("applied"),
+  }),
+};
+
 export const validators = {
   createApplyingGroup: {
     validator: createApplyingGroupValidation,
@@ -31,6 +42,10 @@ export const validators = {
   },
   deleteApplyingGroup: {
     validator: deleteApplyingGroupValidation,
+    failAction,
+  },
+  getApplyingGroups: {
+    validator: getValidation,
     failAction,
   },
 };

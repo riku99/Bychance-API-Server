@@ -5,12 +5,20 @@ import { validators } from "./validator";
 import { handlers } from "~/handlers/applyingGroups";
 
 const path = `${baseUrl}/applying_groups`;
-const appliedPath = `${path}/applied`;
-
-console.log(appliedPath);
 
 export const applyingGroupsRoute = async (server: Hapi.Server) => {
   server.route([
+    {
+      method: "GET",
+      path,
+      handler: handlers.get,
+      options: {
+        validate: {
+          query: validators.getApplyingGroups.validator.query,
+          failAction: validators.getApplyingGroups.failAction,
+        },
+      },
+    },
     {
       method: "POST",
       path,
@@ -32,11 +40,6 @@ export const applyingGroupsRoute = async (server: Hapi.Server) => {
           failAction: validators.deleteApplyingGroup.failAction,
         },
       },
-    },
-    {
-      method: "GET",
-      path: appliedPath,
-      handler: handlers.getAppliedGroups,
     },
   ]);
 };

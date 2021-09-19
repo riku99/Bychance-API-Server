@@ -4,6 +4,7 @@ import { PrismaClient } from "@prisma/client";
 import {
   CreateApplyingGroupPayload,
   DeleteApplyingGroupParams,
+  GetApplyingGroupsQuery,
 } from "~/routes/applyingGroup/validator";
 import { Artifacts } from "~/auth/bearer";
 import { applyingGroupNameSpace } from "~/server";
@@ -45,26 +46,41 @@ const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   return h.response().code(200);
 };
 
-const getAppliedGroups = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
+const get = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const user = req.auth.artifacts as Artifacts;
+  const query = req.query as GetApplyingGroupsQuery;
 
-  const appliedGroups = await prisma.applyingGroup.findMany({
+  const groups = await prisma.applyingGroup.findMany({
     where: {
-      appliedUserId: user.id,
+      appliedUserId:
+        query.type && query.type === "applied" ? user.id : undefined,
+      applyingUserId: !query.type ? user.id : undefined,
     },
     select: {
       id: true,
-      applyingUser: {
-        select: {
-          id: true,
-          name: true,
-          avatar: true,
-        },
-      },
+      applyingUser:
+        query.type && query.type === "applied"
+          ? {
+              select: {
+                id: true,
+                name: true,
+                avatar: true,
+              },
+            }
+          : undefined,
+      appliedUser: !query.type
+        ? {
+            select: {
+              id: true,
+              name: true,
+              avatar: true,
+            },
+          }
+        : undefined,
     },
   });
 
-  return appliedGroups;
+  return groups;
 };
 
 const _delete = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
@@ -111,6 +127,6 @@ const _delete = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
 
 export const handlers = {
   create,
-  getAppliedGroups,
+  get,
   _delete,
 };
