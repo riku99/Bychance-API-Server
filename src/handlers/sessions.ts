@@ -171,7 +171,7 @@ export const logout = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
 
 const sampleLogin = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const sampleUser = await prisma.user.findUnique({
-    where: { id: "46a4db78-c5c5-4d85-b11d-a32e93f025f1" },
+    where: { id: "sampleuserid" },
     select: {
       id: true,
     },
@@ -183,7 +183,7 @@ const sampleLogin = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
 
   await prisma.user.update({
     where: {
-      id: "46a4db78-c5c5-4d85-b11d-a32e93f025f1",
+      id: "sampleuserid",
     },
     data: {
       login: true,
