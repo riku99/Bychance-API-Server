@@ -5,6 +5,9 @@ import { validators } from "./validator";
 import { handlers } from "~/handlers/applyingGroups";
 
 const path = `${baseUrl}/applying_groups`;
+const appliedPath = `${path}/applied`;
+
+console.log(appliedPath);
 
 export const applyingGroupsRoute = async (server: Hapi.Server) => {
   server.route([
@@ -20,9 +23,20 @@ export const applyingGroupsRoute = async (server: Hapi.Server) => {
       },
     },
     {
+      method: "DELETE",
+      path: `${path}/{id}`,
+      handler: handlers._delete,
+      options: {
+        validate: {
+          params: validators.deleteApplyingGroup.validator.params,
+          failAction: validators.deleteApplyingGroup.failAction,
+        },
+      },
+    },
+    {
       method: "GET",
-      path: `${path}/applyed`,
-      handler: handlers.getApplyedGroups,
+      path: appliedPath,
+      handler: handlers.getAppliedGroups,
     },
   ]);
 };

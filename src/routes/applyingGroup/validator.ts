@@ -1,5 +1,4 @@
 import Joi from "joi";
-import joi from "joi";
 
 import { throwInvalidError } from "~/helpers/errors";
 
@@ -16,9 +15,22 @@ const createApplyingGroupValidation = {
   }),
 };
 
+export type DeleteApplyingGroupParams = {
+  id: string;
+};
+const deleteApplyingGroupValidation = {
+  params: Joi.object<DeleteApplyingGroupParams>({
+    id: Joi.string().required(),
+  }),
+};
+
 export const validators = {
   createApplyingGroup: {
     validator: createApplyingGroupValidation,
+    failAction,
+  },
+  deleteApplyingGroup: {
+    validator: deleteApplyingGroupValidation,
     failAction,
   },
 };
