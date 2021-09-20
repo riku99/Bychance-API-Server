@@ -8,9 +8,13 @@ export const throwLoginError = () => {
   throw error;
 };
 
-export const throwInvalidError = (message: string = "無効なリクエストです") => {
+export const throwInvalidError = (
+  message: string = "無効なリクエストです",
+  alertDialog: boolean = false
+) => {
   const error = Boom.badRequest();
   error.output.payload.message = message;
   error.output.payload.errorType = invalidErrorType;
+  error.output.payload.alertDialog = alertDialog;
   throw error;
 };

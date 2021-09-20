@@ -16,6 +16,20 @@ const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const user = req.auth.artifacts as Artifacts;
   const payload = req.payload as CreateApplyingGroupPayload;
 
+  const existing = await prisma.applyingGroup.findUnique({
+    where: {
+      applyingUserId_appliedUserId: {
+        applyingUserId: user.id,
+        appliedUserId: payload.to,
+      },
+    },
+  });
+
+  // 申請の重複は禁止
+  if (existing) {
+    return throwInvalidError("既に申請中です");
+  }
+
   const applyingGroup = await prisma.applyingGroup.create({
     data: {
       applyingUserId: user.id,
