@@ -43,7 +43,6 @@ const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
         true
       );
     }
-
     // 「ブロックされている側」の時でも作成はする。のでここでリターンはしない。 if (blockData.blocked) {}
   }
 
@@ -64,15 +63,17 @@ const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     },
   });
 
-  // ソケット発進
-  applyingGroupNameSpace.to(payload.to).emit("applyGroup", {
-    id: applyingGroup.id,
-    applyingUser: {
-      id: applyingGroup.applyingUser.id,
-      name: applyingGroup.applyingUser.name,
-      avatar: applyingGroup.applyingUser.avatar,
-    },
-  });
+  // ソケット発射
+  if (!blockData) {
+    applyingGroupNameSpace.to(payload.to).emit("applyGroup", {
+      id: applyingGroup.id,
+      applyingUser: {
+        id: applyingGroup.applyingUser.id,
+        name: applyingGroup.applyingUser.name,
+        avatar: applyingGroup.applyingUser.avatar,
+      },
+    });
+  }
 
   return h.response().code(200);
 };
