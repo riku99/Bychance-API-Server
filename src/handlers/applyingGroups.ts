@@ -44,10 +44,7 @@ const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       );
     }
 
-    // 「ブロックされている側」の時は知らせたくないのでエラー返さない。が作成もしないのでここでリターン
-    if (blockData.blocked) {
-      return h.response().code(200);
-    }
+    // 「ブロックされている側」の時でも作成はする。のでここでリターンはしない。 if (blockData.blocked) {}
   }
 
   const applyingGroup = await prisma.applyingGroup.create({
@@ -84,35 +81,65 @@ const get = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const user = req.auth.artifacts as Artifacts;
   const query = req.query as GetApplyingGroupsQuery;
 
-  const groups = await prisma.applyingGroup.findMany({
+  const blocks = await prisma.block.findMany({
     where: {
-      appliedUserId:
-        query.type && query.type === "applied" ? user.id : undefined,
-      applyingUserId: !query.type ? user.id : undefined,
+      blockBy: user.id,
     },
     select: {
-      id: true,
-      applyingUser:
-        query.type && query.type === "applied"
-          ? {
-              select: {
-                id: true,
-                name: true,
-                avatar: true,
-              },
-            }
-          : undefined,
-      appliedUser: !query.type
-        ? {
-            select: {
-              id: true,
-              name: true,
-              avatar: true,
-            },
-          }
-        : undefined,
+      blockTo: true,
     },
   });
+
+  let groups: {
+    id: number;
+    applyingUser?: {
+      id: string;
+      name: string;
+      avatar: string | null;
+    };
+    appliedUser?: {
+      id: string;
+      name: string;
+      avatar: string | null;
+    };
+  }[];
+
+  if (query.type && query.type === "applied") {
+    groups = await prisma.applyingGroup.findMany({
+      where: {
+        appliedUserId: user.id,
+        applyingUserId: {
+          notIn: blocks.map((b) => b.blockTo), // ブロックしているユーザーが申請している場合は取得しない
+        },
+      },
+      select: {
+        id: true,
+        applyingUser: {
+          select: {
+            id: true,
+            name: true,
+            avatar: true,
+          },
+        },
+      },
+    });
+  } else {
+    groups = await prisma.applyingGroup.findMany({
+      where: {
+        applyingUserId: user.id,
+      },
+      select: {
+        id: true,
+        appliedUser: {
+          select: {
+            id: true,
+            name: true,
+            avatar: true,
+          },
+        },
+      },
+    });
+  }
 
   return groups;
 };
