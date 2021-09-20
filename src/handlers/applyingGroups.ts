@@ -9,6 +9,7 @@ import {
 import { Artifacts } from "~/auth/bearer";
 import { applyingGroupNameSpace } from "~/server";
 import { throwInvalidError } from "~/helpers/errors";
+import { isBlockingOrBlocked } from "~/db/query/users";
 
 const prisma = new PrismaClient();
 
@@ -28,6 +29,25 @@ const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   // 申請の重複は禁止
   if (existing) {
     return throwInvalidError("既に申請中です");
+  }
+
+  const blockData = await isBlockingOrBlocked({
+    userId: user.id,
+    targetUserId: payload.to,
+  });
+
+  if (blockData) {
+    if (blockData.blocking) {
+      return throwInvalidError(
+        "このユーザーをブロックしています。申請するにはブロックを解除してください",
+        true
+      );
+    }
+
+    // 「ブロックされている側」の時は知らせたくないのでエラー返さない。が作成もしないのでここでリターン
+    if (blockData.blocked) {
+      return h.response().code(200);
+    }
   }
 
   const applyingGroup = await prisma.applyingGroup.create({
