@@ -1,4 +1,4 @@
-import Joi, { boolean } from "joi";
+import Joi from "joi";
 
 import { throwInvalidError } from "~/helpers/errors";
 

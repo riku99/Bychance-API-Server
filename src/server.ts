@@ -38,7 +38,7 @@ import { userHideRecommendatoinsPlugin } from "~/plugins/userHideRecommnedations
 import { recommendationClientReadNotificationPlugin } from "~/plugins/recommendationClientReadNotification";
 import { blockesRoute } from "~/routes/block";
 import { userSettingsRoute } from "~/routes/userSettings";
-import { groupsRoute } from "~/routes/group";
+import { groupsRoute } from "~/routes/groups";
 import { applyingGroupsRoute } from "~/routes/applyingGroup";
 
 const server = Hapi.server({
