@@ -27,6 +27,7 @@ export const getLoginData = async (id: string) =>
       showReceiveMessage: true,
       intro: true,
       tooltipOfUsersDisplayShowed: true,
+      groupsApplicationEnabled: true,
       posts: {
         orderBy: {
           createdAt: "desc",

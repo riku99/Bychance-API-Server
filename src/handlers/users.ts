@@ -10,6 +10,7 @@ import {
   UpdateLocationPayload,
   GetUserParams,
   ChangeTooltipOfUsersDisplayShowedPayload,
+  ChangeGroupsApplicationEnabled,
 } from "~/routes/users/validator";
 import { createS3ObjectPath } from "~/helpers/aws";
 import { throwInvalidError } from "~/helpers/errors";
@@ -342,6 +343,7 @@ const changeTooltipOfUsersDisplayShowed = async (
   return h.response().code(200);
 };
 
+// リクエストしたユーザーが現在他のユーザーに表示されている状態であるかどうか
 const isDisplayed = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const user = req.auth.artifacts as Artifacts;
 
@@ -363,6 +365,25 @@ const isDisplayed = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   );
 };
 
+const changeGroupsApplicationEnabled = async (
+  req: Hapi.Request,
+  h: Hapi.ResponseToolkit
+) => {
+  const user = req.auth.artifacts as Artifacts;
+  const payload = req.payload as ChangeGroupsApplicationEnabled;
+
+  await prisma.user.update({
+    where: {
+      id: user.id,
+    },
+    data: {
+      groupsApplicationEnabled: payload.value,
+    },
+  });
+
+  return h.response().code(200);
+};
+
 export const handlers = {
   updateUser,
   updateLocation,
@@ -371,4 +392,5 @@ export const handlers = {
   refreshMyData,
   changeTooltipOfUsersDisplayShowed,
   isDisplayed,
+  changeGroupsApplicationEnabled,
 };

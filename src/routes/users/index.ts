@@ -76,5 +76,16 @@ export const usersRoute = async (server: Hapi.Server) => {
       path: `${baseUrl}/users/is_displayed`,
       handler: handlers.isDisplayed,
     },
+    {
+      method: "PUT",
+      path: `${baseUrl}/users/groups_application_enabled`,
+      handler: handlers.changeGroupsApplicationEnabled,
+      options: {
+        validate: {
+          payload: validators.changeGroupsApplicationEnabled.validator.payload,
+          failAction: validators.changeGroupsApplicationEnabled.failAction,
+        },
+      },
+    },
   ]);
 };

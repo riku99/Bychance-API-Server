@@ -36,6 +36,7 @@ model User {
   intro                Boolean                @default(false)
   tooltipOfUsersDisplayShowed      Boolean    @default(false)
   groupId String?
+  groupsApplicationEnabled Boolean @default(true) // このユーザーにグループ申請が可能かどうか
   flashes              Flash[]
   posts                Post[]
   readTalkRoomMessages ReadTalkRoomMessage[]

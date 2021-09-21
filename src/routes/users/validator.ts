@@ -2,6 +2,8 @@ import Joi, { boolean } from "joi";
 
 import { throwInvalidError } from "~/helpers/errors";
 
+const failAction = () => throwInvalidError();
+
 export type UpdateUserPayload = {
   name: string;
   avatar?: string;
@@ -88,6 +90,15 @@ const changeTooltipOfUsersDisplayShowedValidation = {
 };
 const changeTooltipOfUsersDisplayShowedFailAction = () => throwInvalidError();
 
+export type ChangeGroupsApplicationEnabled = {
+  value: boolean;
+};
+const changeGroupsApplicationEnabledValidation = {
+  payload: Joi.object<ChangeGroupsApplicationEnabled>({
+    value: Joi.boolean().required(),
+  }),
+};
+
 export const validators = {
   getUser: {
     validator: getValidation,
@@ -96,5 +107,9 @@ export const validators = {
   changeTooltipOfUsersDisplayShowed: {
     validator: changeTooltipOfUsersDisplayShowedValidation,
     failAction: changeTooltipOfUsersDisplayShowedFailAction,
+  },
+  changeGroupsApplicationEnabled: {
+    validator: changeGroupsApplicationEnabledValidation,
+    failAction,
   },
 };

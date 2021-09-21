@@ -24,10 +24,6 @@ export const isBlockingOrBlocked = async ({
     },
   });
 
-  if (!blockData.length) {
-    return false;
-  }
-
   const blocking = blockData.some((b) => b.blockBy === userId);
   const blocked = blockData.some((b) => b.blockTo === userId);
 

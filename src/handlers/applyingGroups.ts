@@ -36,15 +36,13 @@ const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     targetUserId: payload.to,
   });
 
-  if (blockData) {
-    if (blockData.blocking) {
-      return throwInvalidError(
-        "このユーザーをブロックしています。申請するにはブロックを解除してください",
-        true
-      );
-    }
-    // 「ブロックされている側」の時でも作成はする。のでここでリターンはしない。 if (blockData.blocked) {}
+  if (blockData.blocking) {
+    return throwInvalidError(
+      "このユーザーをブロックしています。申請するにはブロックを解除してください",
+      true
+    );
   }
+  // 「ブロックされている側」の時でも作成はする。のでここでリターンはしない。 if (blockData.blocked) {}
 
   const applyingGroup = await prisma.applyingGroup.create({
     data: {
@@ -64,7 +62,7 @@ const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   });
 
   // ソケット発射
-  if (!blockData) {
+  if (!blockData.blocked) {
     applyingGroupNameSpace.to(payload.to).emit("applyGroup", {
       id: applyingGroup.id,
       applyingUser: {
