@@ -43,10 +43,17 @@ const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     },
   });
 
-  // グループに所属したら申請された側の申請中のものはすべて消去
+  // グループに所属したら申請された側の申請中のもの、申請されているものはすべて消去
   await prisma.applyingGroup.deleteMany({
     where: {
-      applyingUserId: user.id,
+      OR: [
+        {
+          applyingUserId: user.id,
+        },
+        {
+          appliedUserId: user.id,
+        },
+      ],
     },
   });
 
