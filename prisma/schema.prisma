@@ -342,6 +342,8 @@ model Group {
   ownerId String
   members User[] @relation("members")
   owener User @relation("groupOwner", fields: [ownerId], references: [id])
+
+  @@unique([ownerId])
 }
 
 model ApplyingGroup {
