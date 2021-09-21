@@ -189,7 +189,7 @@ const _delete = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   });
 
   if (!applyingGroup) {
-    return throwInvalidError("既に存在しません");
+    return throwInvalidError("既に申請されていません");
   }
 
   if (
