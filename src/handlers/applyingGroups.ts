@@ -31,18 +31,37 @@ const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     return throwInvalidError("既に申請中です");
   }
 
-  const blockData = await isBlockingOrBlocked({
-    userId: user.id,
-    targetUserId: payload.to,
+  const targetUser = await prisma.user.findUnique({
+    where: {
+      id: payload.to,
+    },
+    select: {
+      id: true,
+      groupsApplicationEnabled: true,
+      blocks: {
+        where: {
+          blockTo: user.id,
+        },
+      },
+      blocked: {
+        where: {
+          blockBy: user.id,
+        },
+      },
+    },
   });
 
-  if (blockData.blocking) {
+  if (!targetUser) {
+    return throwInvalidError();
+  }
+
+  if (targetUser.blocked.length) {
     return throwInvalidError(
       "このユーザーをブロックしています。申請するにはブロックを解除してください",
       true
     );
   }
-  // 「ブロックされている側」の時でも作成はする。のでここでリターンはしない。 if (blockData.blocked) {}
+  // 「ブロックされている側」の時でも作成はする。のでここでリターンはしない。 if (targetUser.blocks.length) {}
 
   const applyingGroup = await prisma.applyingGroup.create({
     data: {
@@ -62,7 +81,7 @@ const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   });
 
   // ソケット発射
-  if (!blockData.blocked) {
+  if (!targetUser.blocks.length && targetUser.groupsApplicationEnabled) {
     applyingGroupNameSpace.to(payload.to).emit("applyGroup", {
       id: applyingGroup.id,
       applyingUser: {
@@ -79,6 +98,10 @@ const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
 const get = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const user = req.auth.artifacts as Artifacts;
   const query = req.query as GetApplyingGroupsQuery;
+
+  if (query.type === "applied" && !user.groupsApplicationEnabled) {
+    return [];
+  }
 
   const blocks = await prisma.block.findMany({
     where: {
