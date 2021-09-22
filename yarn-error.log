@@ -2,7 +2,7 @@ Arguments:
   /usr/local/bin/node /opt/yarn-v1.22.5/bin/yarn.js add sharp
 
 PATH: 
-  /tmp/yarn--1631943488173-0.4348018790198307:/app/node_modules/.bin:/usr/local/share/.config/yarn/link/node_modules/.bin:/usr/local/libexec/lib/node_modules/npm/bin/node-gyp-bin:/usr/local/lib/node_modules/npm/bin/node-gyp-bin:/usr/local/bin/node_modules/npm/bin/node-gyp-bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+  /tmp/yarn--1632287648191-0.43485209629849386:/app/node_modules/.bin:/usr/local/share/.config/yarn/link/node_modules/.bin:/usr/local/libexec/lib/node_modules/npm/bin/node-gyp-bin:/usr/local/lib/node_modules/npm/bin/node-gyp-bin:/usr/local/bin/node_modules/npm/bin/node-gyp-bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 Yarn version: 
   1.22.5
@@ -94,8 +94,6 @@ npm manifest:
       "test:db:gene": "docker-compose -f docker-compose.test.yml run test_server yarn prisma generate",
       "test:db:dev": "docker-compose -f docker-compose.test.yml run test_server yarn prisma migrate dev --name update",
       "test:ci": "yarn test:build && yarn test:db:up && sleep 10 && yarn test:db:dev && yarn test:db:migrate && yarn test:db:gene && yarn test && yarn test:down",
-      "db:seed": "ts-node --files -r tsconfig-paths/register ./src/db/seed.ts",
-      "db:seed:users": "ts-node --files -r tsconfig-paths/register ./src/db/seed/users",
       "db:show": "yarn prisma studio"
     },
     "jest": {
@@ -112,6 +110,9 @@ npm manifest:
       },
       "moduleNameMapper": {
         "~(.*)$": "<rootDir>/src/$1"
+      },
+      "prisma": {
+        "seed": "ts-node prisma/seed.ts"
       }
     }
   }

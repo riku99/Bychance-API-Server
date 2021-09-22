@@ -38,6 +38,7 @@ const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     select: {
       id: true,
       groupsApplicationEnabled: true,
+      groupId: true,
       blocks: {
         where: {
           blockTo: user.id,
@@ -53,6 +54,11 @@ const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
 
   if (!targetUser) {
     return throwInvalidError();
+  }
+
+  // 申請した相手が既にグループにいる場合は申請できない
+  if (targetUser.groupId) {
+    return throwInvalidError("相手ユーザーが既にグループに入っています");
   }
 
   if (targetUser.blocked.length) {
