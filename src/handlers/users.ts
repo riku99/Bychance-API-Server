@@ -384,6 +384,21 @@ const changeGroupsApplicationEnabled = async (
   return h.response().code(200);
 };
 
+const deleteGroupId = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
+  const user = req.auth.artifacts as Artifacts;
+
+  await prisma.user.update({
+    where: {
+      id: user.id,
+    },
+    data: {
+      groupId: null,
+    },
+  });
+
+  return h.response().code(200);
+};
+
 export const handlers = {
   updateUser,
   updateLocation,
@@ -393,4 +408,5 @@ export const handlers = {
   changeTooltipOfUsersDisplayShowed,
   isDisplayed,
   changeGroupsApplicationEnabled,
+  deleteGroupId,
 };

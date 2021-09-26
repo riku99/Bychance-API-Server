@@ -8,7 +8,7 @@ export const deviceTokenRoute = (server: Hapi.Server) => {
   server.route([
     {
       method: "POST",
-      path: `${baseUrl}/deviceToken`,
+      path: `${baseUrl}/device_token`,
       handler: deviceTokenHandler.createDeviceToken,
       options: {
         validate: {

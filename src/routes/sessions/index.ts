@@ -4,7 +4,7 @@ import { sessionsValidator } from "./validator";
 import { sessionsHandler } from "~/handlers/sessions";
 import { baseUrl } from "~/constants";
 
-export const lineLoginPath = `${baseUrl}/sessions/lineLogin`;
+export const lineLoginPath = `${baseUrl}/sessions/line_login`;
 export const sessionLoginPath = `${baseUrl}/login_data`;
 export const logoutPath = `${baseUrl}/sessions/logout`;
 
@@ -16,7 +16,6 @@ export const sessionsRoute = async (server: Hapi.Server) => {
       handler: sessionsHandler.lineLogin,
       options: {
         validate: {
-          // ...sessionsValidator.lineLogin.validate,
           headers: sessionsValidator.lineLogin.validate.headers,
           options: {
             allowUnknown: true, // headersで指定した以外のものは全て受け入れるための設定

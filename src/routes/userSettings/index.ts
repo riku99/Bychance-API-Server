@@ -31,7 +31,7 @@ export const userSettingsRoute = async (server: Hapi.Server) => {
     },
     {
       method: "PUT",
-      path: `${baseUrl}/users/talkRoomMessageReceipt`,
+      path: `${baseUrl}/users/talk_room_messages_receipt`,
       handler: handlers.changeTalkRoomMessageReceipt,
       options: {
         validate: {
@@ -42,7 +42,7 @@ export const userSettingsRoute = async (server: Hapi.Server) => {
     },
     {
       method: "PUT",
-      path: `${baseUrl}/users/showReceiveMessage`,
+      path: `${baseUrl}/users/show_receive_message`,
       handler: handlers.changeShowReceiveMessage,
       options: {
         validate: {

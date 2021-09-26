@@ -87,5 +87,10 @@ export const usersRoute = async (server: Hapi.Server) => {
         },
       },
     },
+    {
+      method: "DELETE",
+      path: `${baseUrl}/users/groupId`,
+      handler: handlers.deleteGroupId,
+    },
   ]);
 };
