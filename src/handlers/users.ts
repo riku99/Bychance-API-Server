@@ -387,6 +387,10 @@ const changeGroupsApplicationEnabled = async (
 const deleteGroupId = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const user = req.auth.artifacts as Artifacts;
 
+  if (!user.groupId) {
+    return throwInvalidError("グループに入っていません")
+  }
+
   await prisma.user.update({
     where: {
       id: user.id,

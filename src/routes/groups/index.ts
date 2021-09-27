@@ -19,5 +19,15 @@ export const groupsRoute = async (server: Hapi.Server) => {
         },
       },
     },
+    {
+      method: "GET",
+      path: groupsUrl,
+      handler: handlers.get,
+    },
+    {
+      method: "DELETE",
+      path: groupsUrl,
+      handler: handlers.deleteGroup,
+    },
   ]);
 };
