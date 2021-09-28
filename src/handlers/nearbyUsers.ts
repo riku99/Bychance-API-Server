@@ -72,16 +72,43 @@ const get = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
           },
         },
       },
+      group: {
+        select: {
+          members: {
+            select: {
+              id: true,
+              blocks: {
+                select: {
+                  blockTo: true,
+                },
+              },
+            },
+          },
+        },
+      },
     },
   });
 
   const date = new Date();
   const hours = date.getHours();
   const minutes = date.getMinutes();
+
   const filteredUsers = displayedUsers
     .map((_user) => {
       if (!_user.lat || !_user.lng) {
         return;
+      }
+
+      // ユーザーAのグループメンバーがリクエストユーザーBをブロックしている場合は、AはBに表示させない
+      if (_user.group && _user.group.members.length) {
+        const members = _user.group.members;
+        const groupMembersBlockToRequestUser = members.some((m) => {
+          return m.blocks.find((b) => b.blockTo === user.id);
+        });
+
+        if (groupMembersBlockToRequestUser) {
+          return;
+        }
       }
 
       const inPrivateTime = _user.privateTime.find((p) => {
