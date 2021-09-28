@@ -28,5 +28,16 @@ export const blockesRoute = async (server: Hapi.Server) => {
         },
       },
     },
+    {
+      method: "GET",
+      path: `${baseUrl}/groups/members/block/{userId}`,
+      handler: handlers.getGroupMemberWhoBlcokTargetUserExists,
+      options: {
+        validate: {
+          params: validaotors.getGroupMembersBlockData.validaotor.params,
+          failAction: validaotors.getGroupMembersBlockData.failAction,
+        },
+      },
+    },
   ]);
 };

@@ -10,7 +10,7 @@ import {
 import { LineLoginHeaders } from "~/routes/sessions/validator";
 import { throwLoginError } from "~/helpers/errors";
 import { Artifacts } from "~/auth/bearer";
-import { getLoginData } from "~/db/query/sessions";
+import { getLoginData } from "~/models/sessions";
 
 const prisma = new PrismaClient();
 

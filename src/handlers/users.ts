@@ -17,6 +17,7 @@ import { throwInvalidError } from "~/helpers/errors";
 import { handleUserLocationCrypt, createHash } from "~/helpers/crypto";
 import { geohashPrecision } from "~/constants";
 import { getUserIsInPrivateTime } from "~/helpers/privateTime";
+import { groupMemberWhoBlockTargetUserExists } from "~/models/groups";
 
 const prisma = new PrismaClient();
 
@@ -235,35 +236,13 @@ const getUserPageInfo = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     return throwInvalidError();
   }
 
-  let groupMembersBlockToTargetUser: boolean = false;
+  let groupMemberBlockTargetUser: boolean = false;
   if (requestUser.groupId) {
-    const requestUserGroupData = await prisma.group.findUnique({
-      where: {
-        id: requestUser.groupId,
-      },
-      select: {
-        members: {
-          where: {
-            blocks: {
-              some: {
-                blockTo: targetUser.id,
-                NOT: {
-                  blockBy: requestUser.id, // グループのメンバーに自分は入れない
-                },
-              },
-            },
-          },
-          select: {
-            id: true,
-          },
-        },
-      },
+    groupMemberBlockTargetUser = await groupMemberWhoBlockTargetUserExists({
+      groupId: requestUser.groupId,
+      requestUserId: requestUser.id,
+      targetUserId: targetUser.id,
     });
-
-    // リクエストユーザーのグループメンバーがターゲットユーザーをブロックしていた場合trueを格納
-    if (requestUserGroupData && requestUserGroupData.members.length) {
-      groupMembersBlockToTargetUser = true;
-    }
   }
 
   const { blocked, blocks, ...userwithoutBlockData } = targetUser;
@@ -282,7 +261,7 @@ const getUserPageInfo = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     youtube: block ? null : targetUser.youtube,
     tiktok: block ? null : targetUser.tiktok,
     blockTo,
-    groupMembersBlockToTargetUser,
+    groupMemberBlockTargetUser,
   };
 };
 

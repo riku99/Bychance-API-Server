@@ -2,6 +2,8 @@ import Joi from "joi";
 
 import { throwInvalidError } from "~/helpers/errors";
 
+const failAction = () => throwInvalidError();
+
 export type CreatePaylaod = {
   blockTo: string;
 };
@@ -10,7 +12,6 @@ const createValidation = {
     blockTo: Joi.string().required(),
   }),
 };
-const createFailAction = () => throwInvalidError();
 
 export type DeleteParams = {
   userId: string;
@@ -20,15 +21,27 @@ const deleteValidation = {
     userId: Joi.string().required(),
   }),
 };
-const deleteFailAction = () => throwInvalidError();
+
+export type GetGroupMembersBlockTargetUserParams = {
+  userId: string;
+};
+const getGroupMembersBlockDataValidation = {
+  params: Joi.object<GetGroupMembersBlockTargetUserParams>({
+    userId: Joi.string().required(),
+  }),
+};
 
 export const validaotors = {
   create: {
     validaotor: createValidation,
-    failAction: createFailAction,
+    failAction,
   },
   delete: {
     validaotor: deleteValidation,
-    failAction: deleteFailAction,
+    failAction,
+  },
+  getGroupMembersBlockData: {
+    validaotor: getGroupMembersBlockDataValidation,
+    failAction,
   },
 };
