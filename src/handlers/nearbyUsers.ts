@@ -116,22 +116,12 @@ const get = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       }
 
       const { lat, lng, privateTime, flashes, ...userData } = _user;
-      // const viewerViewedFlasheIds = flashes
-      //   .map((f) => f.specificUserViewed)
-      //   .filter((f) => f.length)
-      //   .map((f) => f[0].flashId);
-      // const viewedAllFlashes = viewerViewedFlasheIds.length === flashes.length;
 
       return {
         ...userData,
         lat: _lat,
         lng: _lng,
         flashes,
-        // flashesData: {
-        //   entities: flashes,
-        //   viewerViewedFlasheIds,
-        //   viewedAllFlashes,
-        // },
       };
     })
     .filter((a): a is Exclude<typeof a, undefined> => a !== undefined)
