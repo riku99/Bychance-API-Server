@@ -247,6 +247,9 @@ const getUserPageInfo = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
             blocks: {
               some: {
                 blockTo: targetUser.id,
+                NOT: {
+                  blockBy: requestUser.id, // グループのメンバーに自分は入れない
+                },
               },
             },
           },
