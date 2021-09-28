@@ -186,10 +186,10 @@ const deleteLocation = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
 };
 
 const getUserPageInfo = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
-  const me = req.auth.artifacts as Artifacts;
+  const requestUser = req.auth.artifacts as Artifacts;
   const params = req.params as GetUserParams;
 
-  const user = await prisma.user.findUnique({
+  const targetUser = await prisma.user.findUnique({
     where: {
       id: params.userId,
     },
@@ -231,26 +231,55 @@ const getUserPageInfo = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     },
   });
 
-  if (!user) {
+  if (!targetUser) {
     return throwInvalidError();
   }
 
-  const { blocked, blocks, ...userwithoutBlockData } = user;
+  let groupMembersBlockToTargetUser: boolean = false;
+  if (requestUser.groupId) {
+    const requestUserGroupData = await prisma.group.findUnique({
+      where: {
+        id: requestUser.groupId,
+      },
+      select: {
+        members: {
+          where: {
+            blocks: {
+              some: {
+                blockTo: targetUser.id,
+              },
+            },
+          },
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
 
-  const blockTo = blocked.some((b) => b.blockBy === me.id); // リクエストしたユーザーが取得したユーザーをブロックしてるかどうか
-  const blockBy = blocks.some((b) => b.blockTo === me.id); // リクエストしたユーザーが取得したユーザーにブロックされているかどうか
+    // リクエストユーザーのグループメンバーがターゲットユーザーをブロックしていた場合trueを格納
+    if (requestUserGroupData && requestUserGroupData.members.length) {
+      groupMembersBlockToTargetUser = true;
+    }
+  }
+
+  const { blocked, blocks, ...userwithoutBlockData } = targetUser;
+
+  const blockTo = blocked.some((b) => b.blockBy === requestUser.id); // リクエストしたユーザーが取得したユーザーをブロックしてるかどうか
+  const blockBy = blocks.some((b) => b.blockTo === requestUser.id); // リクエストしたユーザーが取得したユーザーにブロックされているかどうか
   const block = blockTo || blockBy;
 
   return {
     ...userwithoutBlockData,
-    posts: block ? [] : user.posts,
-    flashes: block ? [] : user.flashes,
-    introduce: block ? "" : user.introduce,
-    instagram: block ? null : user.instagram,
-    twitter: block ? null : user.twitter,
-    youtube: block ? null : user.youtube,
-    tiktok: block ? null : user.tiktok,
+    posts: block ? [] : targetUser.posts,
+    flashes: block ? [] : targetUser.flashes,
+    introduce: block ? "" : targetUser.introduce,
+    instagram: block ? null : targetUser.instagram,
+    twitter: block ? null : targetUser.twitter,
+    youtube: block ? null : targetUser.youtube,
+    tiktok: block ? null : targetUser.tiktok,
     blockTo,
+    groupMembersBlockToTargetUser,
   };
 };
 
@@ -388,7 +417,7 @@ const deleteGroupId = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const user = req.auth.artifacts as Artifacts;
 
   if (!user.groupId) {
-    return throwInvalidError("グループに入っていません")
+    return throwInvalidError("グループに入っていません");
   }
 
   await prisma.user.update({
