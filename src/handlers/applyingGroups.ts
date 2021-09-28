@@ -61,6 +61,20 @@ const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     return throwInvalidError("相手ユーザーが既にグループに入っています");
   }
 
+  const ownedGroup = await prisma.group.findUnique({
+    where: {
+      ownerId: user.id,
+    },
+  });
+
+  // リクエストしたユーザーがグループに入っている && グループのオーナーではない場合は申請できない
+  if (user.groupId && !ownedGroup) {
+    return throwInvalidError(
+      "あなたは既にグループに入っています。グループに入っている場合、申請できるのはグループのオーナーのみです",
+      true
+    );
+  }
+
   if (targetUser.blocked.length) {
     return throwInvalidError(
       "このユーザーをブロックしています。申請するにはブロックを解除してください",
