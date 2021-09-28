@@ -80,7 +80,7 @@ const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
 };
 
 const get = async (req: Hapi.Request) => {
-  const user = req.auth.artifacts as Artifacts;
+  const requestUser = req.auth.artifacts as Artifacts;
   const params = req.params as GetGroupsParams;
 
   // 指定したユーザーのグループデータ取得
@@ -104,6 +104,22 @@ const get = async (req: Hapi.Request) => {
         },
       },
       groupId: true,
+      blocked: {
+        where: {
+          blockBy: requestUser.id,
+        },
+        select: {
+          blockBy: true,
+        },
+      },
+      blocks: {
+        where: {
+          blockTo: requestUser.id,
+        },
+        select: {
+          blockTo: true,
+        },
+      },
     },
   });
 
@@ -126,6 +142,13 @@ const get = async (req: Hapi.Request) => {
       });
     }
 
+    return {
+      presence: false,
+    };
+  }
+
+  // 対象ユーザーがリクエストユーザーをブロックしている || 対象ユーザーがリクエストユーザーにブロックされている場合、グループを表示させない
+  if (targetUser.blocks.length || targetUser.blocked.length) {
     return {
       presence: false,
     };

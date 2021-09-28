@@ -99,7 +99,7 @@ const get = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
         return;
       }
 
-      // ユーザーAのグループメンバーがリクエストユーザーBをブロックしている場合は、AはBに表示させない
+      // ユーザーAのグループメンバーがリクエストユーザーBをブロックしている場合は、AをBに表示させない。BがユーザーAのグループメンバーをブロックしている場合ではとりあえず今はAは表示させる。
       if (_user.group && _user.group.members.length) {
         const members = _user.group.members;
         const groupMembersBlockToRequestUser = members.some((m) => {
