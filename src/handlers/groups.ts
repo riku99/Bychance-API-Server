@@ -84,11 +84,13 @@ const get = async (req: Hapi.Request) => {
   const params = req.params as GetGroupsParams;
 
   // 指定したユーザーのグループデータ取得
-  const groupData = await prisma.user.findUnique({
+  const targetUser = await prisma.user.findUnique({
     where: {
       id: params.userId,
     },
     select: {
+      id: true,
+      avatar: true,
       group: {
         select: {
           id: true,
@@ -106,14 +108,14 @@ const get = async (req: Hapi.Request) => {
   });
 
   // そもそもユーザーがいない場合
-  if (!groupData) {
+  if (!targetUser) {
     return throwInvalidError();
   }
 
   // グループに入っていない
-  if (!groupData.group) {
+  if (!targetUser.group) {
     // 何らかの理由で「グループは存在しないのにgroupIdが存在する場合」はgroupIdを削除
-    if (groupData.groupId) {
+    if (targetUser.groupId) {
       await prisma.user.update({
         where: {
           id: params.userId,
@@ -131,14 +133,14 @@ const get = async (req: Hapi.Request) => {
 
   // 対象のユーザーのデータは最初にいれる
   const members = [
-    { id: user.id, avatar: user.avatar },
-    ...groupData.group.members.filter((m) => m.id !== user.id),
+    { id: targetUser.id, avatar: targetUser.avatar },
+    ...targetUser.group.members.filter((m) => m.id !== targetUser.id),
   ];
 
   return {
     presence: true,
-    id: groupData.group.id,
-    ownerId: groupData.group.ownerId,
+    id: targetUser.group.id,
+    ownerId: targetUser.group.ownerId,
     members,
   };
 };
