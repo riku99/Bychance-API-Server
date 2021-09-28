@@ -13,9 +13,22 @@ const createGroupsValidation = {
   }),
 };
 
+export type GetGroupsParams = {
+  userId: string;
+};
+const getGroupsValidation = {
+  params: Joi.object<GetGroupsParams>({
+    userId: Joi.string().required(),
+  }),
+};
+
 export const validators = {
   create: {
     validator: createGroupsValidation,
+    failAction,
+  },
+  get: {
+    validator: getGroupsValidation,
     failAction,
   },
 };

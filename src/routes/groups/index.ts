@@ -21,8 +21,14 @@ export const groupsRoute = async (server: Hapi.Server) => {
     },
     {
       method: "GET",
-      path: groupsUrl,
+      path: `${baseUrl}/users/{userId}/groups`,
       handler: handlers.get,
+      options: {
+        validate: {
+          params: validators.get.validator.params,
+          failAction: validators.get.failAction,
+        },
+      },
     },
     {
       method: "DELETE",

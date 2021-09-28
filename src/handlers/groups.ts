@@ -1,7 +1,10 @@
 import Hapi from "@hapi/hapi";
 import { PrismaClient } from "@prisma/client";
 
-import { CreateGroupsPayload } from "~/routes/groups/validators";
+import {
+  CreateGroupsPayload,
+  GetGroupsParams,
+} from "~/routes/groups/validators";
 import { Artifacts } from "~/auth/bearer";
 import { throwInvalidError } from "~/helpers/errors";
 
@@ -78,57 +81,65 @@ const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
 
 const get = async (req: Hapi.Request) => {
   const user = req.auth.artifacts as Artifacts;
+  const params = req.params as GetGroupsParams;
 
-  if (!user.groupId) {
-    return {
-      presence: false,
-    };
-  }
-
-  const groupData = await prisma.group.findUnique({
+  // 指定したユーザーのグループデータ取得
+  const groupData = await prisma.user.findUnique({
     where: {
-      id: user.groupId,
+      id: params.userId,
     },
     select: {
-      id: true,
-      ownerId: true,
-      members: {
-        where: {
-          id: {
-            not: user.id,
-          },
-        },
+      group: {
         select: {
           id: true,
-          avatar: true,
+          ownerId: true,
+          members: {
+            select: {
+              id: true,
+              avatar: true,
+            },
+          },
         },
       },
+      groupId: true,
     },
   });
 
+  // そもそもユーザーがいない場合
   if (!groupData) {
-    // userにgroupIdが存在してもGroupが存在しなかった場合groupIdを削除
-    await prisma.user.update({
-      where: {
-        id: user.id,
-      },
-      data: {
-        groupId: null,
-      },
-    });
+    return throwInvalidError();
+  }
+
+  // グループに入っていない
+  if (!groupData.group) {
+    // 何らかの理由で「グループは存在しないのにgroupIdが存在する場合」はgroupIdを削除
+    if (groupData.groupId) {
+      await prisma.user.update({
+        where: {
+          id: params.userId,
+        },
+        data: {
+          groupId: null,
+        },
+      });
+    }
 
     return {
       presence: false,
     };
   }
 
-  const members = [{ id: user.id, avatar: user.avatar }, ...groupData.members]; // リクエストしたユーザーのデータは最初にいれる
+  // 対象のユーザーのデータは最初にいれる
+  const members = [
+    { id: user.id, avatar: user.avatar },
+    ...groupData.group.members.filter((m) => m.id !== user.id),
+  ];
 
   return {
     presence: true,
-    id: groupData.id,
+    id: groupData.group.id,
+    ownerId: groupData.group.ownerId,
     members,
-    ownerId: groupData.ownerId,
   };
 };
 
