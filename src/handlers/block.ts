@@ -7,6 +7,7 @@ import {
   GetGroupMembersBlockTargetUserParams,
 } from "~/routes/block/validator";
 import { Artifacts } from "~/auth/bearer";
+import { groupMemberWhoBlockTargetUserExists } from "~/models/groups";
 
 const prisma = new PrismaClient();
 
@@ -40,11 +41,24 @@ const _delete = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   return h.response().code(200);
 };
 
-const getGroupMemberWhoBlcokTargetUserExists = async (req: Hapi.Request) => {
+const getGroupMemberWhoBlcokTargetUserExists = async (
+  req: Hapi.Request,
+  h: Hapi.ResponseToolkit
+) => {
   const requestUser = req.auth.artifacts as Artifacts;
   const params = req.params as GetGroupMembersBlockTargetUserParams;
 
-  return true;
+  if (!requestUser.groupId) {
+    return false;
+  }
+
+  const result = await groupMemberWhoBlockTargetUserExists({
+    groupId: requestUser.groupId,
+    requestUserId: requestUser.id,
+    targetUserId: params.userId,
+  });
+
+  return result;
 };
 
 export const handlers = {

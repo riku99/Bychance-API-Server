@@ -236,15 +236,6 @@ const getUserPageInfo = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     return throwInvalidError();
   }
 
-  let groupMemberBlockTargetUser: boolean = false;
-  if (requestUser.groupId) {
-    groupMemberBlockTargetUser = await groupMemberWhoBlockTargetUserExists({
-      groupId: requestUser.groupId,
-      requestUserId: requestUser.id,
-      targetUserId: targetUser.id,
-    });
-  }
-
   const { blocked, blocks, ...userwithoutBlockData } = targetUser;
 
   const blockTo = blocked.some((b) => b.blockBy === requestUser.id); // リクエストしたユーザーが取得したユーザーをブロックしてるかどうか
@@ -261,7 +252,6 @@ const getUserPageInfo = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     youtube: block ? null : targetUser.youtube,
     tiktok: block ? null : targetUser.tiktok,
     blockTo,
-    groupMemberBlockTargetUser,
   };
 };
 
