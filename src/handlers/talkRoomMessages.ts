@@ -10,7 +10,6 @@ import {
 import { talkRoomMessageNameSpace } from "~/server";
 import { throwInvalidError } from "~/helpers/errors";
 import { pushNotificationToMany } from "~/helpers/pushNotification";
-import { IotData } from "aws-sdk";
 
 const prisma = new PrismaClient();
 

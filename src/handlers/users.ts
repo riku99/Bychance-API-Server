@@ -11,6 +11,11 @@ import {
   GetUserParams,
   ChangeTooltipOfUsersDisplayShowedPayload,
   ChangeGroupsApplicationEnabled,
+  ChangeDisplayPaylaod,
+  ChangeVideoEditDescriptionPayload,
+  ChangeTalkRoomMessageReceipt,
+  ChangeShowReceiveMessage,
+  ChangeIntro,
 } from "~/routes/users/validator";
 import { createS3ObjectPath } from "~/helpers/aws";
 import { throwInvalidError } from "~/helpers/errors";
@@ -404,6 +409,103 @@ const deleteGroupId = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   return h.response().code(200);
 };
 
+const changeDisplay = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
+  const user = req.auth.artifacts as Artifacts;
+  const payload = req.payload as ChangeDisplayPaylaod;
+
+  try {
+    await prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        display: payload.display,
+      },
+    });
+  } catch {
+    return throwInvalidError();
+  }
+
+  return h.response().code(200);
+};
+
+const changeVideoEditDescription = async (
+  req: Hapi.Request,
+  h: Hapi.ResponseToolkit
+) => {
+  const user = req.auth.artifacts as Artifacts;
+  const payload = req.payload as ChangeVideoEditDescriptionPayload;
+
+  try {
+    await prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        videoEditDescription: payload.videoEditDescription,
+      },
+    });
+  } catch {}
+
+  return h.response().code(200);
+};
+
+const changeTalkRoomMessageReceipt = async (
+  req: Hapi.Request,
+  h: Hapi.ResponseToolkit
+) => {
+  const user = req.auth.artifacts as Artifacts;
+  const payload = req.payload as ChangeTalkRoomMessageReceipt;
+
+  try {
+    await prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        talkRoomMessageReceipt: payload.receipt,
+      },
+    });
+  } catch {}
+
+  return h.response().code(200);
+};
+
+const changeShowReceiveMessage = async (
+  req: Hapi.Request,
+  h: Hapi.ResponseToolkit
+) => {
+  const user = req.auth.artifacts as Artifacts;
+  const payload = req.payload as ChangeShowReceiveMessage;
+
+  await prisma.user.update({
+    where: {
+      id: user.id,
+    },
+    data: {
+      showReceiveMessage: payload.showReceiveMessage,
+    },
+  });
+
+  return h.response().code(200);
+};
+
+const changeIntro = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
+  const user = req.auth.artifacts as Artifacts;
+  const payload = req.payload as ChangeIntro;
+
+  await prisma.user.update({
+    where: {
+      id: user.id,
+    },
+    data: {
+      intro: payload.intro,
+    },
+  });
+
+  return h.response().code(200);
+};
+
 export const handlers = {
   updateUser,
   updateLocation,
@@ -414,4 +516,9 @@ export const handlers = {
   isDisplayed,
   changeGroupsApplicationEnabled,
   deleteGroupId,
+  changeDisplay,
+  changeVideoEditDescription,
+  changeTalkRoomMessageReceipt,
+  changeShowReceiveMessage,
+  changeIntro,
 };

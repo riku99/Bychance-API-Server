@@ -37,7 +37,6 @@ import { recommendationClientNotificationsPlugin } from "~/plugins/recommendatio
 import { userHideRecommendatoinsPlugin } from "~/plugins/userHideRecommnedations";
 import { recommendationClientReadNotificationPlugin } from "~/plugins/recommendationClientReadNotification";
 import { blockesRoute } from "~/routes/block";
-import { userSettingsRoute } from "~/routes/userSettings";
 import { groupsRoute } from "~/routes/groups";
 import { applyingGroupsRoute } from "~/routes/applyingGroup";
 
@@ -148,9 +147,8 @@ export const initializeServer = async () => {
     userHideRecommendatoinsPlugin,
     recommendationClientReadNotificationPlugin,
   ]);
-  // シンプルにルート定義するためだけにplugin設定する必要ない。
+  // これまでルーティング作成のためだけにプラグイン作成してきたが、シンプルにルーティング定義するためだけにplugin設定する必要ない。
   blockesRoute(server);
-  userSettingsRoute(server);
   groupsRoute(server);
   applyingGroupsRoute(server);
 

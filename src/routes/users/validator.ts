@@ -78,7 +78,6 @@ const getValidation = {
     userId: Joi.string().required(),
   }),
 };
-const getFailAction = () => throwInvalidError();
 
 export type ChangeTooltipOfUsersDisplayShowedPayload = {
   value: boolean;
@@ -88,7 +87,6 @@ const changeTooltipOfUsersDisplayShowedValidation = {
     value: Joi.boolean().required(),
   }),
 };
-const changeTooltipOfUsersDisplayShowedFailAction = () => throwInvalidError();
 
 export type ChangeGroupsApplicationEnabled = {
   value: boolean;
@@ -99,17 +97,82 @@ const changeGroupsApplicationEnabledValidation = {
   }),
 };
 
+export type ChangeDisplayPaylaod = {
+  display: boolean;
+};
+const changeDisplayValidation = {
+  payload: Joi.object<ChangeDisplayPaylaod>({
+    display: Joi.boolean().required(),
+  }),
+};
+
+export type ChangeVideoEditDescriptionPayload = {
+  videoEditDescription: boolean;
+};
+const videoEditDesctiptionValidation = {
+  payload: Joi.object<ChangeVideoEditDescriptionPayload>({
+    videoEditDescription: Joi.boolean().required(),
+  }),
+};
+
+export type ChangeTalkRoomMessageReceipt = {
+  receipt: boolean;
+};
+const talkRoomMessageReceiptValidation = {
+  payload: Joi.object<ChangeTalkRoomMessageReceipt>({
+    receipt: Joi.boolean().required(),
+  }),
+};
+
+export type ChangeShowReceiveMessage = {
+  showReceiveMessage: boolean;
+};
+const changeShowReceiveMessageValidation = {
+  payload: Joi.object<ChangeShowReceiveMessage>({
+    showReceiveMessage: Joi.boolean().required(),
+  }),
+};
+
+export type ChangeIntro = {
+  intro: boolean;
+};
+const changeIntroValidation = {
+  payload: Joi.object<ChangeIntro>({
+    intro: Joi.boolean().required(),
+  }),
+};
+
 export const validators = {
   getUser: {
     validator: getValidation,
-    failAction: getFailAction,
+    failAction,
   },
   changeTooltipOfUsersDisplayShowed: {
     validator: changeTooltipOfUsersDisplayShowedValidation,
-    failAction: changeTooltipOfUsersDisplayShowedFailAction,
+    failAction,
   },
   changeGroupsApplicationEnabled: {
     validator: changeGroupsApplicationEnabledValidation,
+    failAction,
+  },
+  changeDisplay: {
+    validator: changeDisplayValidation,
+    failAction,
+  },
+  changeVideoEditDescription: {
+    validator: videoEditDesctiptionValidation,
+    failAction,
+  },
+  changeTalkRoomMessageReceipt: {
+    validator: talkRoomMessageReceiptValidation,
+    failAction,
+  },
+  changeShowReceiveMessage: {
+    validator: changeShowReceiveMessageValidation,
+    failAction,
+  },
+  changeIntro: {
+    validator: changeIntroValidation,
     failAction,
   },
 };
