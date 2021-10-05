@@ -5,30 +5,17 @@ import { initializeServer } from "~/server";
 import { baseUrl } from "~/constants";
 import { createHash } from "~/helpers/crypto";
 import { createS3ObjectPath } from "~/helpers/aws";
-import { invalidErrorType } from "~/config/apis/errors";
 
 const prisma = new PrismaClient();
 
-const accessToken = "生accessToken";
+const accessToken = "accessToken";
 const hashedAccessToken = createHash(accessToken);
 
-const user = {
-  id: "1",
-  lineId: "lineId",
-  accessToken: hashedAccessToken,
-  name: "name",
-};
-
-const post = {
-  id: 1,
-  text: "Hey",
-  image: "url",
-  userId: user.id,
-};
-
-const createS3ObjectPathResult = "image url";
+const S3ObjectPathResult = "imageUrl";
 jest.mock("~/helpers/aws");
-(createS3ObjectPath as any).mockResolvedValue(createS3ObjectPathResult);
+(createS3ObjectPath as any).mockResolvedValue({
+  source: S3ObjectPathResult,
+});
 
 describe("posts", () => {
   let server: Hapi.Server;
@@ -40,7 +27,6 @@ describe("posts", () => {
   beforeEach(async () => {
     await prisma.post.deleteMany({});
     await prisma.user.deleteMany({});
-    await prisma.user.create({ data: user });
   });
 
   afterAll(async () => {
@@ -48,131 +34,65 @@ describe("posts", () => {
     await prisma.user.deleteMany({});
   });
 
-  describe("POST /posts", () => {
-    describe("バリデーションに通る", () => {
-      test("200とデータを返す", async () => {
-        const res = await server.inject({
-          method: "POST",
-          url: `${baseUrl}/posts?id=${user.id}`,
-          payload: { text: "text", image: "image" },
-          headers: { Authorization: `Bearer ${accessToken}` },
-        });
+  describe("Postの作成, POST /posts", () => {
+    const url = `${baseUrl}/posts`;
 
-        expect(res.statusCode).toEqual(200);
-        expect(JSON.parse(res.payload).image).toEqual(createS3ObjectPathResult);
-        expect(JSON.parse(res.payload).text).toEqual("text");
+    test("Postが作成される", async () => {
+      const user = await prisma.user.create({
+        data: {
+          name: "name",
+          lineId: "lineid",
+          accessToken: hashedAccessToken,
+        },
       });
+
+      const res = await server.inject({
+        method: "POST",
+        url,
+        auth: {
+          strategy: "simple",
+          credentials: {},
+          artifacts: user,
+        },
+        payload: {
+          text: "hey",
+          source: "そーす",
+          sourceType: "image",
+          ext: "png",
+        },
+      });
+
+      const newPost = await prisma.post.findFirst();
+
+      expect(newPost).toBeTruthy();
+      expect(JSON.parse(res.payload).url).toEqual(S3ObjectPathResult);
     });
 
-    describe("バリデーションに通らない", () => {
-      test("payloadに必要なデータがないので400を返す", async () => {
-        const res = await server.inject({
-          method: "POST",
-          url: `${baseUrl}/posts?id=${user.id}`,
-          headers: { Authorization: `Bearer ${accessToken}` },
-        });
-
-        expect(res.statusCode).toEqual(400);
-        expect(JSON.parse(res.payload).errorType).toEqual(invalidErrorType);
+    test("認可情報がないので401エラーを返す", async () => {
+      const res = await server.inject({
+        method: "POST",
+        url,
       });
 
-      test("payloadに余計なデータがあるので400を返す", async () => {
-        const res = await server.inject({
-          method: "POST",
-          url: `${baseUrl}/posts?id=${user.id}`,
-          payload: { text: "text", image: "image", accessToken: "token" },
-          headers: { Authorization: `Bearer ${accessToken}` },
-        });
-
-        expect(res.statusCode).toEqual(400);
-        expect(JSON.parse(res.payload).errorType).toEqual(invalidErrorType);
-      });
-    });
-  });
-
-  describe("DELETE /posts", () => {
-    describe("バリデーションに通る", () => {
-      describe("保存されているpostのuserIdと送られてきたIdが一致", () => {
-        test("200を返し、削除が完了している", async () => {
-          await prisma.post.create({
-            data: post,
-          });
-
-          const res = await server.inject({
-            method: "DELETE",
-            url: `${baseUrl}/posts?id=${user.id}`,
-            payload: { postId: post.id },
-            headers: { Authorization: `Bearer ${accessToken}` },
-          });
-
-          expect(res.statusCode).toEqual(200);
-
-          const noPost = await prisma.post.findUnique({
-            where: {
-              id: post.id,
-            },
-          });
-
-          expect(noPost).toBe(null);
-        });
-      });
-
-      describe("保存されているpostのuserIdと送られてきたIdが違う", () => {
-        test("postを見つけることができずに400を返す", async () => {
-          // postを作成するため関連するuserを作成
-          await prisma.user.create({
-            data: {
-              id: "2",
-              accessToken: "token",
-              lineId: "id",
-              name: "ビーム",
-            },
-          });
-
-          await prisma.post.create({
-            data: {
-              ...post,
-              userId: "2", // 送られてくるuserIdと違う物を設定。idが"2"のuserいなかったらエラー出る
-            },
-          });
-
-          const res = await server.inject({
-            method: "DELETE",
-            url: `${baseUrl}/posts?id=${user.id}`,
-            payload: { postId: post.id },
-            headers: { Authorization: `Bearer ${accessToken}` },
-          });
-
-          expect(res.statusCode).toEqual(400);
-          expect(JSON.parse(res.payload).errorType).toEqual(invalidErrorType);
-        });
-      });
+      expect(res.statusCode).toEqual(401);
     });
 
-    describe("バリデーションに通らない", () => {
-      test("payloadに必要なデータがないので400返す", async () => {
-        const res = await server.inject({
-          method: "DELETE",
-          url: `${baseUrl}/posts?id=${user.id}`,
-          payload: {}, // postIdがない
-          headers: { Authorization: `Bearer ${accessToken}` },
-        });
-
-        expect(res.statusCode).toEqual(400);
-        expect(JSON.parse(res.payload).errorType).toEqual(invalidErrorType);
+    test("認可情報が間違っているので401エラーを返す", async () => {
+      const user = await prisma.user.create({
+        data: {
+          name: "name",
+          lineId: "lineId",
+          accessToken: hashedAccessToken,
+        },
       });
 
-      test("payloadに不必要なデータがるので400を返す", async () => {
-        const res = await server.inject({
-          method: "DELETE",
-          url: `${baseUrl}/posts?id=${user.id}`,
-          payload: { postId: 1, accessToken: "token" }, // accessTokenをつける
-          headers: { Authorization: `Bearer ${accessToken}` },
-        });
-
-        expect(res.statusCode).toEqual(400);
-        expect(JSON.parse(res.payload).errorType).toEqual(invalidErrorType);
+      const res = await server.inject({
+        method: "POST",
+        url: `${url}?id=${user.id}`,
+        headers: { Authorization: "BearerWrongBearer" },
       });
+
+      expect(res.statusCode).toEqual(401);
     });
   });
 });
