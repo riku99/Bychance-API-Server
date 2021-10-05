@@ -254,7 +254,6 @@ describe("posts", () => {
         },
       });
 
-      console.log(res.payload);
       expect(JSON.parse(res.payload).length).toEqual(2);
     });
   });
