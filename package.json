@@ -88,9 +88,6 @@
     },
     "moduleNameMapper": {
       "~(.*)$": "<rootDir>/src/$1"
-    },
-    "prisma": {
-      "seed": "ts-node prisma/seed.ts"
     }
   }
 }
