@@ -181,5 +181,45 @@ describe("sessions", () => {
       // Assert
       expect(updatedUser?.login).toBeTruthy();
     });
+
+    test("認可情報がない場合、401エラーを返す", async () => {
+      // Arrange
+      await prisma.user.create({
+        data: {
+          name: "ボブ",
+          lineId: "lineId",
+          accessToken: hashedAccessToken,
+        },
+      });
+
+      // Act
+      const res = await server.inject({
+        method: "GET",
+        url,
+      });
+
+      // Assert
+      expect(res.statusCode).toEqual(401);
+    });
+
+    test("認可情報が間違っている場合、401エラーを返す", async () => {
+      // Arrange
+      const user = await prisma.user.create({
+        data: {
+          name: "ボブ",
+          lineId: "lineId",
+          accessToken: hashedAccessToken,
+        },
+      });
+
+      // Act
+      const res = await server.inject({
+        method: "GET",
+        url: `${url}?id=idididid`,
+        headers: { Authorization: "Bearer WrongBearer" },
+      });
+
+      expect(res.statusCode).toEqual(401);
+    });
   });
 });
