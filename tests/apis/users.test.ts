@@ -1,13 +1,11 @@
 import Hapi from "@hapi/hapi";
 import { PrismaClient } from "@prisma/client";
-import distance from "@turf/distance";
 
 import { initializeServer } from "~/server";
 import { baseUrl } from "~/constants";
 import { createHash } from "~/helpers/crypto";
 import { createS3ObjectPath } from "~/helpers/aws";
 import { UpdateUserPayload } from "~/routes/users/validator";
-import { handleUserLocationCrypto } from "~/helpers/crypto";
 
 const prisma = new PrismaClient();
 
@@ -20,20 +18,25 @@ jest.mock("~/helpers/aws");
   source: mockedImageUrl,
 });
 
+const deleteData = async () => {
+  await prisma.privateZone.deleteMany();
+  await prisma.user.deleteMany({});
+};
+
 describe("users", () => {
   let server: Hapi.Server;
 
   beforeAll(async () => {
     server = await initializeServer();
-    await prisma.user.deleteMany({});
+    await deleteData();
   });
 
   beforeEach(async () => {
-    await prisma.user.deleteMany({});
+    await deleteData();
   });
 
   afterAll(async () => {
-    await prisma.user.deleteMany({});
+    await deleteData();
   });
 
   describe("プロフィール編集, PATCH /users", () => {
