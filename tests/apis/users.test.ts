@@ -20,6 +20,9 @@ jest.mock("~/helpers/aws");
 
 const deleteData = async () => {
   await prisma.privateZone.deleteMany();
+  await prisma.post.deleteMany();
+  await prisma.flash.deleteMany();
+  await prisma.block.deleteMany();
   await prisma.user.deleteMany({});
 };
 
@@ -257,5 +260,134 @@ describe("users", () => {
 
       expect(updatedUser?.inPrivateZone).toBeTruthy();
     });
+  });
+
+  describe.only("ユーザーページデータ取得, GET /users/{userId}/page_info", () => {
+    const url = ({
+      targetUserId,
+      requestUserId,
+    }: {
+      targetUserId: string;
+      requestUserId: string;
+    }) => `${baseUrl}/users/${targetUserId}/page_info?id=${requestUserId}`;
+
+    test("認可情報がない場合、401エラーを返す", async () => {
+      const res = await server.inject({
+        method: "GET",
+        url: url({ requestUserId: "1", targetUserId: "11" }),
+      });
+
+      expect(res.statusCode).toEqual(401);
+    });
+
+    test("認可情報が間違っている場合、401エラーを返す", async () => {
+      const user = await prisma.user.create({
+        data: {
+          name: "name",
+          lineId: "lineId",
+          accessToken: "accessToken",
+        },
+      });
+
+      const res = await server.inject({
+        method: "GET",
+        url: url({ targetUserId: "111", requestUserId: user.id }),
+        headers: { Authorization: "Bearer WrongBearer" },
+      });
+
+      expect(res.statusCode).toEqual(401);
+    });
+
+    test("指定したユーザーのデータを返す", async () => {
+      const requestUser = await prisma.user.create({
+        data: {
+          name: "name",
+          lineId: "lineId1",
+          accessToken: "token1",
+        },
+      });
+
+      const targetUser = await prisma.user.create({
+        data: {
+          name: "suis",
+          lineId: "lineId2",
+          accessToken: "token2",
+        },
+      });
+
+      const res = await server.inject({
+        method: "GET",
+        url: url({
+          targetUserId: targetUser.id,
+          requestUserId: requestUser.id,
+        }),
+        auth: {
+          strategy: "simple",
+          credentials: {},
+          artifacts: requestUser,
+        },
+      });
+
+      expect(JSON.parse(res.payload).id).toEqual(targetUser.id);
+      expect(JSON.parse(res.payload).name).toEqual(targetUser.name);
+    });
+
+    test("リクエストユーザーが対象のユーザーをブロックしている場合、PostやFlashは空が返される", async () => {
+      const requestUser = await prisma.user.create({
+        data: {
+          name: "nammee",
+          lineId: "1",
+          accessToken: "1",
+        },
+      });
+
+      const targetUser = await prisma.user.create({
+        data: {
+          name: "namememe",
+          lineId: "2",
+          accessToken: "2",
+        },
+      });
+
+      await prisma.post.create({
+        data: {
+          userId: targetUser.id,
+          url: "url",
+        },
+      });
+
+      await prisma.flash.create({
+        data: {
+          userId: targetUser.id,
+          source: "ソース",
+          sourceType: "image",
+        },
+      });
+
+      await prisma.block.create({
+        data: {
+          blockBy: requestUser.id,
+          blockTo: targetUser.id,
+        },
+      });
+
+      const res = await server.inject({
+        method: "GET",
+        url: url({
+          targetUserId: targetUser.id,
+          requestUserId: requestUser.id,
+        }),
+        auth: {
+          strategy: "simple",
+          credentials: {},
+          artifacts: requestUser,
+        },
+      });
+
+      expect(JSON.parse(res.payload).posts.length).toEqual(0);
+      expect(JSON.parse(res.payload).flashes.length).toEqual(0);
+    });
+
+    test("リクエストユーザーが対象のユーザーにブロックされている場合、PostやFlashは空が返される", async () => {});
   });
 });
