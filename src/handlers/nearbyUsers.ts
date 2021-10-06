@@ -6,7 +6,7 @@ import geohash from "ngeohash";
 
 import { Artifacts } from "~/auth/bearer";
 import { GetNearbyUsersQuery } from "~/routes/nearbyUsers/validator";
-import { handleUserLocationCrypt, createHash } from "~/helpers/crypto";
+import { handleUserLocationCrypto, createHash } from "~/helpers/crypto";
 import { confirmInTime } from "~/utils";
 import { geohashPrecision } from "~/constants";
 import { throwInvalidError } from "~/helpers/errors";
@@ -21,7 +21,7 @@ const get = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     return throwInvalidError();
   }
 
-  const { lat, lng } = handleUserLocationCrypt(user.lat, user.lng, "decrypt");
+  const { lat, lng } = handleUserLocationCrypto(user.lat, user.lng, "decrypt");
 
   const requestUserPoint = point([lng, lat]); // 経度緯度の順で渡す
 
@@ -127,7 +127,7 @@ const get = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
         return;
       }
 
-      const { lat: _lat, lng: _lng } = handleUserLocationCrypt(
+      const { lat: _lat, lng: _lng } = handleUserLocationCrypto(
         _user.lat,
         _user.lng,
         "decrypt"

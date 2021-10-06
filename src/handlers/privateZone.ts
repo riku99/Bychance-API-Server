@@ -9,7 +9,7 @@ import {
   CreatePrivateZonePayload,
   DeletePrivateZoneParams,
 } from "~/routes/privateZone/validator";
-import { handleUserLocationCrypt, handleAddressCrypt } from "~/helpers/crypto";
+import { handleUserLocationCrypto, handleAddressCrypt } from "~/helpers/crypto";
 
 const prisma = new PrismaClient();
 
@@ -47,7 +47,7 @@ const createPrivateZone = async (
   const user = req.auth.artifacts as Artifacts;
   const payload = req.payload as CreatePrivateZonePayload;
 
-  const cryptoResult = handleUserLocationCrypt(
+  const cryptoResult = handleUserLocationCrypto(
     payload.lat,
     payload.lng,
     "encrypt"
@@ -66,7 +66,7 @@ const createPrivateZone = async (
 
   // プライベートゾーンを追加したということは、それまでプライベートゾーン内にはいなかったがこの追加によりプライベートゾーン内にいる状態に変化する可能性がある。それを検証する
   if (user.lat && user.lng && !user.inPrivateZone) {
-    const decryptCurrentLatLng = handleUserLocationCrypt(
+    const decryptCurrentLatLng = handleUserLocationCrypto(
       user.lat,
       user.lng,
       "decrypt"
@@ -122,7 +122,7 @@ const deletePrivateZone = async (
       },
     });
 
-    const decryptCurrentLatLng = handleUserLocationCrypt(
+    const decryptCurrentLatLng = handleUserLocationCrypto(
       user.lat,
       user.lng,
       "decrypt"
@@ -134,7 +134,7 @@ const deletePrivateZone = async (
     ]);
 
     const inPrivateZone = currentPrivateZone.find((p) => {
-      const decryptPrivateLatLng = handleUserLocationCrypt(
+      const decryptPrivateLatLng = handleUserLocationCrypto(
         p.lat,
         p.lng,
         "decrypt"

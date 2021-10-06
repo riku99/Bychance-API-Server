@@ -19,7 +19,7 @@ import {
 } from "~/routes/users/validator";
 import { createS3ObjectPath } from "~/helpers/aws";
 import { throwInvalidError } from "~/helpers/errors";
-import { handleUserLocationCrypt, createHash } from "~/helpers/crypto";
+import { handleUserLocationCrypto, createHash } from "~/helpers/crypto";
 import { geohashPrecision } from "~/constants";
 import { getUserIsInPrivateTime } from "~/helpers/privateTime";
 import { groupMemberWhoBlockTargetUserExists } from "~/models/groups";
@@ -124,7 +124,7 @@ const updateLocation = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const hashedGh = createHash(gh);
   const hashedGh7 = createHash(gh7);
 
-  const cryptedLocation = handleUserLocationCrypt(
+  const cryptedLocation = handleUserLocationCrypto(
     payload.lat,
     payload.lng,
     "encrypt"
@@ -139,7 +139,7 @@ const updateLocation = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const newPoint = point([payload.lng, payload.lat]);
 
   const inPrivateZone = currentPrivateZone.find((p) => {
-    const decryptPrivateLatLng = handleUserLocationCrypt(
+    const decryptPrivateLatLng = handleUserLocationCrypto(
       p.lat,
       p.lng,
       "decrypt"
@@ -311,7 +311,7 @@ const refreshMyData = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   let decryptedLat: number | null = null;
   let decryptedLng: number | null = null;
   if (lat && lng) {
-    const { lat: _lat, lng: _lng } = handleUserLocationCrypt(
+    const { lat: _lat, lng: _lng } = handleUserLocationCrypto(
       lat,
       lng,
       "decrypt"

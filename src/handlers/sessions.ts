@@ -5,7 +5,7 @@ import { PrismaClient, UnwrapPromise } from "@prisma/client";
 import {
   createHash,
   createRandomString,
-  handleUserLocationCrypt,
+  handleUserLocationCrypto,
 } from "~/helpers/crypto";
 import { LineLoginHeaders } from "~/routes/sessions/validator";
 import { throwLoginError } from "~/helpers/errors";
@@ -25,7 +25,7 @@ const formLoginData = (
   let decryptedLat: number | null = null;
   let decryptedLng: number | null = null;
   if (lat && lng) {
-    const { lat: _lat, lng: _lng } = handleUserLocationCrypt(
+    const { lat: _lat, lng: _lng } = handleUserLocationCrypto(
       lat,
       lng,
       "decrypt"

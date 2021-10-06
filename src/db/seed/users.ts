@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 
-import { handleUserLocationCrypt, createHash } from "~/helpers/crypto";
+import { handleUserLocationCrypto, createHash } from "~/helpers/crypto";
 
 const prisma = new PrismaClient();
 
@@ -49,7 +49,11 @@ const users = [マキマ, アキ, デンジ, パワー, コベニ];
 
 const runUsersSeed = async () => {
   for (const user of users) {
-    const { lat, lng } = handleUserLocationCrypt(user.lat, user.lng, "encrypt");
+    const { lat, lng } = handleUserLocationCrypto(
+      user.lat,
+      user.lng,
+      "encrypt"
+    );
     await prisma.user.create({
       data: {
         ...user,

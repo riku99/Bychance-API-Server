@@ -19,7 +19,7 @@ export const createRandomString = () => {
   return result;
 };
 
-type HandleUserLocationCrypt = {
+type handleUserLocationCrypto = {
   (lat: number, lng: number, mode: "encrypt"): {
     lat: string;
     lng: string;
@@ -31,7 +31,7 @@ type HandleUserLocationCrypt = {
 };
 
 // lat, lngの暗号化
-export const handleUserLocationCrypt: HandleUserLocationCrypt = (
+export const handleUserLocationCrypto: handleUserLocationCrypto = (
   lat: number | string,
   lng: number | string,
   mode: "encrypt" | "decrypt"
