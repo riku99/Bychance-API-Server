@@ -6,6 +6,9 @@ import { baseUrl } from "~/constants";
 import { createHash } from "~/helpers/crypto";
 import { createS3ObjectPath } from "~/helpers/aws";
 import { UpdateUserPayload } from "~/routes/users/validator";
+import { createRamdomUser } from "../data/user";
+import { createPost } from "../data/posts";
+import { createFlash } from "../data/flash";
 
 const prisma = new PrismaClient();
 
@@ -388,6 +391,35 @@ describe("users", () => {
       expect(JSON.parse(res.payload).flashes.length).toEqual(0);
     });
 
-    test("リクエストユーザーが対象のユーザーにブロックされている場合、PostやFlashは空が返される", async () => {});
+    test("リクエストユーザーが対象のユーザーにブロックされている場合、PostやFlashは空が返される", async () => {
+      const requestUser = await createRamdomUser();
+      const targetUser = await createRamdomUser();
+      await createPost({ userId: targetUser.id });
+      await createFlash({ userId: targetUser.id });
+
+      // リクエスと側がブロックされてる!
+      await prisma.block.create({
+        data: {
+          blockBy: targetUser.id,
+          blockTo: requestUser.id,
+        },
+      });
+
+      const res = await server.inject({
+        method: "GET",
+        url: url({
+          targetUserId: targetUser.id,
+          requestUserId: requestUser.id,
+        }),
+        auth: {
+          strategy: "simple",
+          credentials: {},
+          artifacts: requestUser,
+        },
+      });
+
+      expect(JSON.parse(res.payload).posts.length).toEqual(0);
+      expect(JSON.parse(res.payload).flashes.length).toEqual(0);
+    });
   });
 });
