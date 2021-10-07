@@ -9,8 +9,6 @@ import { handlers } from "~/handlers/users";
 import { baseUrl } from "~/constants";
 import { maxBytes } from "~/config/apis/size";
 
-const usersLocation = `${baseUrl}/users/location`;
-
 export const usersRoute = async (server: Hapi.Server) => {
   server.route([
     {
@@ -25,6 +23,7 @@ export const usersRoute = async (server: Hapi.Server) => {
       },
     },
     {
+      // no test
       method: "GET",
       path: `${baseUrl}/users/my_refresh_data`,
       handler: handlers.refreshMyData,
@@ -45,7 +44,7 @@ export const usersRoute = async (server: Hapi.Server) => {
     },
     {
       method: "PATCH",
-      path: `${baseUrl}/users/location`,
+      path: `${baseUrl}/users/locations`,
       handler: handlers.updateLocation,
       options: {
         validate: {
@@ -56,10 +55,11 @@ export const usersRoute = async (server: Hapi.Server) => {
     },
     {
       method: "DELETE",
-      path: usersLocation,
+      path: `${baseUrl}/users/locations`,
       handler: handlers.deleteLocation,
     },
     {
+      // no test
       method: "PUT",
       path: `${baseUrl}/users/tooltip_of_user_display_showed`,
       handler: handlers.changeTooltipOfUsersDisplayShowed,

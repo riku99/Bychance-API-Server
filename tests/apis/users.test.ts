@@ -6,7 +6,7 @@ import { baseUrl } from "~/constants";
 import { createHash } from "~/helpers/crypto";
 import { createS3ObjectPath } from "~/helpers/aws";
 import { UpdateUserPayload } from "~/routes/users/validator";
-import { createRamdomUser } from "../data/user";
+import { createUser } from "../data/user";
 import { createPost } from "../data/posts";
 import { createFlash } from "../data/flash";
 
@@ -265,7 +265,63 @@ describe("users", () => {
     });
   });
 
-  describe.only("ユーザーページデータ取得, GET /users/{userId}/page_info", () => {
+  describe("位置情報削除, DELETE /users/location", () => {
+    const url = `${baseUrl}/users/locations`;
+    test("位置情報を削除する", async () => {
+      const user = await createUser({
+        lat: "lat",
+        lng: "lng",
+        geohash: "geohash",
+        geohash7: "777",
+        inPrivateZone: true,
+      });
+
+      await server.inject({
+        method: "DELETE",
+        url,
+        auth: {
+          credentials: {},
+          strategy: "simple",
+          artifacts: user,
+        },
+      });
+
+      const deletedLocationUser = await prisma.user.findUnique({
+        where: {
+          id: user.id,
+        },
+      });
+
+      expect(deletedLocationUser?.lat).toBeNull();
+      expect(deletedLocationUser?.lng).toBeNull();
+      expect(deletedLocationUser?.geohash).toBeNull();
+      expect(deletedLocationUser?.geohash7).toBeNull();
+      expect(deletedLocationUser?.inPrivateZone).toBeFalsy();
+    });
+
+    test("認可情報がない場合、401エラーを返す", async () => {
+      const res = await server.inject({
+        method: "DELETE",
+        url,
+      });
+
+      expect(res.statusCode).toEqual(401);
+    });
+
+    test("認可情報が間違っている場合、401エラーを返す", async () => {
+      const user = await createUser();
+
+      const res = await server.inject({
+        method: "DELETE",
+        url: `${url}?id=${user.id}`,
+        headers: { Authorization: "Bearer WrongBearer" },
+      });
+
+      expect(res.statusCode).toEqual(401);
+    });
+  });
+
+  describe("ユーザーページデータ取得, GET /users/{userId}/page_info", () => {
     const url = ({
       targetUserId,
       requestUserId,
@@ -392,8 +448,8 @@ describe("users", () => {
     });
 
     test("リクエストユーザーが対象のユーザーにブロックされている場合、PostやFlashは空が返される", async () => {
-      const requestUser = await createRamdomUser();
-      const targetUser = await createRamdomUser();
+      const requestUser = await createUser();
+      const targetUser = await createUser();
       await createPost({ userId: targetUser.id });
       await createFlash({ userId: targetUser.id });
 
