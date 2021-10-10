@@ -479,7 +479,7 @@ describe("users", () => {
     });
   });
 
-  describe.only("ユーザーが現在他のユーザーに表示されているかどうかを取得, GET /users/is_displayed", () => {
+  describe("ユーザーが現在他のユーザーに表示されているかどうかを取得, GET /users/is_displayed", () => {
     const url = `${baseUrl}/users/is_displayed`;
 
     // テストでは「Aが ~ の場合レスポンスはどうか」をとりたい。

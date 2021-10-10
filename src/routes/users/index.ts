@@ -23,7 +23,7 @@ export const usersRoute = async (server: Hapi.Server) => {
       },
     },
     {
-      // no test
+      // not tested
       method: "GET",
       path: `${baseUrl}/users/my_refresh_data`,
       handler: handlers.refreshMyData,
@@ -59,7 +59,7 @@ export const usersRoute = async (server: Hapi.Server) => {
       handler: handlers.deleteLocation,
     },
     {
-      // no test
+      // not tested
       method: "PUT",
       path: `${baseUrl}/users/tooltip_of_user_display_showed`,
       handler: handlers.changeTooltipOfUsersDisplayShowed,
@@ -77,6 +77,7 @@ export const usersRoute = async (server: Hapi.Server) => {
       handler: handlers.isDisplayed,
     },
     {
+      // not tested
       method: "PUT",
       path: `${baseUrl}/users/groups_application_enabled`,
       handler: handlers.changeGroupsApplicationEnabled,
