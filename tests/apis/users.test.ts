@@ -1,5 +1,5 @@
 import Hapi from "@hapi/hapi";
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 
 import { initializeServer } from "~/server";
 import { baseUrl } from "~/constants";
@@ -477,5 +477,118 @@ describe("users", () => {
       expect(JSON.parse(res.payload).posts.length).toEqual(0);
       expect(JSON.parse(res.payload).flashes.length).toEqual(0);
     });
+  });
+
+  describe.only("ユーザーが現在他のユーザーに表示されているかどうかを取得, GET /users/is_displayed", () => {
+    const url = `${baseUrl}/users/is_displayed`;
+
+    // テストでは「Aが ~ の場合レスポンスはどうか」をとりたい。
+    // createUserを使うと、例えば「{login: false}の時にfalseを返す」というテストなのに、{display: true}によりfalseが返されてしまう可能性もある
+    // なのでここで関連するデータはセットアプしとく
+    const createUserWithRelatedData = async (
+      data: Partial<Prisma.UserCreateArgs["data"]>
+    ) => {
+      return await createUser({
+        login: true,
+        display: true,
+        lat: "lat",
+        lng: "lng",
+        inPrivateZone: false,
+        ...data,
+      });
+    };
+
+    test("表示状態なのでtrueを返す", async () => {
+      const user = await createUserWithRelatedData({});
+
+      const res = await server.inject({
+        method: "GET",
+        url,
+        auth: {
+          artifacts: user,
+          credentials: {},
+          strategy: "simple",
+        },
+      });
+
+      expect(JSON.parse(res.payload)).toBeTruthy();
+    });
+
+    test("ログアウト中の場合はfalseを返す", async () => {
+      const user = await createUserWithRelatedData({
+        login: false,
+      });
+
+      const res = await server.inject({
+        method: "GET",
+        url,
+        auth: {
+          artifacts: user,
+          credentials: {},
+          strategy: "simple",
+        },
+      });
+
+      expect(JSON.parse(res.payload)).toBeFalsy();
+    });
+
+    test("displayがfalseの場合はfalseを返す", async () => {
+      const user = await createUserWithRelatedData({
+        display: false,
+      });
+
+      const res = await server.inject({
+        method: "GET",
+        url,
+        auth: {
+          artifacts: user,
+          credentials: {},
+          strategy: "simple",
+        },
+      });
+
+      expect(JSON.parse(res.payload)).toBeFalsy();
+    });
+
+    test("lat, lngがない場合はfalseを返す", async () => {
+      const user = await createUserWithRelatedData({
+        lat: null,
+        lng: null,
+      });
+
+      const res = await server.inject({
+        method: "GET",
+        url,
+        auth: {
+          artifacts: user,
+          credentials: {},
+          strategy: "simple",
+        },
+      });
+
+      expect(JSON.parse(res.payload)).toBeFalsy();
+    });
+
+    test("プライベートゾーンにいる(inPrivateZoneがtrue)場合、falseを返す", async () => {
+      const user = await createUserWithRelatedData({
+        inPrivateZone: true,
+      });
+
+      const res = await server.inject({
+        method: "GET",
+        url,
+        auth: {
+          artifacts: user,
+          credentials: {},
+          strategy: "simple",
+        },
+      });
+
+      expect(JSON.parse(res.payload)).toBeFalsy();
+    });
+
+    // test("認可情報がない場合は401エラーを返す", async () => {});
+
+    // test("認可情報が間違っている場合は401エラーを返す", async () => {});
   });
 });
