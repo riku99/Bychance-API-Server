@@ -11,7 +11,7 @@ const getResizeNumber = (domain: string) => {
   switch (domain) {
     case "post":
       return {
-        width: null, //4:3
+        width: null,
         height: null,
       };
     case "flash":
@@ -102,11 +102,8 @@ const convertVideo = ({
       ffmpegData.save(outputFilePath).on("end", async () => {
         const data = await readFile(outputFilePath);
         resolve(data);
-        // await deleteFile(outputFilePath);
       });
-    } catch {
-      // await deleteFile(outputFilePath);
-    }
+    } catch {}
   });
 };
 
@@ -211,6 +208,11 @@ export const createS3ObjectPath = async ({
 
     if (domain !== "post") {
       webpData.resize(width, height);
+    }
+
+    const metaData = await webpData.metadata();
+    if (metaData.width && metaData.height) {
+      dimensions = { width: metaData.width, height: metaData.height };
     }
 
     sourceBufferData = await webpData.toBuffer();
