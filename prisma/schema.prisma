@@ -69,6 +69,8 @@ model Post {
   createdAt DateTime @default(now())
   userId    String
   sourceType PostSourceTypeRole @default(image)
+  width Int?
+  height Int?
   user      User     @relation(fields: [userId], references: [id])
 
   @@index([userId])

@@ -36,6 +36,8 @@ const createPost = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       user: {
         connect: { id: user.id },
       },
+      width: url.dimensions?.width,
+      height: url.dimensions?.height,
     },
   });
 

@@ -3,7 +3,6 @@ import sharp from "sharp";
 import fs from "fs";
 import ffmpeg from "fluent-ffmpeg";
 import util from "util";
-import {} from "@ffmpeg-installer/ffmpeg";
 
 import { createRandomString } from "~/helpers/crypto";
 import { URL } from "url";
@@ -161,6 +160,7 @@ type CreateS3ObjPath = {
 export type UrlData = {
   source: string;
   thumbnail?: string;
+  dimensions?: { width: number; height: number };
 };
 
 export const createS3ObjectPath = async ({
@@ -184,6 +184,8 @@ export const createS3ObjectPath = async ({
       s3Ext = "mp4";
       break;
   }
+
+  let dimensions: { width: number; height: number };
 
   const { width, height } = getResizeNumber(domain);
 
@@ -227,8 +229,12 @@ export const createS3ObjectPath = async ({
       sourceBufferData = result[0];
       thumbnailBufferData = result[1];
       ffmpeg(outputFilePath).ffprobe(0, async (err, data) => {
-        console.log(data.streams[0].width);
-        console.log(data.streams[0].height);
+        if (data.streams[0].width && data.streams[0].height) {
+          dimensions = {
+            width: data.streams[0].width,
+            height: data.streams[0].height,
+          };
+        }
         await deleteFile(inputFilePath);
         await deleteFile(outputFilePath);
       });
@@ -262,11 +268,13 @@ export const createS3ObjectPath = async ({
       thumbnail: `${process.env.CLOUD_FRONT_ORIGIN}${
         new URL(urls[1]).pathname
       }`,
+      dimensions: dimensions!,
     };
   } else {
     const url = await upload(params);
     urlData = {
       source: `${process.env.CLOUD_FRONT_ORIGIN}${new URL(url).pathname}`,
+      dimensions: dimensions!,
     };
   }
   return urlData!;
