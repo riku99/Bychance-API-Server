@@ -11,8 +11,8 @@ const getResizeNumber = (domain: string) => {
   switch (domain) {
     case "post":
       return {
-        width: 768, //4:3
-        height: 1024,
+        width: null, //4:3
+        height: null,
       };
     case "flash":
       return {
@@ -76,24 +76,27 @@ const upload = async (params: AWS.S3.PutObjectRequest) => {
 
 const convertVideo = (
   inputFilePath: string,
-  resize: { width: number; height: number }
+  resize: { width: number | null; height: number | null }
 ): Promise<Buffer> => {
-  const w = resize.width.toString();
-  const h = resize.height.toString();
   const outputFileName = createRandomString().replace(/\//g, "");
   const outputFilePath = `./tmp/video/"${outputFileName}.mp4`;
   return new Promise(async (resolve) => {
     try {
-      ffmpeg(inputFilePath)
-        .size(`${w}x${h}`)
+      const ffmpegData = ffmpeg(inputFilePath)
         .videoCodec("libx264")
-        .toFormat("mp4")
-        .save(outputFilePath)
-        .on("end", async () => {
-          const data = await readFile(outputFilePath);
-          resolve(data);
-          await deleteFile(outputFilePath);
-        });
+        .toFormat("mp4");
+
+      if (resize.width && resize.height) {
+        const w = resize.width.toString();
+        const h = resize.height.toString();
+        ffmpegData.size(`${w}x${h}`);
+      }
+
+      ffmpegData.save(outputFilePath).on("end", async () => {
+        const data = await readFile(outputFilePath);
+        resolve(data);
+        await deleteFile(outputFilePath);
+      });
     } catch {
       await deleteFile(outputFilePath);
     }
@@ -106,8 +109,8 @@ const createThumbnail = ({
   height,
 }: {
   inputFilePath: string;
-  width: number;
-  height: number;
+  width: number | null;
+  height: number | null;
 }): Promise<Buffer> => {
   const outputFileName = createRandomString().replace(/\//g, "");
   const outputFilePath = `./tmp/thumbnails/${outputFileName}.png`;
@@ -118,14 +121,19 @@ const createThumbnail = ({
         .screenshots({
           count: 1,
           timestamps: [0.0],
-          size: `${width}x${height}`,
+          // size: width && height ? `${width}x${height}` : undefined, ここで条件分岐してサイズ指定するとうまくいかないのでsharpの方で対応
           folder: "./tmp/thumbnails",
           filename: `${outputFileName}.png`,
         })
         .on("end", async () => {
           const data = await readFile(outputFilePath);
-          const webpData = await sharp(data).webp().toBuffer();
-          resolve(webpData);
+          const webpData = sharp(data).webp();
+
+          if (width && height) {
+            webpData.resize(width, height);
+          }
+          const bufferData = await webpData.toBuffer();
+          resolve(bufferData);
           await deleteFile(outputFilePath);
         });
     } catch {
