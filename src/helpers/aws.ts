@@ -100,16 +100,25 @@ const convertVideo = (
   });
 };
 
-const createThumbnail = (inputFilePath: string): Promise<Buffer> => {
+const createThumbnail = ({
+  inputFilePath,
+  width,
+  height,
+}: {
+  inputFilePath: string;
+  width: number;
+  height: number;
+}): Promise<Buffer> => {
   const outputFileName = createRandomString().replace(/\//g, "");
   const outputFilePath = `./tmp/thumbnails/${outputFileName}.png`;
+
   return new Promise(async (resolve) => {
     try {
       ffmpeg(inputFilePath)
         .screenshots({
           count: 1,
           timestamps: [0.0],
-          size: "720x1280",
+          size: `${width}x${height}`,
           folder: "./tmp/thumbnails",
           filename: `${outputFileName}.png`,
         })
@@ -178,11 +187,15 @@ export const createS3ObjectPath = async ({
   let thumbnailBufferData: Buffer | undefined;
 
   if (sourceType === "image") {
-    sourceBufferData = await sharp(decodedData)
+    const webpData = sharp(decodedData)
       .rotate() // exifの関係でrotate()つけないと回転率が変になる時ある https://stackoverflow.com/questions/48716266/sharp-image-library-rotates-image-when-resizing
-      .resize(width, height)
-      .webp()
-      .toBuffer();
+      .webp();
+
+    if (domain !== "post") {
+      webpData.resize(width, height);
+    }
+
+    sourceBufferData = await webpData.toBuffer();
   } else {
     const inputFileName = createRandomString().replace(/\//g, "");
     const inputFilePath = `./tmp/video/"${inputFileName}.${ext}`;
@@ -191,7 +204,7 @@ export const createS3ObjectPath = async ({
       await writeFile(inputFilePath, decodedData);
       const result = await Promise.all([
         convertVideo(inputFilePath, { width, height }),
-        createThumbnail(inputFilePath),
+        createThumbnail({ inputFilePath, width, height }),
       ]);
       sourceBufferData = result[0];
       thumbnailBufferData = result[1];
@@ -222,7 +235,9 @@ export const createS3ObjectPath = async ({
     const urls = await Promise.all([upload(params), upload(thumbnailParams)]);
     urlData = {
       source: `${process.env.CLOUD_FRONT_ORIGIN}${new URL(urls[0]).pathname}`,
-      thumbnail: urls[1],
+      thumbnail: `${process.env.CLOUD_FRONT_ORIGIN}${
+        new URL(urls[1]).pathname
+      }`,
     };
   } else {
     const url = await upload(params);
@@ -230,6 +245,5 @@ export const createS3ObjectPath = async ({
       source: `${process.env.CLOUD_FRONT_ORIGIN}${new URL(url).pathname}`,
     };
   }
-  console.log(urlData);
   return urlData!;
 };
