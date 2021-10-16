@@ -219,10 +219,10 @@ export const createS3ObjectPath = async ({
   let urlData: UrlData;
 
   if (thumbnailParams) {
-    const result = await Promise.all([upload(params), upload(thumbnailParams)]);
+    const urls = await Promise.all([upload(params), upload(thumbnailParams)]);
     urlData = {
-      source: result[0],
-      thumbnail: result[1],
+      source: `${process.env.CLOUD_FRONT_ORIGIN}${new URL(urls[0]).pathname}`,
+      thumbnail: urls[1],
     };
   } else {
     const url = await upload(params);
@@ -230,5 +230,6 @@ export const createS3ObjectPath = async ({
       source: `${process.env.CLOUD_FRONT_ORIGIN}${new URL(url).pathname}`,
     };
   }
+  console.log(urlData);
   return urlData!;
 };
