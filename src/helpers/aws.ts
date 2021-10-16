@@ -3,6 +3,7 @@ import sharp from "sharp";
 import fs from "fs";
 import ffmpeg from "fluent-ffmpeg";
 import util from "util";
+import {} from "@ffmpeg-installer/ffmpeg";
 
 import { createRandomString } from "~/helpers/crypto";
 import { URL } from "url";
@@ -74,31 +75,38 @@ const upload = async (params: AWS.S3.PutObjectRequest) => {
     });
 };
 
-const convertVideo = (
-  inputFilePath: string,
-  resize: { width: number | null; height: number | null }
-): Promise<Buffer> => {
-  const outputFileName = createRandomString().replace(/\//g, "");
-  const outputFilePath = `./tmp/video/"${outputFileName}.mp4`;
+const convertVideo = ({
+  inputFilePath,
+  outputFilePath,
+  width,
+  height,
+}: {
+  inputFilePath: string;
+  outputFilePath: string;
+  width: number | null;
+  height: number | null;
+}): Promise<Buffer> => {
+  // const outputFileName = createRandomString().replace(/\//g, "");
+  // const outputFilePath = `./tmp/video/"${outputFileName}.mp4`;
   return new Promise(async (resolve) => {
     try {
       const ffmpegData = ffmpeg(inputFilePath)
         .videoCodec("libx264")
         .toFormat("mp4");
 
-      if (resize.width && resize.height) {
-        const w = resize.width.toString();
-        const h = resize.height.toString();
+      if (width && height) {
+        const w = width.toString();
+        const h = height.toString();
         ffmpegData.size(`${w}x${h}`);
       }
 
       ffmpegData.save(outputFilePath).on("end", async () => {
         const data = await readFile(outputFilePath);
         resolve(data);
-        await deleteFile(outputFilePath);
+        // await deleteFile(outputFilePath);
       });
     } catch {
-      await deleteFile(outputFilePath);
+      // await deleteFile(outputFilePath);
     }
   });
 };
@@ -207,18 +215,26 @@ export const createS3ObjectPath = async ({
   } else {
     const inputFileName = createRandomString().replace(/\//g, "");
     const inputFilePath = `./tmp/video/"${inputFileName}.${ext}`;
+    const outputFileName = createRandomString().replace(/\//g, "");
+    const outputFilePath = `./tmp/video/"${outputFileName}.mp4`;
 
     try {
       await writeFile(inputFilePath, decodedData);
       const result = await Promise.all([
-        convertVideo(inputFilePath, { width, height }),
+        convertVideo({ inputFilePath, outputFilePath, width, height }),
         createThumbnail({ inputFilePath, width, height }),
       ]);
       sourceBufferData = result[0];
       thumbnailBufferData = result[1];
-      await deleteFile(inputFilePath);
+      ffmpeg(outputFilePath).ffprobe(0, async (err, data) => {
+        console.log(data.streams[0].width);
+        console.log(data.streams[0].height);
+        await deleteFile(inputFilePath);
+        await deleteFile(outputFilePath);
+      });
     } catch {
       await deleteFile(inputFilePath);
+      await deleteFile(outputFilePath);
     }
   }
 
