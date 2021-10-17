@@ -62,16 +62,9 @@
     "enter": "docker exec -it dev-server bash",
     "test": "DATABASE_URL=mysql://root:test_pass@localhost:3308/bc-mysql-test npx prisma migrate reset --force && DATABASE_URL=mysql://root:test_pass@localhost:3308/bc-mysql-test yarn jest",
     "test:set:env": "DATABASE_URL=mysql://root:test_pass@localhost:3308/bc-mysql-test GOOGLE_APPLICATION_CREDENTIALS=./cred.json",
+    "test:db:up": "docker-compose -f docker-compose.test.yml up -d",
+    "test:db:down": "docker-compose -f docker-compose.test.yml down",
     "dev:down": "docker-compose down",
-    "dev:db:up": "docker-compose up -d",
-    "subtest": "yarn test:db:up && sleep 3 && yarn test:db:migrate && docker-compose -f docker-compose.test.yml run test_server yarn jest --runInBand --forceExit",
-    "test:build": "docker-compose -f docker-compose.test.yml build --no-cache",
-    "test:down": "docker-compose -f docker-compose.test.yml down --volumes",
-    "test:db:up": "docker-compose -f docker-compose.test.yml up -d bc_mysql_test",
-    "test:db:migrate": "docker-compose -f docker-compose.test.yml run test_server yarn prisma migrate reset --force",
-    "test:db:gene": "docker-compose -f docker-compose.test.yml run test_server yarn prisma generate",
-    "test:db:dev": "docker-compose -f docker-compose.test.yml run test_server yarn prisma migrate dev --name update",
-    "test:ci": "yarn test:build && yarn test:db:up && sleep 10 && yarn test:db:dev && yarn test:db:migrate && yarn test:db:gene && yarn test && yarn test:down",
     "db:show": "yarn prisma studio"
   },
   "jest": {
