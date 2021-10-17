@@ -128,6 +128,7 @@ export const usersRoute = async (server: Hapi.Server) => {
       },
     },
     {
+      // not tested
       method: "PUT",
       path: `${baseUrl}/users/show_receive_message`,
       handler: handlers.changeShowReceiveMessage,
@@ -139,6 +140,7 @@ export const usersRoute = async (server: Hapi.Server) => {
       },
     },
     {
+      // not tested
       method: "PUT",
       path: `${baseUrl}/users/intro`,
       handler: handlers.changeIntro,
