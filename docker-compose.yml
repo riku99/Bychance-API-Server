@@ -37,7 +37,6 @@ services:
       - 5555:5555
     depends_on:
       - mysql
-      - mysql_test
 
 networks:
   bc-net-dev:

@@ -236,7 +236,7 @@ describe("ユーザープロフィールの編集, PATCH /users", () => {
     expect(bg).toBeNull();
   });
 
-  test.only("avatar, backgroundImageのデータを持たせない場合はそれぞれ変化しない", async () => {
+  test("avatar, backgroundImageのデータを持たせない場合はそれぞれ変化しない", async () => {
     const user = await createUser({
       avatar: "avatar",
     });

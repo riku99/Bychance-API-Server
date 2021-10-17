@@ -16,8 +16,10 @@ const getResizeNumber = (domain: string) => {
       };
     case "flash":
       return {
-        width: 720,
-        height: 1280,
+        // width: 720,
+        // height: 1280,
+        width: null,
+        height: null,
       };
     case "avatar":
       return {
