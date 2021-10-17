@@ -22,7 +22,6 @@ import { throwInvalidError } from "~/helpers/errors";
 import { handleUserLocationCrypto, createHash } from "~/helpers/crypto";
 import { geohashPrecision } from "~/constants";
 import { getUserIsInPrivateTime } from "~/helpers/privateTime";
-import { groupMemberWhoBlockTargetUserExists } from "~/models/groups";
 
 const prisma = new PrismaClient();
 
@@ -33,12 +32,13 @@ const updateUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     deleteBackGroundItem,
     avatarExt,
     backGroundItemExt,
+    backGroundItem,
+    backGroundItemType,
     ...userData
   } = req.payload as UpdateUserPayload;
 
   let newAvatar: string | null;
-  let newBackGroundItem: string | null;
-  let newBackGroundItemType: "image" | "video" | null;
+  let newBackGroundItemId: number | null | undefined;
 
   if (userData.avatar && avatarExt && !deleteAvatar) {
     const result = await createS3ObjectPath({
@@ -58,12 +58,17 @@ const updateUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   }
 
   // backGroundItemが存在するということは更新することを表す。もし存在しない場合は更新しない。
-  if (userData.backGroundItem && backGroundItemExt && !deleteBackGroundItem) {
+  if (
+    backGroundItem &&
+    backGroundItemExt &&
+    backGroundItemType &&
+    !deleteBackGroundItem
+  ) {
     const result = await createS3ObjectPath({
-      data: userData.backGroundItem,
+      data: backGroundItem,
       domain: "backGroundItem",
       id: user.id,
-      sourceType: userData.backGroundItemType,
+      sourceType: backGroundItemType,
       ext: backGroundItemExt,
     });
 
@@ -71,20 +76,34 @@ const updateUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       throw new Error();
     }
 
-    newBackGroundItem = result.source;
-    newBackGroundItemType = userData.backGroundItemType
-      ? userData.backGroundItemType
-      : null;
+    await prisma.backGroundItem.deleteMany({
+      where: {
+        userId: user.id,
+      },
+    });
+
+    const newBackGroundItem = await prisma.backGroundItem.create({
+      data: {
+        url: result.source,
+        type: backGroundItemType,
+        width: result.dimensions?.width,
+        height: result.dimensions?.height,
+        userId: user.id,
+      },
+    });
+    newBackGroundItemId = newBackGroundItem.id;
   } else {
     // backGroundItemが存在しない場合は「削除する」と「変更なし」の2種類がある。この判断はdeleteBackGroundItemで行う
     if (deleteBackGroundItem) {
-      // 削除の場合nullを代入
-      newBackGroundItem = null;
-      newBackGroundItemType = null;
+      await prisma.backGroundItem.deleteMany({
+        where: {
+          userId: user.id,
+        },
+      });
+      newBackGroundItemId = null;
     } else {
       // 変更なしの場合現在のデータを指定
-      newBackGroundItem = user.backGroundItem;
-      newBackGroundItemType = user.backGroundItemType;
+      newBackGroundItemId = undefined;
     }
   }
 
@@ -94,8 +113,7 @@ const updateUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       ...user,
       ...userData,
       avatar: newAvatar,
-      backGroundItem: newBackGroundItem,
-      backGroundItemType: newBackGroundItemType,
+      backGroundItemId: newBackGroundItemId,
     },
     select: {
       id: true,
@@ -104,7 +122,6 @@ const updateUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       introduce: true,
       statusMessage: true,
       backGroundItem: true,
-      backGroundItemType: true,
       instagram: true,
       twitter: true,
       youtube: true,
@@ -205,7 +222,7 @@ const getUserPageInfo = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       avatar: true,
       introduce: true,
       backGroundItem: true,
-      backGroundItemType: true,
+      // backGroundItemType: true,
       instagram: true,
       twitter: true,
       youtube: true,
@@ -273,7 +290,6 @@ const refreshMyData = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       avatar: true,
       introduce: true,
       backGroundItem: true,
-      backGroundItemType: true,
       instagram: true,
       twitter: true,
       youtube: true,

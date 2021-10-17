@@ -20,8 +20,6 @@ model User {
   accessToken          String                @unique
   lat                  String?
   lng                  String?
-  // backGroundItem       String?
-  // backGroundItemType BackGroundItemTypeRole?
   instagram            String?
   twitter              String?
   youtube              String?

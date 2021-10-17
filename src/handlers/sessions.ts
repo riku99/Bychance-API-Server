@@ -20,7 +20,7 @@ const formLoginData = (
   if (!data) {
     return;
   }
-  const { posts, flashes, ...userData } = data;
+  const { posts, flashes, backGroundItem, ...userData } = data;
   const { lat, lng, ...restUserData } = userData;
   let decryptedLat: number | null = null;
   let decryptedLng: number | null = null;
@@ -43,6 +43,7 @@ const formLoginData = (
     },
     posts,
     flashes,
+    backGroundItem,
   };
 };
 

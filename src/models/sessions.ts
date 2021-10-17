@@ -12,8 +12,6 @@ export const getLoginData = async (id: string) =>
       name: true,
       avatar: true,
       introduce: true,
-      backGroundItem: true,
-      backGroundItemType: true,
       instagram: true,
       twitter: true,
       youtube: true,
@@ -40,6 +38,14 @@ export const getLoginData = async (id: string) =>
               userId: true,
             },
           },
+        },
+      },
+      backGroundItem: {
+        select: {
+          url: true,
+          type: true,
+          width: true,
+          height: true,
         },
       },
     },
