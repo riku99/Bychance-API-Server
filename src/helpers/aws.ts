@@ -26,8 +26,10 @@ const getResizeNumber = (domain: string) => {
       };
     case "backGroundItem":
       return {
-        width: 768,
-        height: 1024,
+        // width: 768,
+        // height: 1024,
+        width: null,
+        height: null,
       };
     case "recommendationClient":
       return {
