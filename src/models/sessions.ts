@@ -26,6 +26,7 @@ export const getLoginData = async (id: string) =>
       intro: true,
       tooltipOfUsersDisplayShowed: true,
       groupsApplicationEnabled: true,
+      backGroundItem: true,
       posts: {
         orderBy: {
           createdAt: "desc",
@@ -38,14 +39,6 @@ export const getLoginData = async (id: string) =>
               userId: true,
             },
           },
-        },
-      },
-      backGroundItem: {
-        select: {
-          url: true,
-          type: true,
-          width: true,
-          height: true,
         },
       },
     },

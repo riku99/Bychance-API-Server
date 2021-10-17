@@ -105,6 +105,7 @@ export const usersRoute = async (server: Hapi.Server) => {
       },
     },
     {
+      // not tested
       method: "PUT",
       path: `${baseUrl}/users/videoEditDescription`,
       handler: handlers.changeVideoEditDescription,
