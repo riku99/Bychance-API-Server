@@ -1,14 +1,15 @@
 import Hapi from "@hapi/hapi";
 
-import { initializeServer, applyingGroupNameSpace } from "~/server";
+import { initializeServer } from "~/server";
 import { baseUrl } from "~/constants";
 import { createUser } from "../../data/user";
 import { prisma } from "../../lib/prisma";
 import { createApplyingGrop } from "../../data/applyingGroups";
 import { createGroup } from "../../data/groups";
 import { createBlock } from "../../data/block";
+import {} from "~/helpers/applyingGroups/emitSocket";
 
-// jest.mock("~/server");
+jest.mock("~/helpers/applyingGroups/emitSocket");
 
 const url = `${baseUrl}/applying_groups`;
 

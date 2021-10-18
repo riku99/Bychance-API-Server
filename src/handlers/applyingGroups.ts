@@ -7,8 +7,8 @@ import {
   GetApplyingGroupsQuery,
 } from "~/routes/applyingGroup/validator";
 import { Artifacts } from "~/auth/bearer";
-import { applyingGroupNameSpace } from "~/server";
 import { throwInvalidError } from "~/helpers/errors";
+import { emitApplyGroup } from "~/helpers/applyingGroups/emitSocket";
 
 const prisma = new PrismaClient();
 
@@ -101,12 +101,15 @@ const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
 
   // ソケット発射
   if (!targetUser.blocks.length && targetUser.groupsApplicationEnabled) {
-    applyingGroupNameSpace.to(payload.to).emit("applyGroup", {
-      id: applyingGroup.id,
-      applyingUser: {
-        id: applyingGroup.applyingUser.id,
-        name: applyingGroup.applyingUser.name,
-        avatar: applyingGroup.applyingUser.avatar,
+    emitApplyGroup({
+      to: payload.to,
+      data: {
+        id: applyingGroup.id,
+        applyingUser: {
+          id: applyingGroup.applyingUser.id,
+          name: applyingGroup.applyingUser.name,
+          avatar: applyingGroup.applyingUser.avatar,
+        },
       },
     });
   }
