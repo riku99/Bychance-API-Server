@@ -40,7 +40,7 @@ import { groupsRoute } from "~/routes/groups";
 import { applyingGroupsRoute } from "~/routes/applyingGroup";
 import { registerFirebaseAdmin } from "~/firebase";
 
-const server = Hapi.server({
+export const server = Hapi.server({
   port: process.env.PORT || 4001,
   // host: "localhost", // このコメントされてる2つ含めるとwsがうまく動かないのでいったん外す
   // debug: false,
