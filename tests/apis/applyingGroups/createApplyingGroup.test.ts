@@ -7,9 +7,6 @@ import { prisma } from "../../lib/prisma";
 import { createApplyingGrop } from "../../data/applyingGroups";
 import { createGroup } from "../../data/groups";
 import { createBlock } from "../../data/block";
-import {} from "~/helpers/applyingGroups/emitSocket";
-
-jest.mock("~/helpers/applyingGroups/emitSocket");
 
 const url = `${baseUrl}/applying_groups`;
 
@@ -177,5 +174,64 @@ describe("グループの申請をする, POST /applying_groups", () => {
     expect(JSON.parse(res.payload).message).toEqual(
       "このユーザーをブロックしています。申請するにはブロックを解除してください"
     );
+  });
+
+  test("相手が自分をブロックしている場合emitは起こさない", async () => {
+    let emitSpy: jest.SpyInstance;
+    const mdl = require("~/helpers/applyingGroups/emitSocket");
+    emitSpy = jest.spyOn(mdl, "emitApplyGroup");
+
+    const requestUser = await createUser();
+    const targetUser = await createUser();
+
+    await createBlock({
+      blockBy: targetUser.id,
+      blockTo: requestUser.id,
+    });
+
+    await server.inject({
+      method: "POST",
+      url,
+      payload: {
+        to: targetUser.id,
+      },
+      auth: {
+        strategy: "simple",
+        artifacts: requestUser,
+        credentials: {},
+      },
+    });
+
+    expect(emitSpy).toHaveBeenCalledTimes(0);
+
+    emitSpy.mockClear();
+  });
+
+  test("相手がグループ申請を受け取らない設定にしている場合emitしない", async () => {
+    let emitSpy: jest.SpyInstance;
+    const mdl = require("~/helpers/applyingGroups/emitSocket");
+    emitSpy = jest.spyOn(mdl, "emitApplyGroup");
+
+    const requestUser = await createUser();
+    const targetUser = await createUser({
+      groupsApplicationEnabled: false,
+    });
+
+    await server.inject({
+      method: "POST",
+      url,
+      payload: {
+        to: targetUser.id,
+      },
+      auth: {
+        strategy: "simple",
+        artifacts: requestUser,
+        credentials: {},
+      },
+    });
+
+    expect(emitSpy).toHaveBeenCalledTimes(0);
+
+    emitSpy.mockClear();
   });
 });
