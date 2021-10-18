@@ -130,6 +130,7 @@ describe("ユーザーページデータ取得, GET /users/{userId}/page_info", 
 
     const responseData = JSON.parse(res.payload);
 
+    expect(responseData.blockTo).toBeTruthy();
     // ブロックしているので作成したにもかかわらずどちらも空
     expect(responseData.posts).toEqual([]);
     expect(responseData.flashes).toEqual([]);
