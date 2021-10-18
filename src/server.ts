@@ -3,7 +3,6 @@
 import Hapi from "@hapi/hapi";
 import AuthBearer from "hapi-auth-bearer-token";
 import socketio from "socket.io";
-import admin from "firebase-admin";
 import cron from "node-cron";
 
 import {
@@ -39,6 +38,7 @@ import { recommendationClientReadNotificationPlugin } from "~/plugins/recommenda
 import { blockesRoute } from "~/routes/block";
 import { groupsRoute } from "~/routes/groups";
 import { applyingGroupsRoute } from "~/routes/applyingGroup";
+import { registerFirebaseAdmin } from "~/firebase";
 
 const server = Hapi.server({
   port: process.env.PORT || 4001,
@@ -49,40 +49,6 @@ const server = Hapi.server({
 export const io = new socketio.Server(server.listener);
 export const talkRoomMessageNameSpace = io.of("/talkRoomMessages");
 export const applyingGroupNameSpace = io.of("/applying_group");
-setupSocketIo();
-
-admin.initializeApp({
-  credential: admin.credential.applicationDefault(),
-});
-
-// ClientConsole用プロジェクト
-admin.initializeApp(
-  {
-    credential: admin.credential.cert({
-      projectId: process.env.CLIENT_FIREBASE_PROJECT_ID,
-      clientEmail: process.env.CLIENT_FIREBASE_EMAIL,
-      privateKey: process.env.CLIENT_FIREBASE_PRIVATE_KEY!.replace(
-        /\\n/g,
-        "\n"
-      ),
-    }),
-  },
-  "recommendationClient"
-);
-
-admin.initializeApp(
-  {
-    credential: admin.credential.cert({
-      projectId: process.env.CONSOLE_FIREBASE_PROJECT_ID,
-      clientEmail: process.env.CONSOLE_FIREBASE_EMAIL,
-      privateKey: process.env.CONSOLE_FIREBASE_PRIVATE_KEY!.replace(
-        /\\n/g,
-        "\n"
-      ),
-    }),
-  },
-  "console"
-);
 
 export const initializeServer = async () => {
   // @ts-ignore
@@ -159,6 +125,11 @@ export const initializeServer = async () => {
 
 export const startServer = async (server: Hapi.Server) => {
   cron.schedule("0 0 0 * * *", deleteExpiredViewedFlashes); // 毎日0時に実行
+
+  setupSocketIo();
+
+  registerFirebaseAdmin();
+
   await server.start();
   console.log("サーバー起動: " + server.info.uri);
 
