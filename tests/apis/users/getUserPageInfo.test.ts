@@ -11,6 +11,7 @@ import { createBlock } from "../../data/block";
 const deleteUser = async () => {
   await prisma.post.deleteMany();
   await prisma.flash.deleteMany();
+  await prisma.block.deleteMany();
   await prisma.user.deleteMany();
 };
 
@@ -96,7 +97,7 @@ describe("ユーザーページデータ取得, GET /users/{userId}/page_info", 
     );
   });
 
-  test.only("リクエストユーザーが対象のユーザーをブロックしている場合、PostやFlashは空が返される", async () => {
+  test("リクエストユーザーが対象のユーザーをブロックしている場合、PostやFlashは空が返される", async () => {
     const requestUser = await createUser();
 
     const targetUser = await createUser();
@@ -132,5 +133,34 @@ describe("ユーザーページデータ取得, GET /users/{userId}/page_info", 
     // ブロックしているので作成したにもかかわらずどちらも空
     expect(responseData.posts).toEqual([]);
     expect(responseData.flashes).toEqual([]);
+  });
+
+  test("リクエストユーザーが対象のユーザーにブロックされている場合、PostやFlashは空が返される", async () => {
+    const requestUser = await createUser();
+    const targetUser = await createUser();
+    await createPost({ userId: targetUser.id });
+    await createFlash({ userId: targetUser.id });
+
+    // リクエストしたユーザーがブロックされている
+    await createBlock({
+      blockBy: targetUser.id,
+      blockTo: requestUser.id,
+    });
+
+    const res = await server.inject({
+      method: "GET",
+      url: url({
+        targetUserId: targetUser.id,
+        requestUserId: requestUser.id,
+      }),
+      auth: {
+        strategy: "simple",
+        credentials: {},
+        artifacts: requestUser,
+      },
+    });
+
+    expect(JSON.parse(res.payload).posts).toEqual([]);
+    expect(JSON.parse(res.payload).flashes).toEqual([]);
   });
 });
