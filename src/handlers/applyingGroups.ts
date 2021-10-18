@@ -9,7 +9,6 @@ import {
 import { Artifacts } from "~/auth/bearer";
 import { applyingGroupNameSpace } from "~/server";
 import { throwInvalidError } from "~/helpers/errors";
-import { isBlockingOrBlocked } from "~/models/users";
 
 const prisma = new PrismaClient();
 
