@@ -42,12 +42,6 @@ const getClientSignupToken = async (
 };
 
 const create = async (req: Hapi.Request) => {
-  const client = req.auth.artifacts as RecommendationClientArtifacts;
-
-  if (!client.admin) {
-    return throwInvalidError();
-  }
-
   const str = createRandomString().slice(0, 8);
 
   await prisma.clientSignupToken.create({

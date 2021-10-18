@@ -20,6 +20,7 @@ export const applyingGroupsRoute = async (server: Hapi.Server) => {
       },
     },
     {
+      // test ok
       method: "POST",
       path,
       handler: handlers.create,
