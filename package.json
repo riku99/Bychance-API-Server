@@ -59,6 +59,8 @@
   },
   "scripts": {
     "dev": "yarn add sharp && yarn nodemon",
+    "up": "docker-compose up -d",
+    "down": "docker-compose down",
     "build": "yarn webpack --config webpack.prod.js",
     "start": "node ./dist/bundle.js",
     "enter": "docker exec -it dev-server bash",

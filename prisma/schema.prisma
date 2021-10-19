@@ -372,6 +372,7 @@ model ApplyingGroup {
   @@unique([applyingUserId, appliedUserId])
 }
 
+// クライアントが登録時やパスワード変更時のメールアドレスの認証などに使う
 model ClientAuthCode {
   id Int @id @default(autoincrement())
   clientId String

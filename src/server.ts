@@ -39,6 +39,7 @@ import { blockesRoute } from "~/routes/block";
 import { groupsRoute } from "~/routes/groups";
 import { applyingGroupsRoute } from "~/routes/applyingGroup";
 import { registerFirebaseAdmin } from "~/firebase";
+import { clientAuthCodeRoute } from "~/routes/clientAuthCode";
 
 export const server = Hapi.server({
   port: process.env.PORT || 4001,
@@ -117,6 +118,7 @@ export const initializeServer = async () => {
   blockesRoute(server);
   groupsRoute(server);
   applyingGroupsRoute(server);
+  clientAuthCodeRoute(server);
 
   await server.initialize();
 
