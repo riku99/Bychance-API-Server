@@ -42,7 +42,7 @@ const getClientSignupToken = async (
 };
 
 const create = async (req: Hapi.Request) => {
-  const str = createRandomString().slice(0, 8);
+  const str = createRandomString().slice(0, 6).replace(/\//g, "w");
 
   await prisma.clientSignupToken.create({
     data: {

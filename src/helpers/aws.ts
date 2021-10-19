@@ -89,8 +89,6 @@ const convertVideo = ({
   width: number | null;
   height: number | null;
 }): Promise<Buffer> => {
-  // const outputFileName = createRandomString().replace(/\//g, "");
-  // const outputFilePath = `./tmp/video/"${outputFileName}.mp4`;
   return new Promise(async (resolve) => {
     try {
       const ffmpegData = ffmpeg(inputFilePath)

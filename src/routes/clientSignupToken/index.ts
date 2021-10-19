@@ -9,6 +9,7 @@ export const clientSignupTokenPath = `${baseUrl}/client_signup_token`;
 export const clientSignupTokenRoute = async (server: Hapi.Server) => {
   server.route([
     {
+      // test ok
       method: "GET",
       path: `${clientSignupTokenPath}/{signupToken}`,
       handler: clientSignupTokenHandler.getClientSignupToken,

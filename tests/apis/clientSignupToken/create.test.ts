@@ -2,7 +2,6 @@ import Hapi from "@hapi/hapi";
 
 import { initializeServer } from "~/server";
 import { baseUrl } from "~/constants";
-import { createUser } from "../../data/user";
 import { prisma } from "../../lib/prisma";
 
 const url = `${baseUrl}/client_signup_token`;
