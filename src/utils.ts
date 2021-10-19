@@ -46,3 +46,14 @@ export const confirmInTime = ({
     ? true
     : false;
 };
+
+export const create4digitNumber = () => {
+  let code: string = "";
+
+  for (let i = 0; i < 4; i++) {
+    const num = Math.floor(Math.random() * 10);
+    code = code + `${num}`;
+  }
+
+  return Number(code);
+};

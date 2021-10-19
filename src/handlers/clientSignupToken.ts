@@ -10,6 +10,7 @@ import { signupTokenExpirationHours } from "~/constants";
 
 const prisma = new PrismaClient();
 
+// サインアップトークンの検証に使われる
 const getClientSignupToken = async (
   req: Hapi.Request,
   h: Hapi.ResponseToolkit
