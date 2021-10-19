@@ -2,8 +2,10 @@ import Joi from "joi";
 
 import { throwInvalidError } from "~/helpers/errors";
 
+const failAction = () => throwInvalidError();
+
 export type CreateRecommendationClientPayload = {
-  name: string;
+  // name: string;
 };
 
 export type CreateRecommendationClientHeaders = { authorization: string };
@@ -16,8 +18,6 @@ const createValidation = {
     authorization: Joi.string().required(),
   }),
 };
-
-const createFailAction = () => throwInvalidError();
 
 export type UpdateRecommendationClientPaylaod = {
   name: string;
@@ -45,15 +45,26 @@ const updateValidation = {
   }),
 };
 
-const updateFailAction = () => throwInvalidError();
+export type VerifyEmailPayload = {
+  code: number;
+};
+const verifyEmailValidation = {
+  payload: Joi.object<VerifyEmailPayload>({
+    code: Joi.number().required(),
+  }),
+};
 
-export const recommendationClientValidator = {
+export const validators = {
   create: {
     validator: createValidation,
-    failAction: createFailAction,
+    failAction,
   },
   update: {
     validator: updateValidation,
-    failAction: updateFailAction,
+    failAction,
+  },
+  verifyEmail: {
+    validator: verifyEmailValidation,
+    failAction,
   },
 };

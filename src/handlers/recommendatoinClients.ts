@@ -6,12 +6,14 @@ import ngeohash from "ngeohash";
 
 import {
   CreateRecommendationClientHeaders,
-  CreateRecommendationClientPayload,
   UpdateRecommendationClientPaylaod,
+  VerifyEmailPayload,
 } from "~/routes/recommendationClients/validator";
 import { RecommendationClientArtifacts } from "~/auth/bearer";
 import { createS3ObjectPath } from "~/helpers/aws";
 import { createHash } from "~/helpers/crypto";
+import { create4digitNumber } from "~/utils";
+import { sendMail } from "~/mailer";
 
 const prisma = new PrismaClient();
 
@@ -48,26 +50,43 @@ const formRecommendationClient = (client: RecommendationClient) => {
 };
 
 const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
-  const payload = req.payload as CreateRecommendationClientPayload;
+  // const payload = req.payload as CreateRecommendationClientPayload;
   const headers = req.headers as CreateRecommendationClientHeaders;
   const token = headers.authorization.split(" ")[1]; // Bearer取り出し
   const rClientAdmin = admin.app("recommendationClient");
 
   let uid: string;
+  let email: string;
 
   try {
     const decodedToken = await rClientAdmin.auth().verifyIdToken(token);
+
+    if (!decodedToken.email) {
+      return throwLoginError();
+    }
+
     uid = decodedToken.uid;
+    email = decodedToken.email;
   } catch (e) {
     return throwLoginError();
   }
 
   const result = await prisma.recommendationClient.create({
     data: {
-      name: payload.name,
       uid,
     },
   });
+
+  const code = create4digitNumber();
+
+  await prisma.clientAuthCode.create({
+    data: {
+      clientId: result.id,
+      code,
+    },
+  });
+
+  sendMail({ address: email, text: `認証コードは ${code} です。` });
 
   return {
     id: result.id,
@@ -190,10 +209,47 @@ const deleteClient = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   return h.response().code(200);
 };
 
-export const recommendationClientHandler = {
+const verifyEmail = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
+  const client = req.auth.artifacts as RecommendationClientArtifacts;
+  const payload = req.payload as VerifyEmailPayload;
+
+  const authCode = await prisma.clientAuthCode.findUnique({
+    where: {
+      clientId: client.id,
+    },
+  });
+
+  if (!authCode) {
+    return throwLoginError();
+  }
+
+  if (authCode.code !== payload.code) {
+    return throwInvalidError("認証コードが間違っています");
+  }
+
+  await prisma.recommendationClient.update({
+    where: {
+      id: client.id,
+    },
+    data: {
+      verifiedEmail: true,
+    },
+  });
+
+  await prisma.clientAuthCode.delete({
+    where: {
+      clientId: client.id,
+    },
+  });
+
+  return h.response().code(200);
+};
+
+export const handlers = {
   create,
   get,
   update,
   changeShowedPostModal,
   deleteClient,
+  verifyEmail,
 };

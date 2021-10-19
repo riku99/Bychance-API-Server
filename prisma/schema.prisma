@@ -247,7 +247,7 @@ model PrivateTime {
 model RecommendationClient {
   id String @id @default(uuid())
   uid String @unique // firebase内のid。認証認可で使用
-  name String
+  name String? @default("")
   image String?
   lat Float?
   lng Float?
@@ -262,6 +262,7 @@ model RecommendationClient {
   admin Boolean @default(false) // 管理ユーザーのみtrue
   showedPostModal Boolean @default(false)
   deleted Boolean @default(false) // アカウント削除を実行した場合はtrue
+  verifiedEmail Boolean @default(false)
   recommendations Recommendation[]
   readNotifications RecommendationClientReadNotification[]
 
@@ -369,6 +370,14 @@ model ApplyingGroup {
 
   @@index([applyingUserId, appliedUserId])
   @@unique([applyingUserId, appliedUserId])
+}
+
+model ClientAuthCode {
+  id Int @id @default(autoincrement())
+  clientId String
+  code Int
+
+  @@unique([clientId])
 }
 
 

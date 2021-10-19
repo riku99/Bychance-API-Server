@@ -1,8 +1,8 @@
 import Hapi from "@hapi/hapi";
 
 import { baseUrl, maxBytes } from "~/constants";
-import { recommendationClientValidator } from "./validator";
-import { recommendationClientHandler } from "~/handlers/recommendatoinClients";
+import { validators } from "./validator";
+import { handlers } from "~/handlers/recommendatoinClients";
 
 export const recommendationClientsPath = `${baseUrl}/recommendationClients`;
 
@@ -11,23 +11,23 @@ export const recommendationClientsRoute = async (server: Hapi.Server) => {
     {
       method: "POST",
       path: recommendationClientsPath,
-      handler: recommendationClientHandler.create,
+      handler: handlers.create,
       options: {
         auth: false,
         validate: {
-          payload: recommendationClientValidator.create.validator.payload,
-          headers: recommendationClientValidator.create.validator.header,
+          payload: validators.create.validator.payload,
+          headers: validators.create.validator.header,
           options: {
             allowUnknown: true,
           },
-          failAction: recommendationClientValidator.create.failAction,
+          failAction: validators.create.failAction,
         },
       },
     },
     {
       method: "GET",
       path: `${baseUrl}/recommendationClient`,
-      handler: recommendationClientHandler.get,
+      handler: handlers.get,
       options: {
         auth: "r-client",
       },
@@ -35,12 +35,12 @@ export const recommendationClientsRoute = async (server: Hapi.Server) => {
     {
       method: "PATCH",
       path: `${recommendationClientsPath}`,
-      handler: recommendationClientHandler.update,
+      handler: handlers.update,
       options: {
         auth: "r-client",
         validate: {
-          payload: recommendationClientValidator.update.validator.payload,
-          failAction: recommendationClientValidator.update.failAction,
+          payload: validators.update.validator.payload,
+          failAction: validators.update.failAction,
         },
         payload: {
           timeout: 20000,
@@ -51,7 +51,7 @@ export const recommendationClientsRoute = async (server: Hapi.Server) => {
     {
       method: "PATCH",
       path: `${recommendationClientsPath}/showedPostModal`,
-      handler: recommendationClientHandler.changeShowedPostModal,
+      handler: handlers.changeShowedPostModal,
       options: {
         auth: "r-client",
       },
@@ -59,9 +59,22 @@ export const recommendationClientsRoute = async (server: Hapi.Server) => {
     {
       method: "DELETE",
       path: recommendationClientsPath,
-      handler: recommendationClientHandler.deleteClient,
+      handler: handlers.deleteClient,
       options: {
         auth: "r-client",
+      },
+    },
+    {
+      // test ok
+      method: "PATCH",
+      path: `${baseUrl}/recommendation_clients/verified_email`,
+      handler: handlers.verifyEmail,
+      options: {
+        auth: "r-client",
+        validate: {
+          payload: validators.verifyEmail.validator.payload,
+          failAction: validators.verifyEmail.failAction,
+        },
       },
     },
   ]);
