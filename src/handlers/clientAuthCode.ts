@@ -22,6 +22,20 @@ const createClientAuthCodeForPasswordReset = async (
     return throwLoginError();
   }
 
+  const existingData = await prisma.clientAuthCode.findUnique({
+    where: {
+      clientId: client.id,
+    },
+  });
+
+  if (existingData) {
+    await prisma.clientAuthCode.delete({
+      where: {
+        id: existingData.id,
+      },
+    });
+  }
+
   const code = create4digitNumber();
   await prisma.clientAuthCode.create({
     data: {
