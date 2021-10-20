@@ -7,6 +7,7 @@ import { handlers } from "~/handlers/block";
 export const blockesRoute = async (server: Hapi.Server) => {
   server.route([
     {
+      // test ok
       method: "POST",
       path: `${baseUrl}/users/block`,
       handler: handlers.create,
@@ -18,6 +19,7 @@ export const blockesRoute = async (server: Hapi.Server) => {
       },
     },
     {
+      // test ok
       method: "DELETE",
       path: `${baseUrl}/users/{userId}/block`,
       handler: handlers._delete,
@@ -29,6 +31,7 @@ export const blockesRoute = async (server: Hapi.Server) => {
       },
     },
     {
+      // test ok
       method: "GET",
       path: `${baseUrl}/groups/members/block/{userId}`,
       handler: handlers.getGroupMemberWhoBlcokTargetUserExists,

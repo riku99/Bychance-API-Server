@@ -34,6 +34,9 @@ export const groupMemberWhoBlockTargetUserExists = async ({
     },
   });
 
+  console.log("console");
+  console.log(requestUserGroupData);
+
   if (requestUserGroupData && requestUserGroupData.members.length) {
     return true;
   } else {

@@ -41,6 +41,7 @@ const _delete = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   return h.response().code(200);
 };
 
+// グループメンバーに対象のユーザーをブロックしているユーザーがいるかどうか
 const getGroupMemberWhoBlcokTargetUserExists = async (
   req: Hapi.Request,
   h: Hapi.ResponseToolkit
