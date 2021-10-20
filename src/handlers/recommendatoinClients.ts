@@ -14,6 +14,7 @@ import { createS3ObjectPath } from "~/helpers/aws";
 import { createHash } from "~/helpers/crypto";
 import { create4digitNumber } from "~/utils";
 import { sendMail } from "~/mailer";
+import { verifyAuthCode } from "~/helpers/clientAuthCode/verifyAuthCode";
 
 const prisma = new PrismaClient();
 
@@ -212,34 +213,23 @@ const verifyEmail = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const client = req.auth.artifacts as RecommendationClientArtifacts;
   const payload = req.payload as VerifyEmailPayload;
 
-  const authCode = await prisma.clientAuthCode.findUnique({
-    where: {
+  try {
+    await verifyAuthCode({
       clientId: client.id,
-    },
-  });
+      code: payload.code,
+    });
 
-  if (!authCode) {
-    return throwLoginError();
+    await prisma.recommendationClient.update({
+      where: {
+        id: client.id,
+      },
+      data: {
+        verifiedEmail: true,
+      },
+    });
+  } catch (e) {
+    return e;
   }
-
-  if (authCode.code !== payload.code) {
-    return throwInvalidError("認証コードが間違っています");
-  }
-
-  await prisma.recommendationClient.update({
-    where: {
-      id: client.id,
-    },
-    data: {
-      verifiedEmail: true,
-    },
-  });
-
-  await prisma.clientAuthCode.delete({
-    where: {
-      clientId: client.id,
-    },
-  });
 
   return h.response().code(200);
 };
