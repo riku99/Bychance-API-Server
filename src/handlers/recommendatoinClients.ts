@@ -50,7 +50,6 @@ const formRecommendationClient = (client: RecommendationClient) => {
 };
 
 const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
-  // const payload = req.payload as CreateRecommendationClientPayload;
   const headers = req.headers as CreateRecommendationClientHeaders;
   const token = headers.authorization.split(" ")[1]; // Bearer取り出し
   const rClientAdmin = admin.app("recommendationClient");

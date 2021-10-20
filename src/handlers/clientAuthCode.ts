@@ -14,7 +14,7 @@ const createClientAuthCodeForPasswordReset = async (
   const client = req.auth.artifacts as RecommendationClientArtifacts;
   const clientAdmin = admin.app("recommendationClient");
 
-  const adminUser = await clientAdmin.auth().getUser(client.id);
+  const adminUser = await clientAdmin.auth().getUser(client.uid);
 
   if (!adminUser) {
     return throwLoginError();
