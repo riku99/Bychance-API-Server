@@ -8,7 +8,7 @@ then
 echo ${GOOGLE_CREDENTIALS} > /google_credentials.json
 npx prisma migrate deploy
 npx prisma generate
-npx ts-node -r tsconfig-paths/register ./src/index.ts
+npx ts-node --transpile-only -r tsconfig-paths/register ./src/index.ts
 # yarn build
 # yarn start
 fi

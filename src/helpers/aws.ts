@@ -7,6 +7,8 @@ import util from "util";
 import { createRandomString } from "~/helpers/crypto";
 import { URL } from "url";
 
+sharp.cache(false);
+
 const getResizeNumber = (domain: string) => {
   switch (domain) {
     case "post":

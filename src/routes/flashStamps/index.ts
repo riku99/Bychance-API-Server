@@ -20,6 +20,7 @@ export const flashStampsRoute = async (server: Hapi.Server) => {
       },
     },
     {
+      // test ok
       method: "GET",
       path: `${baseUrl}/flashes/{flashId}/stamps`,
       handler: handlers.get,

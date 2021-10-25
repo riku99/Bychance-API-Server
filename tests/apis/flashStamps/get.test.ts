@@ -6,7 +6,6 @@ import { prisma } from "../../lib/prisma";
 import { createUser } from "../../data/user";
 import { createFlash } from "../../data/flash";
 import { createFlashStamp } from "../../data/flashStamps";
-import { EROFS } from "node:constants";
 
 const url = (flashId: number) => `${baseUrl}/flashes/${flashId}/stamps`;
 
