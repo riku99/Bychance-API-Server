@@ -17,8 +17,10 @@ const get = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const user = req.auth.artifacts as Artifacts;
   const query = req.query as GetNearbyUsersQuery;
 
+  console.log(user);
+
   if (!user.lat || !user.lng) {
-    return throwInvalidError();
+    return throwInvalidError("位置情報がありません");
   }
 
   const { lat, lng } = handleUserLocationCrypto(user.lat, user.lng, "decrypt");
