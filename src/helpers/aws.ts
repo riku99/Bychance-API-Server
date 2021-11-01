@@ -210,13 +210,30 @@ export const createS3ObjectPath = async ({
       .rotate() // exifの関係でrotate()つけないと回転率が変になる時ある https://stackoverflow.com/questions/48716266/sharp-image-library-rotates-image-when-resizing
       .webp();
 
-    if (domain !== "post") {
-      webpData.resize(width, height);
-    }
+    // if (domain !== "post") {
+    //   webpData.resize(width, height);
+    // }
 
     const metaData = await webpData.metadata();
     if (metaData.width && metaData.height) {
       dimensions = { width: metaData.width, height: metaData.height };
+    }
+
+    console.log("✋ domain is " + domain);
+    console.log("metadata is " + metaData.height);
+    if (domain === "post") {
+      if (metaData.height && metaData.width) {
+        if (
+          metaData.width > metaData.height ||
+          metaData.width === metaData.height
+        ) {
+          console.log("resize width to 1080 😆");
+          webpData.resize(1080);
+        } else {
+          console.log("resize height to 1080 😆");
+          webpData.resize(null, 1080);
+        }
+      }
     }
 
     sourceBufferData = await webpData.toBuffer();
