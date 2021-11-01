@@ -137,12 +137,6 @@ const convertVideo = ({
         .videoCodec("libx264")
         .toFormat("mp4");
 
-      if (width && height) {
-        const w = width.toString();
-        const h = height.toString();
-        ffmpegData.size(`${w}x${h}`);
-      }
-
       ffmpegData.save(outputFilePath).on("end", async () => {
         const data = await readFile(outputFilePath);
         resolve(data);
@@ -153,12 +147,8 @@ const convertVideo = ({
 
 const createThumbnail = ({
   inputFilePath,
-  width,
-  height,
 }: {
   inputFilePath: string;
-  width: number | null;
-  height: number | null;
 }): Promise<Buffer> => {
   const outputFileName = createRandomString().replace(/\//g, "");
   const outputFilePath = `./tmp/thumbnails/${outputFileName}.png`;
@@ -176,10 +166,6 @@ const createThumbnail = ({
         .on("end", async () => {
           const data = await readFile(outputFilePath);
           const webpData = sharp(data).webp();
-
-          if (width && height) {
-            webpData.resize(width, height);
-          }
           const bufferData = await webpData.toBuffer();
           resolve(bufferData);
           await deleteFile(outputFilePath);
@@ -228,7 +214,6 @@ export const createS3ObjectPath = async ({
 
   let dimensions: { width: number; height: number };
 
-  // const { width, height } = getResizeNumber(domain);
   const resizeNumber = getResizeNumber(domain);
 
   const randomString = createRandomString();
@@ -265,8 +250,6 @@ export const createS3ObjectPath = async ({
     const { data, info } = await webpData.toBuffer({ resolveWithObject: true });
     sourceBufferData = data;
     dimensions = { width: info.width, height: info.height };
-
-    console.log("💓 dimensions is " + dimensions!.width);
   } else {
     const inputFileName = createRandomString().replace(/\//g, "");
     const inputFilePath = `./tmp/video/"${inputFileName}.${ext}`;
@@ -284,8 +267,6 @@ export const createS3ObjectPath = async ({
         }),
         createThumbnail({
           inputFilePath,
-          width: resizeNumber.width,
-          height: resizeNumber.height,
         }),
       ]);
       sourceBufferData = result[0];
