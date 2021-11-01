@@ -57,7 +57,45 @@ const getResizeNumber = (domain: string) => {
   }
 };
 
-const resize = async () => {};
+const resizeImage = async ({
+  data,
+  domain,
+  metaData,
+  resizeNumber,
+}: {
+  data: sharp.Sharp;
+  domain: string;
+  metaData: {
+    width?: number;
+    height?: number;
+  };
+  resizeNumber: {
+    width: number | null;
+    height: number | null;
+  };
+}) => {
+  if (domain === ("post" || "flash" || "backGroundItem")) {
+    if (metaData.width && metaData.height) {
+      if (
+        metaData.width > metaData.height ||
+        metaData.width === metaData.height
+      ) {
+        // 元が横長か正方形の場合比率を変えずにwidthを1080にリサイズ
+        data.resize(1080);
+      } else {
+        // 縦長の場合はheightを基準
+        data.resize(null, 1080);
+      }
+    } else {
+      // メタデータのwidthをheightがない場合はとりあえずwidthを1080にリサイズ
+      data.resize(1080);
+    }
+  } else {
+    if (resizeNumber.width && resizeNumber.height) {
+      data.resize(resizeNumber.width, resizeNumber.height);
+    }
+  }
+};
 
 const createS3Client = () => {
   const s3Client = new AWS.S3({
@@ -190,7 +228,8 @@ export const createS3ObjectPath = async ({
 
   let dimensions: { width: number; height: number };
 
-  const { width, height } = getResizeNumber(domain);
+  // const { width, height } = getResizeNumber(domain);
+  const resizeNumber = getResizeNumber(domain);
 
   const randomString = createRandomString();
   const fileName = randomString.replace(/\//g, "w"); // / を全て変換。ファイル名をランダムな文字列にすることでなるべくセキュアにする
@@ -211,28 +250,17 @@ export const createS3ObjectPath = async ({
     const webpData = sharp(decodedData)
       .rotate() // exifの関係でrotate()つけないと回転率が変になる時ある https://stackoverflow.com/questions/48716266/sharp-image-library-rotates-image-when-resizing
       .webp();
-
-    // if (domain !== "post") {
-    //   webpData.resize(width, height);
-    // }
-
     const metaData = await webpData.metadata();
-    // if (metaData.width && metaData.height) {
-    //   dimensions = { width: metaData.width, height: metaData.height };
-    // }
 
-    if (domain === "post") {
-      if (metaData.height && metaData.width) {
-        if (
-          metaData.width > metaData.height ||
-          metaData.width === metaData.height
-        ) {
-          webpData.resize(1080);
-        } else {
-          webpData.resize(null, 1080);
-        }
-      }
-    }
+    await resizeImage({
+      data: webpData,
+      domain,
+      metaData: {
+        width: metaData.width,
+        height: metaData.height,
+      },
+      resizeNumber,
+    });
 
     const { data, info } = await webpData.toBuffer({ resolveWithObject: true });
     sourceBufferData = data;
@@ -248,8 +276,17 @@ export const createS3ObjectPath = async ({
     try {
       await writeFile(inputFilePath, decodedData);
       const result = await Promise.all([
-        convertVideo({ inputFilePath, outputFilePath, width, height }),
-        createThumbnail({ inputFilePath, width, height }),
+        convertVideo({
+          inputFilePath,
+          outputFilePath,
+          width: resizeNumber.width,
+          height: resizeNumber.height,
+        }),
+        createThumbnail({
+          inputFilePath,
+          width: resizeNumber.width,
+          height: resizeNumber.height,
+        }),
       ]);
       sourceBufferData = result[0];
       thumbnailBufferData = result[1];
