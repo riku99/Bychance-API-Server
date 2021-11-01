@@ -9,6 +9,10 @@ import { URL } from "url";
 
 sharp.cache(false);
 
+const writeFile = util.promisify(fs.writeFile);
+const deleteFile = util.promisify(fs.unlink);
+const readFile = util.promisify(fs.readFile);
+
 const getResizeNumber = (domain: string) => {
   switch (domain) {
     case "post":
@@ -53,9 +57,7 @@ const getResizeNumber = (domain: string) => {
   }
 };
 
-const writeFile = util.promisify(fs.writeFile);
-const deleteFile = util.promisify(fs.unlink);
-const readFile = util.promisify(fs.readFile);
+const resize = async () => {};
 
 const createS3Client = () => {
   const s3Client = new AWS.S3({
@@ -215,28 +217,28 @@ export const createS3ObjectPath = async ({
     // }
 
     const metaData = await webpData.metadata();
-    if (metaData.width && metaData.height) {
-      dimensions = { width: metaData.width, height: metaData.height };
-    }
+    // if (metaData.width && metaData.height) {
+    //   dimensions = { width: metaData.width, height: metaData.height };
+    // }
 
-    console.log("✋ domain is " + domain);
-    console.log("metadata is " + metaData.height);
     if (domain === "post") {
       if (metaData.height && metaData.width) {
         if (
           metaData.width > metaData.height ||
           metaData.width === metaData.height
         ) {
-          console.log("resize width to 1080 😆");
           webpData.resize(1080);
         } else {
-          console.log("resize height to 1080 😆");
           webpData.resize(null, 1080);
         }
       }
     }
 
-    sourceBufferData = await webpData.toBuffer();
+    const { data, info } = await webpData.toBuffer({ resolveWithObject: true });
+    sourceBufferData = data;
+    dimensions = { width: info.width, height: info.height };
+
+    console.log("💓 dimensions is " + dimensions!.width);
   } else {
     const inputFileName = createRandomString().replace(/\//g, "");
     const inputFilePath = `./tmp/video/"${inputFileName}.${ext}`;
