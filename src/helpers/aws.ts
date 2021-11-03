@@ -9,6 +9,8 @@ import { URL } from "url";
 
 sharp.cache(false);
 
+const tmpBasePath =
+  process.env.NODE_ENV === "production" ? "/tmp" : `${__dirname}/../../tmp`;
 const writeFile = util.promisify(fs.writeFile);
 const deleteFile = util.promisify(fs.unlink);
 const readFile = util.promisify(fs.readFile);
@@ -151,7 +153,7 @@ const createThumbnail = ({
   inputFilePath: string;
 }): Promise<Buffer> => {
   const outputFileName = createRandomString().replace(/\//g, "");
-  const outputFilePath = `${__dirname}/../../tmp/thumbnails/${outputFileName}.png`;
+  const outputFilePath = `${tmpBasePath}/thumbnails/${outputFileName}.png`;
 
   return new Promise(async (resolve) => {
     try {
@@ -160,7 +162,7 @@ const createThumbnail = ({
           count: 1,
           timestamps: [0.0],
           // size: width && height ? `${width}x${height}` : undefined, ここで条件分岐してサイズ指定するとうまくいかないのでsharpの方で対応
-          folder: `${__dirname}/../../tmp/thumbnails`,
+          folder: `${tmpBasePath}/thumbnails`,
           filename: `${outputFileName}.png`,
         })
         .on("end", async () => {
@@ -252,9 +254,9 @@ export const createS3ObjectPath = async ({
     dimensions = { width: info.width, height: info.height };
   } else {
     const inputFileName = createRandomString().replace(/\//g, "");
-    const inputFilePath = `${__dirname}/../../tmp/video/"${inputFileName}.${ext}`;
+    const inputFilePath = `${tmpBasePath}/video/"${inputFileName}.${ext}`;
     const outputFileName = createRandomString().replace(/\//g, "");
-    const outputFilePath = `${__dirname}/../../tmp/video/"${outputFileName}.mp4`;
+    const outputFilePath = `${tmpBasePath}/video/"${outputFileName}.mp4`;
 
     try {
       await writeFile(inputFilePath, decodedData);
