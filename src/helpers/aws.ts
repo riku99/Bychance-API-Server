@@ -153,7 +153,7 @@ const createThumbnail = ({
   inputFilePath: string;
 }): Promise<Buffer> => {
   const outputFileName = createRandomString().replace(/\//g, "");
-  const outputFilePath = `${tmpBasePath}/thumbnails/${outputFileName}.png`;
+  const outputFilePath = `${tmpBasePath}/${outputFileName}.png`;
 
   return new Promise(async (resolve) => {
     try {
@@ -162,7 +162,7 @@ const createThumbnail = ({
           count: 1,
           timestamps: [0.0],
           // size: width && height ? `${width}x${height}` : undefined, ここで条件分岐してサイズ指定するとうまくいかないのでsharpの方で対応
-          folder: `${tmpBasePath}/thumbnails`,
+          folder: `${tmpBasePath}`,
           filename: `${outputFileName}.png`,
         })
         .on("end", async () => {
@@ -254,9 +254,9 @@ export const createS3ObjectPath = async ({
     dimensions = { width: info.width, height: info.height };
   } else {
     const inputFileName = createRandomString().replace(/\//g, "");
-    const inputFilePath = `${tmpBasePath}/video/"${inputFileName}.${ext}`;
+    const inputFilePath = `${tmpBasePath}/"${inputFileName}.${ext}`;
     const outputFileName = createRandomString().replace(/\//g, "");
-    const outputFilePath = `${tmpBasePath}/video/"${outputFileName}.mp4`;
+    const outputFilePath = `${tmpBasePath}/"${outputFileName}.mp4`;
 
     try {
       await writeFile(inputFilePath, decodedData);
