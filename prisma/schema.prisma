@@ -381,6 +381,12 @@ model ClientAuthCode {
   @@unique([clientId])
 }
 
+model UserAuthCode {
+  id Int @id @default(autoincrement())
+  code Int
+  createdAt DateTime @default(now())
+}
+
 
 enum FlashSourceTypeRole {
   image
