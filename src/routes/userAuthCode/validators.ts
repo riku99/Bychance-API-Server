@@ -3,12 +3,12 @@ import Joi from "joi";
 import { failAction } from "~/helpers/valiadtions/failAction";
 
 export type CreateUserAuthCode = {
-  code: string;
+  email: string;
 };
 const validationForCreateUserAuthCode = {
-  payload: {
-    code: Joi.string().required(),
-  },
+  payload: Joi.object<CreateUserAuthCode>({
+    email: Joi.string().required(),
+  }),
 };
 
 export const validators = {
