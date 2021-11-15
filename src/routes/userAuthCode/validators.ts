@@ -11,9 +11,22 @@ const validationForCreateUserAuthCode = {
   }),
 };
 
+export type VerifyUserAuthCodeQuery = {
+  code: string;
+};
+const validationForVerifyUserAuthCode = {
+  query: Joi.object<VerifyUserAuthCodeQuery>({
+    code: Joi.string().required(),
+  }),
+};
+
 export const validators = {
   create: {
     validator: validationForCreateUserAuthCode,
+    failAction,
+  },
+  verify: {
+    validator: validationForVerifyUserAuthCode,
     failAction,
   },
 };
