@@ -16,14 +16,23 @@ import {
   ChangeTalkRoomMessageReceipt,
   ChangeShowReceiveMessage,
   ChangeIntro,
+  CreateUserPayload,
 } from "~/routes/users/validator";
 import { createS3ObjectPath } from "~/helpers/aws";
 import { throwInvalidError } from "~/helpers/errors";
 import { handleUserLocationCrypto, createHash } from "~/helpers/crypto";
 import { geohashPrecision } from "~/constants";
 import { getUserIsInPrivateTime } from "~/helpers/privateTime";
+import { prisma } from "~/lib/prisma";
 
-const prisma = new PrismaClient();
+const createUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
+  const payload = req.payload as CreateUserPayload;
+  const user = await prisma.user.create({
+    data: {
+      name: payload.name,
+    },
+  });
+};
 
 const updateUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const user = req.auth.artifacts as Artifacts;
@@ -523,6 +532,7 @@ const changeIntro = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
 };
 
 export const handlers = {
+  createUser,
   updateUser,
   updateLocation,
   deleteLocation,

@@ -12,6 +12,18 @@ import { maxBytes } from "~/config/apis/size";
 export const usersRoute = async (server: Hapi.Server) => {
   server.route([
     {
+      method: "POST",
+      path: `${baseUrl}/users`,
+      handler: handlers.createUser,
+      options: {
+        auth: false,
+        validate: {
+          payload: validators.createUser.validater.payload,
+          failAction: validators.createUser.failAction,
+        },
+      },
+    },
+    {
       method: "GET",
       path: `${baseUrl}/users/{userId}/page_info`,
       handler: handlers.getUserPageInfo,
