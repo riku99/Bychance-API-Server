@@ -83,7 +83,7 @@ const lineLogin = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const avatar = res!.data.picture ? (res!.data.picture as string) : null;
 
   const existingUser = await prisma.user.findUnique({
-    where: { lineId: hashedLineId },
+    where: { id: hashedLineId },
     select: {
       id: true,
     },
@@ -98,7 +98,6 @@ const lineLogin = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
         id: existingUser.id,
       },
       data: {
-        accessToken: hashededAccessToken,
         login: true,
       },
     });
@@ -107,8 +106,8 @@ const lineLogin = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   } else {
     const newUser = await prisma.user.create({
       data: {
-        lineId: hashedLineId,
-        accessToken: hashededAccessToken,
+        id: hashedLineId,
+        uid: "defe",
         name,
         avatar,
       },

@@ -3,6 +3,7 @@ import { PrismaClient } from "@prisma/client";
 import distance from "@turf/distance";
 import { point } from "@turf/helpers";
 import geohash from "ngeohash";
+import admin from "firebase-admin";
 
 import { Artifacts } from "~/auth/bearer";
 import {
@@ -17,6 +18,7 @@ import {
   ChangeShowReceiveMessage,
   ChangeIntro,
   CreateUserPayload,
+  CreateUserHeader,
 } from "~/routes/users/validator";
 import { createS3ObjectPath } from "~/helpers/aws";
 import { throwInvalidError } from "~/helpers/errors";
@@ -27,11 +29,29 @@ import { prisma } from "~/lib/prisma";
 
 const createUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const payload = req.payload as CreateUserPayload;
+  const headers = req.headers as CreateUserHeader;
+  const token = headers.authorization.split(" ")[1]; // Bearer取り出し
+
+  let uid: string;
+
+  try {
+    const decodedToken = await admin.auth().verifyIdToken(token);
+    if (!decodedToken) {
+      return throwInvalidError();
+    }
+    uid = decodedToken.uid;
+  } catch (e) {
+    return throwInvalidError();
+  }
+
   const user = await prisma.user.create({
     data: {
       name: payload.name,
+      uid,
     },
   });
+
+  return user;
 };
 
 const updateUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {

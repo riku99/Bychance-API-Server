@@ -19,7 +19,11 @@ export const usersRoute = async (server: Hapi.Server) => {
         auth: false,
         validate: {
           payload: validators.createUser.validater.payload,
+          headers: validators.createUser.validater.header,
           failAction: validators.createUser.failAction,
+          options: {
+            allowUnknown: true,
+          },
         },
       },
     },
