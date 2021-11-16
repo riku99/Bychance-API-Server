@@ -31,8 +31,8 @@ export const sessionsRoute = async (server: Hapi.Server) => {
       handler: sessionsHandler.sessionLogin,
     },
     {
-      method: "GET",
-      path: logoutPath,
+      method: "DELETE",
+      path: `${baseUrl}/sessions`,
       handler: sessionsHandler.logout,
     },
     {
