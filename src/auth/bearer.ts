@@ -1,7 +1,7 @@
 import Hapi from "@hapi/hapi";
 import admin from "firebase-admin";
 
-import { PrismaClient, User, RecommendationClient } from "@prisma/client";
+import { User, RecommendationClient } from "@prisma/client";
 import { prisma } from "~/lib/prisma";
 
 export type Artifacts = User;
@@ -21,8 +21,8 @@ const invalidReturnData = { isValid: false, credentials: {} };
 
 export const checkUserToken = async (
   req: Hapi.Request,
-  h: Hapi.ResponseToolkit,
-  token: string
+  token: string,
+  h: Hapi.ResponseToolkit
 ) => {
   try {
     const { uid } = await admin.auth().verifyIdToken(token);
