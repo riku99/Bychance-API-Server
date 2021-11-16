@@ -26,6 +26,8 @@ import { handleUserLocationCrypto, createHash } from "~/helpers/crypto";
 import { geohashPrecision } from "~/constants";
 import { getUserIsInPrivateTime } from "~/helpers/privateTime";
 import { prisma } from "~/lib/prisma";
+import { getLoginData } from "~/models/sessions";
+import { formLoginData } from "~/helpers/sessions";
 
 const createUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const payload = req.payload as CreateUserPayload;
@@ -51,7 +53,9 @@ const createUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     },
   });
 
-  return user;
+  const loginData = await getLoginData(user.id);
+
+  return formLoginData(loginData);
 };
 
 const updateUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {

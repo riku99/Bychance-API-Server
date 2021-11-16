@@ -2,9 +2,7 @@ import Hapi from "@hapi/hapi";
 import admin from "firebase-admin";
 
 import { PrismaClient, User, RecommendationClient } from "@prisma/client";
-import { createHash } from "~/helpers/crypto";
-
-const prisma = new PrismaClient();
+import { prisma } from "~/lib/prisma";
 
 export type Artifacts = User;
 
@@ -21,37 +19,27 @@ type ReturnType =
 
 const invalidReturnData = { isValid: false, credentials: {} };
 
-// 認可が必要なAPIのAuthorizationヘッダ + クエリのidフィールドはこの認可プロセスで検証を行えるのでそのためのバリデーションは定義する必要ない
-export const checkBeareAccessToken = async (
-  request: Hapi.Request,
-  token: string,
-  h: Hapi.ResponseToolkit
-): Promise<ReturnType> => {
-  const id = request.query.id as string | undefined;
+export const checkUserToken = async (
+  req: Hapi.Request,
+  h: Hapi.ResponseToolkit,
+  token: string
+) => {
+  try {
+    const { uid } = await admin.auth().verifyIdToken(token);
+    const user = await prisma.user.findUnique({
+      where: {
+        uid,
+      },
+    });
 
-  if (!id) {
-    // Boomを使ったエラーのスローはstrategy作成時のunauthorizeに実装する
-    // throwLoginError();
-    return { isValid: false, credentials: {} };
+    if (!user) {
+      return invalidReturnData;
+    }
+
+    return { isValid: true, credentials: {}, artifacts: user };
+  } catch (e) {
+    return invalidReturnData;
   }
-
-  const user = await prisma.user.findUnique({
-    where: { id },
-  });
-
-  if (!user) {
-    return { isValid: false, credentials: {} };
-  }
-
-  // const isSame = user.accessToken === createHash(token);
-  const isSame = true;
-
-  if (!isSame) {
-    return { isValid: false, credentials: {} };
-  }
-
-  // credentialsは例えisValidがfalseでも、trueだがhandler内で必要なくても定義しないとダメ
-  return { isValid: true, credentials: {}, artifacts: user };
 };
 
 export type RecommendationClientArtifacts = RecommendationClient;

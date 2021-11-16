@@ -6,7 +6,7 @@ import socketio from "socket.io";
 import cron from "node-cron";
 
 import {
-  checkBeareAccessToken,
+  checkUserToken,
   checkRecommendationClient,
   checkConsoleAdmin,
 } from "~/auth/bearer";
@@ -56,7 +56,7 @@ export const initializeServer = async () => {
   await server.register(AuthBearer); // authをプラグインとして登録する場合、routeの登録よりも先にしないと死ぬ
 
   server.auth.strategy("simple", "bearer-access-token", {
-    validate: checkBeareAccessToken,
+    validate: checkUserToken,
     unauthorized: () => {
       // unauthorizedはtokenが存在しない場合、validateに渡した関数から{isValid: false}が返された場合に実行される
       console.log("認可失敗");
