@@ -59,7 +59,6 @@ const getRecommendationsValidation = {
   query: Joi.object<GetRecommendationsQuery>({
     lat: Joi.number().required(),
     lng: Joi.number().required(),
-    id: Joi.string().required(), // クエリには認証用idが毎回含まれるので、クエリをバリデーションの対象にする場合はidも許可する
   }),
 };
 

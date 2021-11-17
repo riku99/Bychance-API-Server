@@ -9,7 +9,8 @@ datasource db {
 
 model User {
   id                   String                @id @default(uuid())
-  lineId               String                @unique
+  uid                  String                @unique // firebase内のid。認証認可で使用
+  // lineId               String                @unique
   name                 String
   avatar               String?
   introduce            String?
@@ -17,7 +18,7 @@ model User {
   display              Boolean               @default(false)
   createdAt            DateTime              @default(now())
   updatedAt            DateTime              @updatedAt
-  accessToken          String                @unique
+  // accessToken          String                @unique
   lat                  String?
   lng                  String?
   instagram            String?
@@ -58,9 +59,10 @@ model User {
 
 
   @@index([display, login, inPrivateZone, geohash, lat, lng])
-  @@index([lineId])
-  @@index([accessToken])
+  @@index([uid])
   @@index([groupId])
+  // @@index([lineId])
+  // @@index([accessToken])
 }
 
 model Post {
@@ -379,6 +381,12 @@ model ClientAuthCode {
   code Int
 
   @@unique([clientId])
+}
+
+model UserAuthCode {
+  id Int @id @default(autoincrement())
+  code Int
+  createdAt DateTime @default(now())
 }
 
 

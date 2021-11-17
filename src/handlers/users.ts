@@ -1,8 +1,8 @@
 import Hapi from "@hapi/hapi";
-import { PrismaClient } from "@prisma/client";
 import distance from "@turf/distance";
 import { point } from "@turf/helpers";
 import geohash from "ngeohash";
+import admin from "firebase-admin";
 
 import { Artifacts } from "~/auth/bearer";
 import {
@@ -16,14 +16,46 @@ import {
   ChangeTalkRoomMessageReceipt,
   ChangeShowReceiveMessage,
   ChangeIntro,
+  CreateUserPayload,
+  CreateUserHeader,
 } from "~/routes/users/validator";
 import { createS3ObjectPath } from "~/helpers/aws";
 import { throwInvalidError } from "~/helpers/errors";
 import { handleUserLocationCrypto, createHash } from "~/helpers/crypto";
 import { geohashPrecision } from "~/constants";
 import { getUserIsInPrivateTime } from "~/helpers/privateTime";
+import { prisma } from "~/lib/prisma";
+import { getLoginData } from "~/models/sessions";
+import { formLoginData } from "~/helpers/sessions";
 
-const prisma = new PrismaClient();
+const createUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
+  const payload = req.payload as CreateUserPayload;
+  const headers = req.headers as CreateUserHeader;
+  const token = headers.authorization.split(" ")[1]; // Bearer取り出し
+
+  let uid: string;
+
+  try {
+    const decodedToken = await admin.auth().verifyIdToken(token);
+    if (!decodedToken) {
+      return throwInvalidError();
+    }
+    uid = decodedToken.uid;
+  } catch (e) {
+    return throwInvalidError();
+  }
+
+  const user = await prisma.user.create({
+    data: {
+      name: payload.name,
+      uid,
+    },
+  });
+
+  const loginData = await getLoginData(user.id);
+
+  return formLoginData(loginData);
+};
 
 const updateUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const user = req.auth.artifacts as Artifacts;
@@ -523,6 +555,7 @@ const changeIntro = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
 };
 
 export const handlers = {
+  createUser,
   updateUser,
   updateLocation,
   deleteLocation,

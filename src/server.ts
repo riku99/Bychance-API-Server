@@ -6,7 +6,7 @@ import socketio from "socket.io";
 import cron from "node-cron";
 
 import {
-  checkBeareAccessToken,
+  checkUserToken,
   checkRecommendationClient,
   checkConsoleAdmin,
 } from "~/auth/bearer";
@@ -39,6 +39,7 @@ import { blockesRoute } from "~/routes/block";
 import { groupsRoute } from "~/routes/groups";
 import { applyingGroupsRoute } from "~/routes/applyingGroup";
 import { registerFirebaseAdmin } from "~/firebase";
+import { userAuthCodeRoute } from "~/routes/userAuthCode";
 
 export const server = Hapi.server({
   port: process.env.PORT || 4001,
@@ -55,7 +56,7 @@ export const initializeServer = async () => {
   await server.register(AuthBearer); // authをプラグインとして登録する場合、routeの登録よりも先にしないと死ぬ
 
   server.auth.strategy("simple", "bearer-access-token", {
-    validate: checkBeareAccessToken,
+    validate: checkUserToken,
     unauthorized: () => {
       // unauthorizedはtokenが存在しない場合、validateに渡した関数から{isValid: false}が返された場合に実行される
       console.log("認可失敗");
@@ -117,6 +118,7 @@ export const initializeServer = async () => {
   blockesRoute(server);
   groupsRoute(server);
   applyingGroupsRoute(server);
+  userAuthCodeRoute(server);
 
   await server.initialize();
 
@@ -131,7 +133,7 @@ export const startServer = async (server: Hapi.Server) => {
   registerFirebaseAdmin();
 
   await server.start();
-  console.log("サーバー起動: " + server.info.uri);
+  console.log("🆗 サーバー起動: " + server.info.uri);
 
   return server;
 };

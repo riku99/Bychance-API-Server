@@ -142,6 +142,21 @@ const changeIntroValidation = {
   }),
 };
 
+export type CreateUserPayload = {
+  name: string;
+};
+export type CreateUserHeader = {
+  authorization: string;
+};
+const validationForCreateUser = {
+  payload: Joi.object<CreateUserPayload>({
+    name: Joi.string().required(),
+  }),
+  header: Joi.object<CreateUserHeader>({
+    authorization: Joi.string().required(),
+  }),
+};
+
 export const validators = {
   getUser: {
     validator: getValidation,
@@ -173,6 +188,10 @@ export const validators = {
   },
   changeIntro: {
     validator: changeIntroValidation,
+    failAction,
+  },
+  createUser: {
+    validater: validationForCreateUser,
     failAction,
   },
 };

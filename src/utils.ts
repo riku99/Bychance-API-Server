@@ -49,10 +49,14 @@ export const confirmInTime = ({
 
 export const create4digitNumber = () => {
   let code: string = "";
-
-  for (let i = 0; i < 4; i++) {
-    const num = Math.floor(Math.random() * 10);
-    code = code + `${num}`;
+  const createNumber = () => {
+    for (let i = 0; i < 4; i++) {
+      const num = Math.floor(Math.random() * 10);
+      code = code + `${num}`;
+    }
+  };
+  while (code.length !== 4) {
+    createNumber();
   }
 
   return Number(code);
