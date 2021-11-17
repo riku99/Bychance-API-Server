@@ -6,17 +6,6 @@ import { prisma } from "~/lib/prisma";
 
 export type Artifacts = User;
 
-type ReturnType =
-  | {
-      isValid: false;
-      credentials: {};
-    }
-  | {
-      isValid: true;
-      credentials: {};
-      artifacts: Artifacts;
-    };
-
 const invalidReturnData = { isValid: false, credentials: {} };
 
 export const checkUserToken = async (
