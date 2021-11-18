@@ -127,13 +127,9 @@ export const initializeServer = async () => {
 
 export const startServer = async (server: Hapi.Server) => {
   cron.schedule("0 0 0 * * *", deleteExpiredViewedFlashes); // 毎日0時に実行
-
   setupSocketIo();
-
   registerFirebaseAdmin();
-
   await server.start();
   console.log("🆗 サーバー起動: " + server.info.uri);
-
   return server;
 };
