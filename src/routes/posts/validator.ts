@@ -2,7 +2,6 @@ import Joi from "joi";
 import { Post } from "@prisma/client";
 
 import { throwInvalidError } from "~/helpers/errors";
-import { GetParams } from "../talkRooms/validator";
 
 export type CreatePostPayload = {
   text: string;

@@ -9,8 +9,7 @@ import { URL } from "url";
 
 sharp.cache(false);
 
-const tmpBasePath =
-  process.env.NODE_ENV === "production" ? "/tmp" : `${__dirname}/../../tmp`;
+const tmpBasePath = `${__dirname}/../../tmp`;
 const writeFile = util.promisify(fs.writeFile);
 const deleteFile = util.promisify(fs.unlink);
 const readFile = util.promisify(fs.readFile);

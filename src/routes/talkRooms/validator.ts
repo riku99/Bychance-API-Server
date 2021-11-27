@@ -22,21 +22,7 @@ const deleteValidation = {
 };
 const deleteFailAction = () => throwInvalidError();
 
-export type GetParams = {
-  userId: string;
-};
-const getValidation = {
-  params: Joi.object<GetParams>({
-    userId: Joi.string().required(),
-  }),
-};
-const getFailAction = () => throwInvalidError();
-
 export const validators = {
-  get: {
-    validator: getValidation,
-    failAction: getFailAction,
-  },
   delete: {
     validator: deleteValidation,
     failAction: deleteFailAction,

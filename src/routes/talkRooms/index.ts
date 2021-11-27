@@ -30,14 +30,8 @@ export const talkRoomsRoute = async (server: Hapi.Server) => {
     },
     {
       method: "GET",
-      path: `${baseUrl}/users/{userId}/talk_rooms`,
+      path: `${baseUrl}/talk_rooms`,
       handler: handlers.get,
-      options: {
-        validate: {
-          params: validators.get.validator.params,
-          failAction: validators.get.failAction,
-        },
-      },
     },
   ]);
 };

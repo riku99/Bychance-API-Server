@@ -6,7 +6,6 @@ import { throwInvalidError } from "~/helpers/errors";
 import {
   CreateTalkRoomPayload,
   DeleteTalkRoomParams,
-  GetParams,
 } from "~/routes/talkRooms/validator";
 
 const prisma = new PrismaClient();
@@ -82,21 +81,20 @@ const deleteTalkRoom = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
 
 const get = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const user = req.auth.artifacts as Artifacts;
-  const params = req.params as GetParams;
 
-  if (user.id !== params.userId) return throwInvalidError();
+  if (user.id !== user.id) return throwInvalidError();
 
   const talkRoomData = await prisma.talkRoom.findMany({
     where: {
       OR: [
         {
-          senderId: params.userId,
+          senderId: user.id,
           messages: {
             some: {}, // こうすることで、「少なくとも1つのmessagesが存在する ~ 」というフィルタリングができる https://www.prisma.io/docs/concepts/components/prisma-client/relation-queries
           },
         },
         {
-          recipientId: params.userId,
+          recipientId: user.id,
           messages: {
             some: {
               receipt: true,
@@ -111,12 +109,12 @@ const get = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       unreadMessages: {
         where: {
           userId: {
-            not: params.userId, // 既読未読の対象は自分が送ったメッセージじゃないよね
+            not: user.id, // 既読未読の対象は自分が送ったメッセージじゃないよね
           },
           receipt: true,
           readTalkRoomMessages: {
             none: {
-              userId: params.userId, // 既読データに存在しないものを取得したいよね
+              userId: user.id, // 既読データに存在しないものを取得したいよね
             },
           },
         },
@@ -128,11 +126,11 @@ const get = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
         where: {
           OR: [
             {
-              userId: params.userId,
+              userId: user.id,
             },
             {
               userId: {
-                not: params.userId,
+                not: user.id,
               },
               receipt: true, // このルームの一番最近のメッセージが相手からのメッセージでも、そのreciptがfalseなら(受け取り拒否していたら)そのメッセージは取得しないよね
             },
