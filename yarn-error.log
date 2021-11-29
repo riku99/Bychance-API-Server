@@ -1,25 +1,21 @@
 Arguments: 
-  /Users/riku/.anyenv/envs/nodenv/versions/12.22.0/bin/node /usr/local/Cellar/yarn/1.22.10/libexec/bin/yarn.js logs
+  /usr/local/bin/node /opt/yarn-v1.22.15/bin/yarn.js add sharp
 
 PATH: 
-  /Users/riku/.anyenv/envs/nodenv/versions/12.22.0/bin:/Users/riku/.anyenv/envs/nodenv/libexec:/Users/riku/.anyenv/envs/nodenv/plugins/nodenv-vars/bin:/Users/riku/.anyenv/envs/nodenv/plugins/node-build/bin:/usr/local/opt/openjdk@11/bin:/Users/riku/.anyenv/envs/nodenv/versions/12.17.0/bin/Users/riku/.anyenv/envs/ndenv/versions/12.2.0/bin:/Users/riku/.poetry/bin:/Users/riku/.anyenv/envs/rbenv/shims:/Users/riku/.anyenv/envs/rbenv/bin:/Users/riku/.anyenv/envs/nodenv/shims:/Users/riku/.anyenv/envs/nodenv/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/Apple/usr/bin:/usr/local/opt/openjdk@11/bin:/Users/riku/.anyenv/envs/nodenv/versions/12.17.0/bin/Users/riku/.anyenv/envs/ndenv/versions/12.2.0/bin:/Users/riku/.poetry/bin:/Users/riku/.anyenv/envs/rbenv/shims:/Users/riku/.anyenv/envs/rbenv/bin:/Users/riku/.anyenv/envs/nodenv/shims:/Users/riku/.anyenv/envs/nodenv/bin:/Users/riku/Library/Android/sdk/emulator:/Users/riku/Library/Android/sdk/tools:/Users/riku/Library/Android/sdk/tools/bin:/Users/riku/Library/Android/sdk/platform-tools:/Users/riku/Library/Android/sdk/emulator:/Users/riku/Library/Android/sdk/tools:/Users/riku/Library/Android/sdk/tools/bin:/Users/riku/Library/Android/sdk/platform-tools
+  /tmp/yarn--1638015020001-0.5517747440110707:/app/node_modules/.bin:/usr/local/share/.config/yarn/link/node_modules/.bin:/usr/local/libexec/lib/node_modules/npm/bin/node-gyp-bin:/usr/local/lib/node_modules/npm/bin/node-gyp-bin:/usr/local/bin/node_modules/npm/bin/node-gyp-bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 Yarn version: 
-  1.22.10
+  1.22.15
 
 Node version: 
-  12.22.0
+  12.22.7
 
 Platform: 
-  darwin x64
+  linux x64
 
 Trace: 
-  SyntaxError: /Users/riku/Myapp/Bychance-Api-Server/package.json: Unexpected end of JSON input
-      at JSON.parse (<anonymous>)
-      at /usr/local/Cellar/yarn/1.22.10/libexec/lib/cli.js:1625:59
-      at Generator.next (<anonymous>)
-      at step (/usr/local/Cellar/yarn/1.22.10/libexec/lib/cli.js:310:30)
-      at /usr/local/Cellar/yarn/1.22.10/libexec/lib/cli.js:321:13
+  Error: getaddrinfo EAI_AGAIN registry.yarnpkg.com
+      at GetAddrInfoReqWrap.onlookup [as oncomplete] (dns.js:66:26)
 
 npm manifest: 
   {
