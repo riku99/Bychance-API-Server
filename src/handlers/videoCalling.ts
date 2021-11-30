@@ -20,6 +20,7 @@ const createRTCToken = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     privilegeExpiredTs
   );
 
+  // 相手ユーザーがビデオ通話を許可している場合のみ実行するようにする
   const otherUserToken = RtcTokenBuilder.buildTokenWithUid(
     process.env.AGORA_APP_ID as string,
     process.env.AGORA_APP_CERTIFICATE as string,

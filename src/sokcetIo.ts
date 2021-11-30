@@ -1,4 +1,8 @@
-import { talkRoomMessageNameSpace, applyingGroupNameSpace } from "~/server";
+import {
+  talkRoomMessageNameSpace,
+  applyingGroupNameSpace,
+  videoCallingNameSpace,
+} from "~/server";
 
 export const setupSocketIo = () => {
   talkRoomMessageNameSpace.on("connection", async (socket) => {
@@ -13,6 +17,14 @@ export const setupSocketIo = () => {
   });
 
   applyingGroupNameSpace.on("connection", async (socket) => {
+    const query = socket.handshake.query;
+    if (!query) {
+      return;
+    }
+    await socket.join(query.id as string);
+  });
+
+  videoCallingNameSpace.on("connection", async (socket) => {
     const query = socket.handshake.query;
     if (!query) {
       return;

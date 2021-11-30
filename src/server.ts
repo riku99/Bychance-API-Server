@@ -51,6 +51,7 @@ export const server = Hapi.server({
 export const io = new socketio.Server(server.listener);
 export const talkRoomMessageNameSpace = io.of("/talkRoomMessages");
 export const applyingGroupNameSpace = io.of("/applying_group");
+export const videoCallingNameSpace = io.of("/video_calling");
 
 export const initializeServer = async () => {
   // @ts-ignore
