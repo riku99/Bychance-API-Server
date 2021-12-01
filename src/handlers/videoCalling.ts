@@ -3,20 +3,22 @@ import { Artifacts } from "~/auth/bearer";
 import { CreateRTCTToken } from "~/routes/videoCalling/validators";
 import { RtcTokenBuilder, RtcRole } from "agora-access-token";
 import { videoCallingNameSpace } from "~/server";
+import seedrandom from "seedrandom";
 
 const createRTCToken = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const requestUser = req.auth.artifacts as Artifacts;
   const payload = req.payload as CreateRTCTToken;
-  const uid = Number(requestUser.id);
   const expirationTimeInSeconds = 3600;
   const currentTimestamp = Math.floor(Date.now() / 1000);
   const privilegeExpiredTs = currentTimestamp + expirationTimeInSeconds;
+  const requestUserIntUid = Math.abs(seedrandom(requestUser.id).int32());
+  const otherUserIntUid = Math.abs(seedrandom(payload.otherUserId).int32());
 
   const requestUserToken = RtcTokenBuilder.buildTokenWithUid(
     process.env.AGORA_APP_ID as string,
     process.env.AGORA_APP_CERTIFICATE as string,
     payload.channelName,
-    uid,
+    requestUserIntUid,
     RtcRole.PUBLISHER,
     privilegeExpiredTs
   );
@@ -27,20 +29,27 @@ const createRTCToken = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       process.env.AGORA_APP_ID as string,
       process.env.AGORA_APP_CERTIFICATE as string,
       payload.channelName,
-      Number(payload.otherUserId),
+      otherUserIntUid,
       RtcRole.SUBSCRIBER,
       privilegeExpiredTs
     );
 
-    videoCallingNameSpace.to(payload.otherUserId).emit("startCalling", {
+    videoCallingNameSpace.to(payload.otherUserId).emit("startCall", {
       channelName: payload.channelName,
       token: otherUserToken,
       to: payload.otherUserId,
+      intUid: otherUserIntUid,
+      publisher: {
+        id: requestUser.id,
+        name: requestUser.name,
+        image: requestUser.avatar,
+      },
     });
   }
 
   return {
     token: requestUserToken,
+    intUid: requestUserIntUid,
   };
 };
 
