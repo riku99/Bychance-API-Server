@@ -157,6 +157,15 @@ const validationForCreateUser = {
   }),
 };
 
+export type ChangeVideoCallingEnabled = {
+  value: boolean;
+};
+const changeVideoCallingEnabledValidation = {
+  paylaod: Joi.object<ChangeVideoCallingEnabled>({
+    value: Joi.boolean().required(),
+  }),
+};
+
 export const validators = {
   getUser: {
     validator: getValidation,
@@ -192,6 +201,10 @@ export const validators = {
   },
   createUser: {
     validater: validationForCreateUser,
+    failAction,
+  },
+  changeVideoCallingEnabled: {
+    validator: changeVideoCallingEnabledValidation,
     failAction,
   },
 };

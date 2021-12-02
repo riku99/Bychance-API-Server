@@ -26,6 +26,7 @@ export const getLoginData = async (id: string) =>
       intro: true,
       tooltipOfUsersDisplayShowed: true,
       groupsApplicationEnabled: true,
+      videoCallingEnabled: true,
       backGroundItem: true,
       posts: {
         orderBy: {

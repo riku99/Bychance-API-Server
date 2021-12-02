@@ -167,5 +167,16 @@ export const usersRoute = async (server: Hapi.Server) => {
         },
       },
     },
+    {
+      method: "PUT",
+      path: `${baseUrl}/users/video_calling_enabled`,
+      handler: handlers.changeVideoCallingEnabled,
+      options: {
+        validate: {
+          payload: validators.changeVideoCallingEnabled.validator.paylaod,
+          failAction: validators.changeVideoCallingEnabled.failAction,
+        },
+      },
+    },
   ]);
 };

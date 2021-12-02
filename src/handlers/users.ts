@@ -18,6 +18,7 @@ import {
   ChangeIntro,
   CreateUserPayload,
   CreateUserHeader,
+  ChangeVideoCallingEnabled,
 } from "~/routes/users/validator";
 import { createS3ObjectPath } from "~/helpers/aws";
 import { throwInvalidError } from "~/helpers/errors";
@@ -554,6 +555,25 @@ const changeIntro = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   return h.response().code(200);
 };
 
+const changeVideoCallingEnabled = async (
+  req: Hapi.Request,
+  h: Hapi.ResponseToolkit
+) => {
+  const user = req.auth.artifacts as Artifacts;
+  const payload = req.payload as ChangeVideoCallingEnabled;
+
+  await prisma.user.update({
+    where: {
+      id: user.id,
+    },
+    data: {
+      videoCallingEnabled: payload.value,
+    },
+  });
+
+  return h.response().code(200);
+};
+
 export const handlers = {
   createUser,
   updateUser,
@@ -570,4 +590,5 @@ export const handlers = {
   changeTalkRoomMessageReceipt,
   changeShowReceiveMessage,
   changeIntro,
+  changeVideoCallingEnabled,
 };
