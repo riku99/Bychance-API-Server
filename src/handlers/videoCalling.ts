@@ -4,10 +4,46 @@ import { CreateRTCTToken } from "~/routes/videoCalling/validators";
 import { RtcTokenBuilder, RtcRole } from "agora-access-token";
 import { videoCallingNameSpace } from "~/server";
 import seedrandom from "seedrandom";
+import { prisma } from "~/lib/prisma";
+import { throwInvalidError } from "~/helpers/errors";
 
 const createRTCToken = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const requestUser = req.auth.artifacts as Artifacts;
   const payload = req.payload as CreateRTCTToken;
+
+  const talkRoomWithIntreaction = await prisma.talkRoom.findFirst({
+    where: {
+      AND: [
+        {
+          messages: {
+            some: {
+              userId: requestUser.id,
+              receipt: true,
+            },
+          },
+        },
+        {
+          messages: {
+            some: {
+              userId: payload.otherUserId,
+              receipt: true,
+            },
+          },
+        },
+      ],
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!talkRoomWithIntreaction) {
+    return throwInvalidError(
+      "ビデオ通話は相互にメッセージのやりとりがあるユーザーのみ行えます",
+      true
+    );
+  }
+
   const expirationTimeInSeconds = 3600;
   const currentTimestamp = Math.floor(Date.now() / 1000);
   const privilegeExpiredTs = currentTimestamp + expirationTimeInSeconds;
