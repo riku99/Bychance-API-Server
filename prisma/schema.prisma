@@ -36,6 +36,7 @@ model User {
   tooltipOfUsersDisplayShowed      Boolean    @default(false)
   groupId String?
   groupsApplicationEnabled Boolean @default(true) // このユーザーにグループ申請が可能かどうか
+  videoCallingEnabled Boolean @default(true) // このユーザーにビデオ通話をかけれるかどうか
   flashes              Flash[]
   posts                Post[]
   readTalkRoomMessages ReadTalkRoomMessage[]

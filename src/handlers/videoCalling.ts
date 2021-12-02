@@ -10,6 +10,26 @@ import { throwInvalidError } from "~/helpers/errors";
 const createRTCToken = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const requestUser = req.auth.artifacts as Artifacts;
   const payload = req.payload as CreateRTCTToken;
+  const otherUser = await prisma.user.findUnique({
+    where: {
+      id: payload.otherUserId,
+    },
+    select: {
+      videoCallingEnabled: true,
+      blocks: {
+        where: {
+          blockTo: requestUser.id,
+        },
+        select: {
+          id: true,
+        },
+      },
+    },
+  });
+
+  if (!otherUser) {
+    return throwInvalidError();
+  }
 
   const talkRoomWithIntreaction = await prisma.talkRoom.findFirst({
     where: {
@@ -48,7 +68,6 @@ const createRTCToken = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const currentTimestamp = Math.floor(Date.now() / 1000);
   const privilegeExpiredTs = currentTimestamp + expirationTimeInSeconds;
   const requestUserIntUid = Math.abs(seedrandom(requestUser.id).int32());
-  const otherUserIntUid = Math.abs(seedrandom(payload.otherUserId).int32());
 
   const requestUserToken = RtcTokenBuilder.buildTokenWithUid(
     process.env.AGORA_APP_ID as string,
@@ -59,8 +78,10 @@ const createRTCToken = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     privilegeExpiredTs
   );
 
-  // 相手ユーザーがビデオ通話を許可している場合のみ実行するようにする
-  if (true) {
+  // 相手ユーザーがビデオ通話を許可している && 相手ユーザーがリクエストユーザーをブロックしていない場合はソケットで通知
+  if (otherUser.videoCallingEnabled && !otherUser.blocks.length) {
+    const otherUserIntUid = Math.abs(seedrandom(payload.otherUserId).int32());
+
     const otherUserToken = RtcTokenBuilder.buildTokenWithUid(
       process.env.AGORA_APP_ID as string,
       process.env.AGORA_APP_CERTIFICATE as string,
