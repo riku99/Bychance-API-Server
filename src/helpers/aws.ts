@@ -136,7 +136,8 @@ const convertVideo = ({
     try {
       const ffmpegData = ffmpeg(inputFilePath)
         .videoCodec("libx264")
-        .toFormat("mp4");
+        .toFormat("mp4")
+        .outputOptions(["-movflags faststart"]);
 
       ffmpegData.save(outputFilePath).on("end", async () => {
         const data = await readFile(outputFilePath);
