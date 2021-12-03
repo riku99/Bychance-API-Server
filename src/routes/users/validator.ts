@@ -166,6 +166,15 @@ const changeVideoCallingEnabledValidation = {
   }),
 };
 
+export type ChangeDescriptionOfVideoCallingSettingsShowed = {
+  value: boolean;
+};
+const validationForChangeDescriptionOfVideoCallingSettingsShowed = {
+  payload: Joi.object<ChangeDescriptionOfVideoCallingSettingsShowed>({
+    value: Joi.boolean().required(),
+  }),
+};
+
 export const validators = {
   getUser: {
     validator: getValidation,
@@ -205,6 +214,10 @@ export const validators = {
   },
   changeVideoCallingEnabled: {
     validator: changeVideoCallingEnabledValidation,
+    failAction,
+  },
+  changeDescriptionOfVideoCallingSettingsShowed: {
+    validator: validationForChangeDescriptionOfVideoCallingSettingsShowed,
     failAction,
   },
 };

@@ -28,6 +28,7 @@ export const getLoginData = async (id: string) =>
       groupsApplicationEnabled: true,
       videoCallingEnabled: true,
       backGroundItem: true,
+      descriptionOfVideoCallingSettingsShowed: true,
       posts: {
         orderBy: {
           createdAt: "desc",

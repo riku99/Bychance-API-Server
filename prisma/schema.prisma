@@ -10,7 +10,6 @@ datasource db {
 model User {
   id                   String                @id @default(uuid())
   uid                  String                @unique // firebase内のid。認証認可で使用
-  // lineId               String                @unique
   name                 String
   avatar               String?
   introduce            String?
@@ -18,7 +17,6 @@ model User {
   display              Boolean               @default(false)
   createdAt            DateTime              @default(now())
   updatedAt            DateTime              @updatedAt
-  // accessToken          String                @unique
   lat                  String?
   lng                  String?
   instagram            String?
@@ -37,6 +35,7 @@ model User {
   groupId String?
   groupsApplicationEnabled Boolean @default(true) // このユーザーにグループ申請が可能かどうか
   videoCallingEnabled Boolean @default(true) // このユーザーにビデオ通話をかけれるかどうか
+  descriptionOfVideoCallingSettingsShowed Boolean @default(false) // ビデオ通話で相手が設定OFFにしているかもの説明を見せたか
   flashes              Flash[]
   posts                Post[]
   readTalkRoomMessages ReadTalkRoomMessage[]
@@ -62,8 +61,6 @@ model User {
   @@index([display, login, inPrivateZone, geohash, lat, lng])
   @@index([uid])
   @@index([groupId])
-  // @@index([lineId])
-  // @@index([accessToken])
 }
 
 model Post {

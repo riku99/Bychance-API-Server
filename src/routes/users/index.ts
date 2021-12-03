@@ -178,5 +178,19 @@ export const usersRoute = async (server: Hapi.Server) => {
         },
       },
     },
+    {
+      method: "PUT",
+      path: `${baseUrl}/users/description_of_video_calling_settins_showed`,
+      handler: handlers.changeDescriptionOfVideoCallingSettingsShowed,
+      options: {
+        validate: {
+          payload:
+            validators.changeDescriptionOfVideoCallingSettingsShowed.validator
+              .payload,
+          failAction:
+            validators.changeDescriptionOfVideoCallingSettingsShowed.failAction,
+        },
+      },
+    },
   ]);
 };
