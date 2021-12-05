@@ -1,10 +1,7 @@
 import Hapi from "@hapi/hapi";
-import { PrismaClient } from "@prisma/client";
-
+import { prisma } from "~/lib/prisma";
 import { Artifacts } from "~/auth/bearer";
 import { CreateDeviceTokenPayload } from "~/routes/deviceToken/validator";
-
-const prisma = new PrismaClient();
 
 const createDeviceToken = async (
   req: Hapi.Request,
@@ -21,6 +18,16 @@ const createDeviceToken = async (
 
   if (!existingToken) {
     await prisma.deviceToken.create({
+      data: {
+        userId: user.id,
+        token: payload.token,
+      },
+    });
+  } else {
+    await prisma.deviceToken.updateMany({
+      where: {
+        userId: user.id,
+      },
       data: {
         userId: user.id,
         token: payload.token,

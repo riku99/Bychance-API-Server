@@ -10,8 +10,7 @@ import {
 import { talkRoomMessageNameSpace } from "~/server";
 import { throwInvalidError } from "~/helpers/errors";
 import { pushNotificationToMany } from "~/helpers/pushNotification";
-
-const prisma = new PrismaClient();
+import { prisma } from "~/lib/prisma";
 
 const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const user = req.auth.artifacts as Artifacts;
