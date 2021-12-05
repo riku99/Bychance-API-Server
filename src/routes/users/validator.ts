@@ -175,6 +175,16 @@ const validationForChangeDescriptionOfVideoCallingSettingsShowed = {
   }),
 };
 
+// これまでユーザーの設定または「~を表示した」のような経験に関するカラムの部分もそれぞれバリデーションを定義していたが、基本的にbooleanで渡す値も同じなのでこれを使うようにする。
+export type ChangeUserSettingsOrExperiencesValuePayload = {
+  value: boolean;
+};
+const validationForUserSettingsOrExperiences = {
+  payload: Joi.object<ChangeUserSettingsOrExperiencesValuePayload>({
+    value: Joi.boolean().required(),
+  }),
+};
+
 export const validators = {
   getUser: {
     validator: getValidation,
@@ -218,6 +228,10 @@ export const validators = {
   },
   changeDescriptionOfVideoCallingSettingsShowed: {
     validator: validationForChangeDescriptionOfVideoCallingSettingsShowed,
+    failAction,
+  },
+  changeUserSettingsValue: {
+    validator: validationForUserSettingsOrExperiences,
     failAction,
   },
 };

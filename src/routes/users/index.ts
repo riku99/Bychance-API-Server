@@ -192,5 +192,16 @@ export const usersRoute = async (server: Hapi.Server) => {
         },
       },
     },
+    {
+      method: "PUT",
+      path: `${baseUrl}/users/description_of_not_getting_talk_room_message_showed`,
+      handler: handlers.changeDescriptionOfNotGettingTalkRoomMessageShowed,
+      options: {
+        validate: {
+          payload: validators.changeUserSettingsValue.validator.payload,
+          failAction: validators.changeUserSettingsValue.failAction,
+        },
+      },
+    },
   ]);
 };

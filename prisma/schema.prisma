@@ -36,6 +36,7 @@ model User {
   groupsApplicationEnabled Boolean @default(true) // このユーザーにグループ申請が可能かどうか
   videoCallingEnabled Boolean @default(true) // このユーザーにビデオ通話をかけれるかどうか
   descriptionOfVideoCallingSettingsShowed Boolean @default(false) // ビデオ通話で相手が設定OFFにしているかもの説明を見せたか
+  descriptionOfNotGettingTalkRoomMessageShowed Boolean @default(false) // 相手がメッセージを受け取らない設定にしている可能性があることについての説明を見せたかどうか
   flashes              Flash[]
   posts                Post[]
   readTalkRoomMessages ReadTalkRoomMessage[]

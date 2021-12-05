@@ -1,6 +1,4 @@
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "~/lib/prisma";
 
 export const getLoginData = async (id: string) =>
   prisma.user.findUnique({
@@ -29,6 +27,7 @@ export const getLoginData = async (id: string) =>
       videoCallingEnabled: true,
       backGroundItem: true,
       descriptionOfVideoCallingSettingsShowed: true,
+      descriptionOfNotGettingTalkRoomMessageShowed: true,
       posts: {
         orderBy: {
           createdAt: "desc",
