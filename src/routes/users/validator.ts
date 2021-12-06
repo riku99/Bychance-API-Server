@@ -230,7 +230,7 @@ export const validators = {
     validator: validationForChangeDescriptionOfVideoCallingSettingsShowed,
     failAction,
   },
-  changeUserSettingsValue: {
+  changeUserSettingsOrExperiencesValue: {
     validator: validationForUserSettingsOrExperiences,
     failAction,
   },

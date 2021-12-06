@@ -57,6 +57,17 @@ export const getLoginData = async (
     });
   }
 
+  if (user.onCall) {
+    await prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        onCall: false,
+      },
+    });
+  }
+
   const data = await loginDataQuery(user.id);
 
   if (!data) {

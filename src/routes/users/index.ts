@@ -198,8 +198,23 @@ export const usersRoute = async (server: Hapi.Server) => {
       handler: handlers.changeDescriptionOfNotGettingTalkRoomMessageShowed,
       options: {
         validate: {
-          payload: validators.changeUserSettingsValue.validator.payload,
-          failAction: validators.changeUserSettingsValue.failAction,
+          payload:
+            validators.changeUserSettingsOrExperiencesValue.validator.payload,
+          failAction:
+            validators.changeUserSettingsOrExperiencesValue.failAction,
+        },
+      },
+    },
+    {
+      method: "PUT",
+      path: `${baseUrl}/users/on_call`,
+      handler: handlers.changeOnCall,
+      options: {
+        validate: {
+          payload:
+            validators.changeUserSettingsOrExperiencesValue.validator.payload,
+          failAction:
+            validators.changeUserSettingsOrExperiencesValue.failAction,
         },
       },
     },

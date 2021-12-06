@@ -6,6 +6,7 @@ import { videoCallingNameSpace } from "~/server";
 import seedrandom from "seedrandom";
 import { prisma } from "~/lib/prisma";
 import { throwInvalidError } from "~/helpers/errors";
+import { pushNotificationToMany } from "~/helpers/pushNotification";
 
 const createRTCToken = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const requestUser = req.auth.artifacts as Artifacts;
@@ -15,7 +16,9 @@ const createRTCToken = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       id: payload.otherUserId,
     },
     select: {
+      login: true,
       videoCallingEnabled: true,
+      onCall: true,
       blocks: {
         where: {
           blockTo: requestUser.id,
@@ -78,8 +81,13 @@ const createRTCToken = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     privilegeExpiredTs
   );
 
-  // 相手ユーザーがビデオ通話を許可している && 相手ユーザーがリクエストユーザーをブロックしていない場合はソケットで通知
-  if (otherUser.videoCallingEnabled && !otherUser.blocks.length) {
+  // 相手ユーザーがビデオ通話を許可している && 相手ユーザーがリクエストユーザーをブロックしていない && 通話中じゃない場合はソケットで通知&push通知
+  if (
+    otherUser.login &&
+    otherUser.videoCallingEnabled &&
+    !otherUser.blocks.length &&
+    !otherUser.onCall
+  ) {
     const otherUserIntUid = Math.abs(seedrandom(payload.otherUserId).int32());
 
     const otherUserToken = RtcTokenBuilder.buildTokenWithUid(
@@ -100,6 +108,30 @@ const createRTCToken = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
         id: requestUser.id,
         name: requestUser.name,
         image: requestUser.avatar,
+      },
+    });
+
+    const tokenData = await prisma.deviceToken.findMany({
+      where: {
+        userId: payload.otherUserId,
+      },
+    });
+    const deviceTokens = tokenData.map((data) => data.token);
+    pushNotificationToMany({
+      tokens: deviceTokens,
+      notification: {
+        title: `${requestUser.name}から着信があります`,
+      },
+      data: {
+        channelName: payload.channelName,
+        token: otherUserToken,
+        to: payload.otherUserId,
+        intUid: otherUserIntUid.toString(),
+        publisher: JSON.stringify({
+          id: requestUser.id,
+          name: requestUser.name,
+          image: requestUser.avatar,
+        }),
       },
     });
   }
