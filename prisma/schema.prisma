@@ -37,7 +37,8 @@ model User {
   videoCallingEnabled Boolean @default(true) // このユーザーにビデオ通話をかけれるかどうか
   descriptionOfVideoCallingSettingsShowed Boolean @default(false) // ビデオ通話で相手が設定OFFにしているかもの説明を見せたか
   descriptionOfNotGettingTalkRoomMessageShowed Boolean @default(false) // 相手がメッセージを受け取らない設定にしている可能性があることについての説明を見せたかどうか
-  onCall Boolean @default(false) // 通話中かどうか
+  descriptionOfMyDisplayShowed Boolean @default(false) // 自分が表示されてないから設定を変えてくださいの説明を見せたかどうか
+  onCall Boolean @default(false) // 通話中
   flashes              Flash[]
   posts                Post[]
   readTalkRoomMessages ReadTalkRoomMessage[]

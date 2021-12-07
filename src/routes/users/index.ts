@@ -1,5 +1,4 @@
 import Hapi from "@hapi/hapi";
-
 import {
   updateUserValidator,
   updateLocationValidator,
@@ -209,6 +208,19 @@ export const usersRoute = async (server: Hapi.Server) => {
       method: "PUT",
       path: `${baseUrl}/users/on_call`,
       handler: handlers.changeOnCall,
+      options: {
+        validate: {
+          payload:
+            validators.changeUserSettingsOrExperiencesValue.validator.payload,
+          failAction:
+            validators.changeUserSettingsOrExperiencesValue.failAction,
+        },
+      },
+    },
+    {
+      method: "PUT",
+      path: `${baseUrl}/users/description_of_my_display_showed`,
+      handler: handlers.changeDescriptionOfMyDisplayShowed,
       options: {
         validate: {
           payload:

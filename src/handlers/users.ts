@@ -630,6 +630,25 @@ const changeOnCall = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   return h.response().code(200);
 };
 
+const changeDescriptionOfMyDisplayShowed = async (
+  req: Hapi.Request,
+  h: Hapi.ResponseToolkit
+) => {
+  const user = req.auth.artifacts as Artifacts;
+  const paylaod = req.payload as ChangeUserSettingsOrExperiencesValuePayload;
+
+  await prisma.user.update({
+    where: {
+      id: user.id,
+    },
+    data: {
+      descriptionOfMyDisplayShowed: paylaod.value,
+    },
+  });
+
+  return h.response().code(200);
+};
+
 export const handlers = {
   createUser,
   updateUser,
@@ -650,4 +669,5 @@ export const handlers = {
   changeDescriptionOfVideoCallingSettingsShowed,
   changeDescriptionOfNotGettingTalkRoomMessageShowed,
   changeOnCall,
+  changeDescriptionOfMyDisplayShowed,
 };

@@ -28,6 +28,7 @@ export const getLoginData = async (id: string) =>
       backGroundItem: true,
       descriptionOfVideoCallingSettingsShowed: true,
       descriptionOfNotGettingTalkRoomMessageShowed: true,
+      descriptionOfMyDisplayShowed: true,
       posts: {
         orderBy: {
           createdAt: "desc",
