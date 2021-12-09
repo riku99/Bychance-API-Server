@@ -39,6 +39,7 @@ model User {
   descriptionOfNotGettingTalkRoomMessageShowed Boolean @default(false) // 相手がメッセージを受け取らない設定にしている可能性があることについての説明を見せたかどうか
   descriptionOfMyDisplayShowed Boolean @default(false) // 自分が表示されてないから設定を変えてくださいの説明を見せたかどうか
   onCall Boolean @default(false) // 通話中
+  accountType AccountType @default(NormalUser)
   flashes              Flash[]
   posts                Post[]
   readTalkRoomMessages ReadTalkRoomMessage[]
@@ -59,9 +60,9 @@ model User {
   applyingGroup ApplyingGroup[] @relation("applyingGroup")
   backGroundItemId Int?
   backGroundItem BackGroundItem? @relation(fields: [backGroundItemId], references: [id])
+  billingHistories BillingHistory[]
 
-
-  @@index([display, login, inPrivateZone, geohash, lat, lng])
+  @@index([login, display, accountType, inPrivateZone, geohash, lat, lng])
   @@index([uid])
   @@index([groupId])
 }
@@ -390,6 +391,20 @@ model UserAuthCode {
   createdAt DateTime @default(now())
 }
 
+model BillingPlan {
+  id BillingPlanId @id
+  name BillingPlanName
+  price Int
+}
+
+model BillingHistory {
+  id Int @id @default(autoincrement())
+  userId String
+  planId BillingPlanId
+  createdAt DateTime
+  transactionId String @unique
+  user User @relation(fields: [userId], references: [id])
+}
 
 enum FlashSourceTypeRole {
   image
@@ -414,15 +429,15 @@ enum FlashStampValue {
   seikai
 }
 
+enum BillingPlanId {
+  shop
+}
 
-// /*
-//   Warnings:
+enum BillingPlanName {
+  Shop
+}
 
-//   - A unique constraint covering the columns `[applyingUserId,appliedUserId]` on the table `ApplyingGroup` will be added. If there are existing duplicate values, this will fail.
-
-// */
-// -- DropIndex
-// DROP INDEX `ApplyingGroup.applyingUserId_appliedUserId_index` ON `ApplyingGroup`;
-
-// -- CreateIndex
-// CREATE UNIQUE INDEX `ApplyingGroup.applyingUserId_appliedUserId_unique` ON `ApplyingGroup`(`applyingUserId`, `appliedUserId`);
+enum AccountType {
+  NormalUser
+  Shop
+}
