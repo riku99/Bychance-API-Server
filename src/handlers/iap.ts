@@ -16,7 +16,7 @@ const verifyIap = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   // body情報: https://developer.apple.com/documentation/appstorereceipts/requestbody
   const body = {
     "receipt-data": payload.receipt,
-    password: "password",
+    password: process.env.IAP_SECRET,
     "exclude-old-transactions": true,
   };
 
