@@ -41,6 +41,7 @@ import { applyingGroupsRoute } from "~/routes/applyingGroup";
 import { registerFirebaseAdmin } from "~/firebase";
 import { userAuthCodeRoute } from "~/routes/userAuthCode";
 import { videoCallingRoute } from "~/routes/videoCalling";
+import { iapRoute } from "~/routes/iap";
 
 export const server = Hapi.server({
   port: process.env.PORT || 4001,
@@ -122,6 +123,7 @@ export const initializeServer = async () => {
   applyingGroupsRoute(server);
   userAuthCodeRoute(server);
   videoCallingRoute(server);
+  iapRoute(server);
 
   await server.initialize();
 

@@ -60,7 +60,7 @@ model User {
   applyingGroup ApplyingGroup[] @relation("applyingGroup")
   backGroundItemId Int?
   backGroundItem BackGroundItem? @relation(fields: [backGroundItemId], references: [id])
-  billingHistories BillingHistory[]
+  iapReceipts IapReceipt[]
 
   @@index([login, display, accountType, inPrivateZone, geohash, lat, lng])
   @@index([uid])
@@ -391,18 +391,13 @@ model UserAuthCode {
   createdAt DateTime @default(now())
 }
 
-model BillingPlan {
-  id BillingPlanId @id
-  name BillingPlanName
-  price Int
-}
-
-model BillingHistory {
+model IapReceipt {
   id Int @id @default(autoincrement())
   userId String
-  planId BillingPlanId
-  createdAt DateTime
   transactionId String @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  expiresDate DateTime
   user User @relation(fields: [userId], references: [id])
 }
 
@@ -429,11 +424,11 @@ enum FlashStampValue {
   seikai
 }
 
-enum BillingPlanId {
+enum IapPlanId {
   shop
 }
 
-enum BillingPlanName {
+enum IapPlanName {
   Shop
 }
 
