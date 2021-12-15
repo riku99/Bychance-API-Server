@@ -74,18 +74,18 @@ const verifyIap = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     return throwInvalidError("既に購入済みです", true);
   }
 
-  await prisma.iapReceipt.create({
-    data: {
-      userId: requestUser.id,
-      transactionId: latestReceipt.transaction_id,
-      expiresDate: new Date(latestReceipt.expires_date_ms),
-    },
-  });
+  const expiresDate: number = Number(latestReceipt.expires_date_ms);
+  // await prisma.iapReceipt.create({
+  //   data: {
+  //     userId: requestUser.id,
+  //     transactionId: latestReceipt.transaction_id,
+  //     expiresDate: new Date(expiresDate),
+  //   },
+  // });
 
   // 期限内であることの確認
   const now: number = Date.now();
-  const expireDate: number = Number(latestReceipt.expires_date_ms);
-  if (now < expireDate) {
+  if (now < expiresDate) {
     return h.response().code(204);
   } else {
     return throwInvalidError("期限切れです", true);

@@ -60,7 +60,7 @@ model User {
   applyingGroup ApplyingGroup[] @relation("applyingGroup")
   backGroundItemId Int?
   backGroundItem BackGroundItem? @relation(fields: [backGroundItemId], references: [id])
-  iapReceipts IapReceipt[]
+  subscription Subscription?
 
   @@index([login, display, accountType, inPrivateZone, geohash, lat, lng])
   @@index([uid])
@@ -391,14 +391,18 @@ model UserAuthCode {
   createdAt DateTime @default(now())
 }
 
-model IapReceipt {
+model Subscription {
   id Int @id @default(autoincrement())
-  userId String
-  transactionId String @unique
+  userId String @unique
+  productId String
+  originalTransactionId String @unique
+  reciept String
+  expireDate DateTime
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  expiresDate DateTime
   user User @relation(fields: [userId], references: [id])
+
+  @@index([expireDate])
 }
 
 enum FlashSourceTypeRole {

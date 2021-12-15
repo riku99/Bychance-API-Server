@@ -9,7 +9,7 @@ export const iapRoute = async (server: Hapi.Server) => {
     {
       method: "POST",
       path: `${baseUrl}/iap/verify`,
-      handler: handlers.validateIap,
+      handler: handlers.verifyIap,
       options: {
         validate: {
           payload: validators.post.validator.payload,
