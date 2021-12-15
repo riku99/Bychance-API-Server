@@ -17,5 +17,13 @@ export const iapRoute = async (server: Hapi.Server) => {
         },
       },
     },
+    {
+      method: "POST",
+      path: `${baseUrl}/iap/app_event`,
+      handler: handlers.appStoreEvent,
+      options: {
+        auth: false,
+      },
+    },
   ]);
 };

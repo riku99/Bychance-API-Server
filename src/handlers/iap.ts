@@ -64,25 +64,118 @@ const verifyIap = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   }
 
   const expireDate: number = Number(latestReceipt.expires_date_ms);
-  await prisma.subscription.create({
-    data: {
-      userId: requestUser.id,
-      originalTransactionId: latestReceipt.original_transaction_id,
-      expireDate: new Date(expireDate),
-      productId: latestReceipt.product_id,
-      reciept: result.latest_receipt,
-    },
-  });
 
   // 期限内であることの確認
   const now: number = Date.now();
   if (now < expireDate) {
+    await prisma.subscription.create({
+      data: {
+        userId: requestUser.id,
+        originalTransactionId: latestReceipt.original_transaction_id,
+        expireDate: new Date(expireDate),
+        productId: latestReceipt.product_id,
+        reciept: result.latest_receipt,
+      },
+    });
+
+    await prisma.user.update({
+      where: {
+        id: requestUser.id,
+      },
+      data: {
+        accountType: "Shop",
+      },
+    });
     return h.response().code(204);
   } else {
     return throwInvalidError("期限切れです", true);
   }
 };
 
+const appStoreEvent = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
+  const result = req.payload as any;
+  const password = result.password;
+
+  if (password !== process.env.IAP_SECRET) {
+    return throwInvalidError();
+  }
+
+  const notificationType = result.notification_type;
+  const recieptData = result.unified_receipt;
+  const reciept = recieptData.latest_receipt;
+  const latestReceipt = recieptData.latest_receipt_info[0];
+  const originalTransactionId = latestReceipt.original_transaction_id;
+  const expireDate = Number(latestReceipt.expires_date_ms);
+  const productId = latestReceipt.product_id;
+
+  // サブスク自動更新
+  if (notificationType === "DID_RENEW") {
+    await prisma.subscription.update({
+      where: {
+        originalTransactionId,
+      },
+      data: {
+        reciept,
+        originalTransactionId,
+        expireDate: new Date(expireDate),
+        productId,
+      },
+    });
+  } else if (notificationType === "CANCEL") {
+    // 返金
+    // 返金の場合はexpireDateをこの時点にし、accountTypeもかえる
+    const subscription = await prisma.subscription.update({
+      where: {
+        originalTransactionId,
+      },
+      data: {
+        expireDate: new Date(),
+      },
+    });
+
+    if (!subscription) {
+      return throwInvalidError();
+    }
+
+    await prisma.user.update({
+      where: {
+        id: subscription.userId,
+      },
+      data: {
+        accountType: "NormalUser",
+      },
+    });
+  } else if (notificationType === "DID_CHANGE_RENEWAL_STATUS") {
+    // サブスク停止
+    // DID_CHANGE_RENEWAL_STATUSは単なる停止以外にもさまざまな時に渡されるイベントなのでexpireDateを確認する必要がある
+    const now: number = Date.now();
+    // 期限切れ
+    if (expireDate < now) {
+      const subscription = await prisma.subscription.findUnique({
+        where: {
+          originalTransactionId,
+        },
+      });
+
+      if (!subscription) {
+        return throwInvalidError();
+      }
+
+      await prisma.user.update({
+        where: {
+          id: subscription.userId,
+        },
+        data: {
+          accountType: "NormalUser",
+        },
+      });
+    }
+  }
+
+  return h.response().code(200);
+};
+
 export const handlers = {
   verifyIap,
+  appStoreEvent,
 };
