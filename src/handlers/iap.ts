@@ -63,29 +63,20 @@ const verifyIap = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     return throwInvalidError();
   }
 
-  // そのデータが既に使用されていないかをDBで確認
-  const d = await prisma.iapReceipt.findUnique({
-    where: {
-      transactionId: latestReceipt.transaction_id,
+  const expireDate: number = Number(latestReceipt.expires_date_ms);
+  await prisma.subscription.create({
+    data: {
+      userId: requestUser.id,
+      originalTransactionId: latestReceipt.original_transaction_id,
+      expireDate: new Date(expireDate),
+      productId: latestReceipt.product_id,
+      reciept: result.latest_receipt,
     },
   });
 
-  if (d) {
-    return throwInvalidError("既に購入済みです", true);
-  }
-
-  const expiresDate: number = Number(latestReceipt.expires_date_ms);
-  // await prisma.iapReceipt.create({
-  //   data: {
-  //     userId: requestUser.id,
-  //     transactionId: latestReceipt.transaction_id,
-  //     expiresDate: new Date(expiresDate),
-  //   },
-  // });
-
   // 期限内であることの確認
   const now: number = Date.now();
-  if (now < expiresDate) {
+  if (now < expireDate) {
     return h.response().code(204);
   } else {
     return throwInvalidError("期限切れです", true);
