@@ -96,6 +96,9 @@ const appStoreEvent = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const result = req.payload as any;
   const password = result.password;
 
+  console.log(result);
+  console.log(password);
+
   if (password !== process.env.IAP_SECRET) {
     return throwInvalidError();
   }
@@ -161,6 +164,7 @@ const appStoreEvent = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
         return throwInvalidError();
       }
 
+      console.log("✋ update");
       await prisma.user.update({
         where: {
           id: subscription.userId,
