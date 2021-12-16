@@ -29,6 +29,7 @@ export const getLoginData = async (id: string) =>
       descriptionOfVideoCallingSettingsShowed: true,
       descriptionOfNotGettingTalkRoomMessageShowed: true,
       descriptionOfMyDisplayShowed: true,
+      accountType: true,
       posts: {
         orderBy: {
           createdAt: "desc",

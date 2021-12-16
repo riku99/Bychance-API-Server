@@ -45,14 +45,19 @@ const verifyIap = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   // 期限内であることの確認
   const now: number = Date.now();
   if (now < expireDate) {
-    await prisma.subscription.create({
-      data: {
-        userId: requestUser.id,
+    const subscriptionData = {
+      userId: requestUser.id,
+      originalTransactionId: latestReceipt.original_transaction_id,
+      expireDate: new Date(expireDate),
+      productId: latestReceipt.product_id,
+      reciept: result.latest_receipt,
+    };
+    await prisma.subscription.upsert({
+      where: {
         originalTransactionId: latestReceipt.original_transaction_id,
-        expireDate: new Date(expireDate),
-        productId: latestReceipt.product_id,
-        reciept: result.latest_receipt,
       },
+      update: subscriptionData,
+      create: subscriptionData,
     });
 
     await prisma.user.update({

@@ -1,6 +1,5 @@
 import Hapi from "@hapi/hapi";
 import { UnwrapPromise } from "@prisma/client";
-
 import { handleUserLocationCrypto } from "~/helpers/crypto";
 import { throwLoginError } from "~/helpers/errors";
 import { Artifacts } from "~/auth/bearer";
