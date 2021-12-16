@@ -1,10 +1,8 @@
 // テストで使用するため初期化までされたサーバーが必要なので初期化と起動でプロセス分ける
-
 import Hapi from "@hapi/hapi";
 import AuthBearer from "hapi-auth-bearer-token";
 import socketio from "socket.io";
 import cron from "node-cron";
-
 import {
   checkUserToken,
   checkRecommendationClient,
@@ -42,6 +40,7 @@ import { registerFirebaseAdmin } from "~/firebase";
 import { userAuthCodeRoute } from "~/routes/userAuthCode";
 import { videoCallingRoute } from "~/routes/videoCalling";
 import { iapRoute } from "~/routes/iap";
+import { verifyRecieptBatch } from "~/helpers/iap/verifyRecieptBatch";
 
 export const server = Hapi.server({
   port: process.env.PORT || 4001,
@@ -132,6 +131,10 @@ export const initializeServer = async () => {
 
 export const startServer = async (server: Hapi.Server) => {
   cron.schedule("0 0 0 * * *", deleteExpiredViewedFlashes); // 毎日0時に実行
+  cron.schedule(
+    "0 0 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23 * * *",
+    verifyRecieptBatch
+  );
   setupSocketIo();
   registerFirebaseAdmin();
   await server.start();

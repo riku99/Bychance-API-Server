@@ -2,14 +2,19 @@ import { subHours } from "date-fns";
 import { prisma } from "~/lib/prisma";
 import { postToAppleServer } from "./postToAppleServer";
 
+// しっかりテスト書くこと!
 export const verifyRecieptBatch = async () => {
+  console.log("✊ verifyRecieptBatchの実行");
   const subscriptions = await prisma.subscription.findMany({
     where: {
       expireDate: {
         lte: subHours(new Date(), 1),
+        gt: subHours(new Date(), 2),
       },
     },
   });
+
+  console.log(subscriptions.length);
 
   let fetchPromise: Promise<any>[] = [];
 
@@ -22,6 +27,7 @@ export const verifyRecieptBatch = async () => {
   let updateDataPromise: Promise<any>[] = [];
 
   const changeUserAccountType = async (idx: number) => {
+    console.log("change account type");
     const userId = subscriptions[idx].userId;
     try {
       await prisma.user.update({
@@ -55,6 +61,7 @@ export const verifyRecieptBatch = async () => {
 
       // 期限切れ
       if (expireDate < now) {
+        console.log("期限切れ");
         await changeUserAccountType(idx);
       } else {
         // なんらかの理由で最新レシートが期限切れてなかった。accountTypeを変える必要はない。
