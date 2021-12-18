@@ -1,8 +1,7 @@
 import Hapi from "@hapi/hapi";
-import { PrismaClient } from "@prisma/client";
 import distance from "@turf/distance";
 import { point } from "@turf/helpers";
-
+import { nowJST, prisma } from "~/lib/prisma";
 import { Artifacts } from "~/auth/bearer";
 import { throwInvalidError } from "~/helpers/errors";
 import {
@@ -10,8 +9,6 @@ import {
   DeletePrivateZoneParams,
 } from "~/routes/privateZone/validator";
 import { handleUserLocationCrypto, handleAddressCrypt } from "~/helpers/crypto";
-
-const prisma = new PrismaClient();
 
 const getPrivateZone = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const user = req.auth.artifacts as Artifacts;
@@ -61,6 +58,7 @@ const createPrivateZone = async (
       lat: cryptoResult.lat,
       lng: cryptoResult.lng,
       address: cryptoAddress,
+      createdAt: nowJST,
     },
   });
 

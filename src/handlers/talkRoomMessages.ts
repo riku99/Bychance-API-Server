@@ -1,6 +1,4 @@
 import Hapi from "@hapi/hapi";
-import { PrismaClient } from "@prisma/client";
-
 import { Artifacts } from "~/auth/bearer";
 import {
   CreateTalkRoomMessagePayload,
@@ -10,7 +8,7 @@ import {
 import { talkRoomMessageNameSpace } from "~/server";
 import { throwInvalidError } from "~/helpers/errors";
 import { pushNotificationToMany } from "~/helpers/pushNotification";
-import { prisma } from "~/lib/prisma";
+import { prisma, nowJST } from "~/lib/prisma";
 
 const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const user = req.auth.artifacts as Artifacts;
@@ -119,6 +117,7 @@ const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       roomId: talkRoomId,
       text: payload.text,
       receipt: blockedByPartner ? false : partner.talkRoomMessageReceipt, // 送信した側のユーザーが相手にブロックされていた場合相手には届けない。送信相手のtalkRoomMessageReceiptがfalseなら「受け取られない」という意味でfalse
+      createdAt: nowJST,
     },
     select: {
       id: true,

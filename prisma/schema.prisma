@@ -16,7 +16,7 @@ model User {
   statusMessage        String?
   display              Boolean               @default(false)
   createdAt            DateTime              @default(now())
-  updatedAt            DateTime              @updatedAt
+  updatedAt            DateTime
   lat                  String?
   lng                  String?
   instagram            String?
@@ -71,7 +71,7 @@ model Post {
   id        Int      @id @default(autoincrement())
   text      String?
   url       String
-  createdAt DateTime @default(now())
+  createdAt DateTime
   userId    String
   sourceType PostSourceTypeRole @default(image)
   width Int?
@@ -114,8 +114,8 @@ model Nonce {
 
 model TalkRoom {
   id                   Int                   @id @default(autoincrement())
-  createdAt            DateTime              @default(now())
-  updatedAt            DateTime              @updatedAt
+  createdAt            DateTime
+  updatedAt            DateTime
   senderId             String
   recipientId          String
   recipient            User                  @relation("recipient", fields: [recipientId], references: [id])
@@ -133,8 +133,7 @@ model TalkRoom {
 model TalkRoomMessage {
   id                   Int                   @id @default(autoincrement())
   text                 String
-  createdAt            DateTime              @default(now())
-  updatedAt            DateTime              @updatedAt
+  createdAt            DateTime  
   userId               String
   roomId               Int
   receipt              Boolean               @default(true)
@@ -151,8 +150,7 @@ model TalkRoomMessage {
 
 model ViewedFlash {
   id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime
   userId    String
   flashId   Int
   flash     Flash    @relation("allViewed", fields: [flashId], references: [id])
@@ -166,8 +164,7 @@ model ViewedFlash {
 
 model ReadTalkRoomMessage {
   id        Int             @id @default(autoincrement())
-  createdAt DateTime        @default(now())
-  updatedAt DateTime        @updatedAt
+  createdAt DateTime
   userId    String
   messageId Int
   roomId    Int
@@ -198,8 +195,8 @@ model ReadTalkRoomMessage {
 // 上記URLにこういうこと書いてあり、複数のトークンを持つ可能性があることからUserの属性として持たせるのではなく、別のテーブルとして管理
 model DeviceToken {
   id Int @id @default(autoincrement())
-  createdAt DateTime        @default(now())
-  updatedAt DateTime        @updatedAt
+  createdAt DateTime
+  updatedAt DateTime
   token String
   userId    String
   user User @relation(fields: [userId], references: [id])
@@ -209,7 +206,7 @@ model DeviceToken {
 
 model FlashStamp {
   id Int @id @default(autoincrement())
-  createdAt DateTime        @default(now())
+  createdAt DateTime
   value FlashStampValue
   userId String
   flashId Int
@@ -222,8 +219,7 @@ model FlashStamp {
 
 model PrivateZone {
   id Int @id @default(autoincrement())
-  createdAt DateTime        @default(now())
-  updatedAt DateTime        @updatedAt
+  createdAt DateTime
   lat String
   lng String
   address String
@@ -235,8 +231,7 @@ model PrivateZone {
 
 model PrivateTime {
   id Int @id @default(autoincrement())
-  createdAt DateTime        @default(now())
-  updatedAt DateTime        @updatedAt
+  createdAt DateTime
   startHours Int
   startMinutes Int
   endHours Int
@@ -345,7 +340,7 @@ model RecommendationClientReadNotification {
 
 model Block {
   id Int @id @default(autoincrement())
-  createdAt DateTime @default(now())
+  createdAt DateTime
   blockBy String // ブロックした方
   blockTo String // ブロックされた方
   blocker User @relation("blockBy", fields: [blockBy], references: [id])
@@ -356,7 +351,7 @@ model Block {
 
 model Group {
   id String  @id @default(uuid())
-  createdAt DateTime @default(now())
+  createdAt DateTime
   ownerId String
   members User[] @relation("members")
   owener User @relation("groupOwner", fields: [ownerId], references: [id])
@@ -368,6 +363,7 @@ model ApplyingGroup {
   id Int @id @default(autoincrement())
   applyingUserId String
   appliedUserId String
+  createdAt DateTime
 
   applyingUser User @relation("applyingGroup", fields: [applyingUserId],references: [id])
   appliedUser User @relation("appliedGroup", fields: [appliedUserId], references: [id])
@@ -388,7 +384,7 @@ model ClientAuthCode {
 model UserAuthCode {
   id Int @id @default(autoincrement())
   code Int
-  createdAt DateTime @default(now())
+  createdAt DateTime
 }
 
 model Subscription {
@@ -398,8 +394,8 @@ model Subscription {
   originalTransactionId String @unique
   reciept String @db.LongText
   expireDate DateTime
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime
+  updatedAt DateTime
   user User @relation(fields: [userId], references: [id])
 
   @@index([expireDate])

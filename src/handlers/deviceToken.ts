@@ -1,5 +1,5 @@
 import Hapi from "@hapi/hapi";
-import { prisma } from "~/lib/prisma";
+import { prisma, nowJST } from "~/lib/prisma";
 import { Artifacts } from "~/auth/bearer";
 import { CreateDeviceTokenPayload } from "~/routes/deviceToken/validator";
 
@@ -21,6 +21,8 @@ const createDeviceToken = async (
       data: {
         userId: user.id,
         token: payload.token,
+        createdAt: nowJST,
+        updatedAt: nowJST,
       },
     });
   } else {
@@ -31,6 +33,7 @@ const createDeviceToken = async (
       data: {
         userId: user.id,
         token: payload.token,
+        updatedAt: nowJST,
       },
     });
   }

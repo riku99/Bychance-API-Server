@@ -1,6 +1,5 @@
 import Hapi from "@hapi/hapi";
-import { PrismaClient } from "prisma/prisma-client";
-
+import { nowJST, prisma } from "~/lib/prisma";
 import {
   CreatePaylaod,
   DeleteParams,
@@ -8,8 +7,6 @@ import {
 } from "~/routes/block/validator";
 import { Artifacts } from "~/auth/bearer";
 import { groupMemberWhoBlockTargetUserExists } from "~/models/groups";
-
-const prisma = new PrismaClient();
 
 const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const user = req.auth.artifacts as Artifacts;
@@ -19,6 +16,7 @@ const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     data: {
       blockBy: user.id,
       blockTo: paylad.blockTo,
+      createdAt: nowJST,
     },
   });
 

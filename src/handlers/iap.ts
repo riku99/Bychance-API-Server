@@ -2,7 +2,7 @@ import Hapi from "@hapi/hapi";
 import { Artifacts } from "~/auth/bearer";
 import { VerifyIAPPayload } from "~/routes/iap/validators";
 import { throwInvalidError } from "~/helpers/errors";
-import { prisma } from "~/lib/prisma";
+import { prisma, nowJST } from "~/lib/prisma";
 import { postToAppleServer } from "~/helpers/iap/postToAppleServer";
 
 const verifyIap = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
@@ -56,8 +56,15 @@ const verifyIap = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       where: {
         originalTransactionId: latestReceipt.original_transaction_id,
       },
-      update: subscriptionData,
-      create: subscriptionData,
+      update: {
+        ...subscriptionData,
+        updatedAt: nowJST,
+      },
+      create: {
+        ...subscriptionData,
+        createdAt: nowJST,
+        updatedAt: nowJST,
+      },
     });
 
     await prisma.user.update({

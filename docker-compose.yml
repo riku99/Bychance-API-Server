@@ -10,11 +10,13 @@ services:
       - bc-mysql-volume-dev:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: bc-mysql-root-pass-dev
+      TZ: Asia/Tokyo
       # MYSQL_DATABASE: bc-db-dev
       # MYSQL_USER: bc-db-user-dev
       # MYSQL_PASSWORD: bc-mysql-pass-dev
     ports:
       - 3306:3306
+    command: mysqld --default-time-zone=Asia/Tokyo
 
   api:
     build:
@@ -25,7 +27,6 @@ services:
       NODE_ENV: development
       GOOGLE_APPLICATION_CREDENTIALS: /google_credentials.json
       DATABASE_URL: mysql://root:bc-mysql-root-pass-dev@bc-mysql-dev:3306/bc-mysql-dev
-      TZ: Asia/Tokyo
     networks:
       - bc-net-dev
     volumes:

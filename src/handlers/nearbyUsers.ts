@@ -1,17 +1,14 @@
 import Hapi from "@hapi/hapi";
-import { PrismaClient } from "@prisma/client";
 import distance from "@turf/distance";
 import { point } from "@turf/helpers";
 import geohash from "ngeohash";
-
+import { prisma } from "~/lib/prisma";
 import { Artifacts } from "~/auth/bearer";
 import { GetNearbyUsersQuery } from "~/routes/nearbyUsers/validator";
 import { handleUserLocationCrypto, createHash } from "~/helpers/crypto";
 import { confirmInTime } from "~/utils";
 import { geohashPrecision } from "~/constants";
 import { throwInvalidError } from "~/helpers/errors";
-
-const prisma = new PrismaClient();
 
 const get = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const user = req.auth.artifacts as Artifacts;

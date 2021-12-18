@@ -1,14 +1,11 @@
 import Hapi from "@hapi/hapi";
-import { PrismaClient } from "@prisma/client";
-
+import { nowJST, prisma } from "~/lib/prisma";
 import { Artifacts } from "~/auth/bearer";
 import { throwInvalidError } from "~/helpers/errors";
 import {
   CreatePrivateTimePayload,
   DeletePrivateTimeParams,
 } from "~/routes/privateTime/validator";
-
-const prisma = new PrismaClient();
 
 const getPrivateTime = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const user = req.auth.artifacts as Artifacts;
@@ -51,6 +48,7 @@ const createPrivateTime = async (
       endHours,
       endMinutes,
       userId: user.id,
+      createdAt: nowJST,
     },
   });
 

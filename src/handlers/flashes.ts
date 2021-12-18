@@ -1,6 +1,6 @@
 import Hapi from "@hapi/hapi";
 import { PrismaClient } from "@prisma/client";
-
+import { nowJST, prisma } from "~/lib/prisma";
 import { Artifacts } from "~/auth/bearer";
 import {
   CreateFlashPayload,
@@ -8,8 +8,6 @@ import {
 } from "~/routes/flashes/validator";
 import { createS3ObjectPath } from "~/helpers/aws";
 import { throwInvalidError } from "~/helpers/errors";
-
-const prisma = new PrismaClient();
 
 const createFlash = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const user = req.auth.artifacts as Artifacts;

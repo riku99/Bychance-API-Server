@@ -1,6 +1,5 @@
 import Hapi from "@hapi/hapi";
-import { PrismaClient } from "@prisma/client";
-
+import { nowJST, prisma } from "~/lib/prisma";
 import {
   CreateApplyingGroupPayload,
   DeleteApplyingGroupParams,
@@ -9,8 +8,6 @@ import {
 import { Artifacts } from "~/auth/bearer";
 import { throwInvalidError } from "~/helpers/errors";
 import { emitApplyGroup } from "~/helpers/applyingGroups/emitSocket";
-
-const prisma = new PrismaClient();
 
 const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const user = req.auth.artifacts as Artifacts;
@@ -86,6 +83,7 @@ const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     data: {
       applyingUserId: user.id,
       appliedUserId: payload.to,
+      createdAt: nowJST,
     },
     select: {
       id: true,

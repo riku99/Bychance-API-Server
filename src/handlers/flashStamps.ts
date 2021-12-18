@@ -1,14 +1,11 @@
 import Hapi from "@hapi/hapi";
-import { PrismaClient } from "@prisma/client";
-
+import { nowJST, prisma } from "~/lib/prisma";
 import { Artifacts } from "~/auth/bearer";
 import { throwInvalidError } from "~/helpers/errors";
 import {
   CreateFlashStampPayload,
   GetParams,
 } from "~/routes/flashStamps/validator";
-
-const prisma = new PrismaClient();
 
 const createFlashStamp = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const user = req.auth.artifacts as Artifacts;
@@ -20,6 +17,7 @@ const createFlashStamp = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
         userId: user.id,
         flashId: payload.flashId,
         value: payload.value,
+        createdAt: nowJST,
       },
     });
   } catch {

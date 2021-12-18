@@ -1,14 +1,11 @@
 import Hapi from "@hapi/hapi";
-import { PrismaClient } from "@prisma/client";
-
+import { nowJST, prisma } from "~/lib/prisma";
 import {
   CreateGroupsPayload,
   GetGroupsParams,
 } from "~/routes/groups/validators";
 import { Artifacts } from "~/auth/bearer";
 import { throwInvalidError } from "~/helpers/errors";
-
-const prisma = new PrismaClient();
 
 const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const user = req.auth.artifacts as Artifacts;
@@ -38,6 +35,7 @@ const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     const newGroup = await prisma.group.create({
       data: {
         ownerId: payload.ownerId,
+        createdAt: nowJST,
       },
     });
 

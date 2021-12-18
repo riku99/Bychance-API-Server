@@ -1,14 +1,11 @@
 import Hapi from "@hapi/hapi";
-import { PrismaClient } from "@prisma/client";
-
+import { nowJST, prisma } from "~/lib/prisma";
 import { Artifacts } from "~/auth/bearer";
 import { throwInvalidError } from "~/helpers/errors";
 import {
   CreateTalkRoomPayload,
   DeleteTalkRoomParams,
 } from "~/routes/talkRooms/validator";
-
-const prisma = new PrismaClient();
 
 const createTalkRoom = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const user = req.auth.artifacts as Artifacts;
@@ -42,6 +39,8 @@ const createTalkRoom = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     data: {
       senderId: user.id,
       recipientId: payload.partnerId,
+      createdAt: nowJST,
+      updatedAt: nowJST,
     },
   });
 

@@ -1,5 +1,5 @@
 import { subHours } from "date-fns";
-import { prisma } from "~/lib/prisma";
+import { prisma, nowJST } from "~/lib/prisma";
 import { postToAppleServer } from "./postToAppleServer";
 
 // しっかりテスト書くこと!
@@ -19,7 +19,7 @@ export const verifyRecieptBatch = async () => {
   let fetchPromise: Promise<any>[] = [];
 
   subscriptions.forEach((s) => {
-    postToAppleServer({ receipt: s.reciept });
+    fetchPromise.push(postToAppleServer({ receipt: s.reciept }));
   });
 
   const responses = await Promise.all(fetchPromise);
@@ -73,6 +73,7 @@ export const verifyRecieptBatch = async () => {
             expireDate: new Date(expireDate),
             reciept: result.latest_receipt,
             productId: latestReceipt.product_id,
+            updatedAt: nowJST,
           },
           create: {
             // 基本的にcreateされることはない
@@ -81,6 +82,8 @@ export const verifyRecieptBatch = async () => {
             expireDate: new Date(expireDate),
             productId: latestReceipt.product_id,
             reciept: result.latest_receipt,
+            createdAt: nowJST,
+            updatedAt: nowJST,
           },
         });
       }

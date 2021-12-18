@@ -3,7 +3,6 @@ import distance from "@turf/distance";
 import { point } from "@turf/helpers";
 import geohash from "ngeohash";
 import admin from "firebase-admin";
-
 import { Artifacts } from "~/auth/bearer";
 import {
   UpdateUserPayload,
@@ -27,7 +26,7 @@ import { throwInvalidError } from "~/helpers/errors";
 import { handleUserLocationCrypto, createHash } from "~/helpers/crypto";
 import { geohashPrecision } from "~/constants";
 import { getUserIsInPrivateTime } from "~/helpers/privateTime";
-import { prisma } from "~/lib/prisma";
+import { prisma, nowJST } from "~/lib/prisma";
 import { getLoginData } from "~/models/sessions";
 import { formLoginData } from "~/helpers/sessions";
 
@@ -52,6 +51,8 @@ const createUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     data: {
       name: payload.name,
       uid,
+      createdAt: nowJST,
+      updatedAt: nowJST,
     },
   });
 

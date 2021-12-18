@@ -1,6 +1,5 @@
 import Hapi from "@hapi/hapi";
-import { PrismaClient } from "@prisma/client";
-
+import { prisma, nowJST } from "~/lib/prisma";
 import { Artifacts } from "~/auth/bearer";
 import {
   CreatePostPayload,
@@ -9,8 +8,6 @@ import {
 } from "~/routes/posts/validator";
 import { createS3ObjectPath } from "~/helpers/aws";
 import { throwInvalidError } from "~/helpers/errors";
-
-const prisma = new PrismaClient();
 
 const createPost = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const user = req.auth.artifacts as Artifacts;
@@ -38,6 +35,7 @@ const createPost = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       },
       width: url.dimensions?.width,
       height: url.dimensions?.height,
+      createdAt: nowJST,
     },
   });
 
