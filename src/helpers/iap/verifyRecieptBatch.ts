@@ -8,8 +8,8 @@ export const verifyRecieptBatch = async () => {
   const subscriptions = await prisma.subscription.findMany({
     where: {
       expireDate: {
-        lte: subHours(new Date(), 1),
-        gt: subHours(new Date(), 2),
+        lte: new Date(),
+        gt: subHours(new Date(), 1),
       },
     },
   });
@@ -19,7 +19,7 @@ export const verifyRecieptBatch = async () => {
   let fetchPromise: Promise<any>[] = [];
 
   subscriptions.forEach((s) => {
-    postToAppleServer({ receipt: s.reciept });
+    fetchPromise.push(postToAppleServer({ receipt: s.reciept }));
   });
 
   const responses = await Promise.all(fetchPromise);
