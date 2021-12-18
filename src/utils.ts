@@ -1,6 +1,7 @@
 import { dayMs } from "~/constants";
-import { nowJST } from "~/lib/prisma";
-import { addHours } from "date-fns";
+import { dbNow } from "~/lib/prisma";
+
+const nowJST = dbNow();
 
 export const filterByDayDiff = (timestamp: Date, days: number) =>
   (nowJST.getTime() - new Date(timestamp).getTime()) / dayMs < days;

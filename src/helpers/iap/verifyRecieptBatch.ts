@@ -6,6 +6,7 @@ import { postToAppleServer } from "./postToAppleServer";
 export const verifyRecieptBatch = async () => {
   console.log("✊ verifyRecieptBatchの実行");
   const nowJST = dbNow();
+  console.log(nowJST);
   const subscriptions = await prisma.subscription.findMany({
     where: {
       expireDate: {
