@@ -2,7 +2,7 @@ import Hapi from "@hapi/hapi";
 import distance from "@turf/distance";
 import { point } from "@turf/helpers";
 import geohash from "ngeohash";
-import { prisma } from "~/lib/prisma";
+import { dbNow, prisma } from "~/lib/prisma";
 import { Artifacts } from "~/auth/bearer";
 import { GetNearbyUsersQuery } from "~/routes/nearbyUsers/validator";
 import { handleUserLocationCrypto, createHash } from "~/helpers/crypto";
@@ -86,7 +86,8 @@ const get = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     },
   });
 
-  const date = new Date();
+  const nowJST = dbNow();
+  const date = nowJST;
   const hours = date.getHours();
   const minutes = date.getMinutes();
 

@@ -1,5 +1,5 @@
 import Hapi from "@hapi/hapi";
-import { nowJST, prisma } from "~/lib/prisma";
+import { dbNow, prisma } from "~/lib/prisma";
 import {
   CreatePaylaod,
   DeleteParams,
@@ -11,6 +11,8 @@ import { groupMemberWhoBlockTargetUserExists } from "~/models/groups";
 const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const user = req.auth.artifacts as Artifacts;
   const paylad = req.payload as CreatePaylaod;
+
+  const nowJST = dbNow();
 
   await prisma.block.create({
     data: {

@@ -1,5 +1,5 @@
 import Hapi from "@hapi/hapi";
-import { nowJST, prisma } from "~/lib/prisma";
+import { dbNow, prisma } from "~/lib/prisma";
 import {
   CreateApplyingGroupPayload,
   DeleteApplyingGroupParams,
@@ -78,6 +78,8 @@ const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
     );
   }
   // 「ブロックされている側」の時でも作成はする。のでここでリターンはしない。 if (targetUser.blocks.length) {}
+
+  const nowJST = dbNow();
 
   const applyingGroup = await prisma.applyingGroup.create({
     data: {

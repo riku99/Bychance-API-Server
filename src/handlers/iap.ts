@@ -2,7 +2,7 @@ import Hapi from "@hapi/hapi";
 import { Artifacts } from "~/auth/bearer";
 import { VerifyIAPPayload } from "~/routes/iap/validators";
 import { throwInvalidError } from "~/helpers/errors";
-import { prisma, nowJST } from "~/lib/prisma";
+import { prisma, dbNow } from "~/lib/prisma";
 import { postToAppleServer } from "~/helpers/iap/postToAppleServer";
 
 const verifyIap = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
@@ -52,6 +52,7 @@ const verifyIap = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       productId: latestReceipt.product_id,
       reciept: result.latest_receipt,
     };
+    const nowJST = dbNow();
     await prisma.subscription.upsert({
       where: {
         originalTransactionId: latestReceipt.original_transaction_id,
@@ -128,12 +129,13 @@ const appStoreEvent = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   } else if (notificationType === "CANCEL") {
     // 返金
     // 返金の場合はexpireDateをこの時点にし、accountTypeもかえる
+    const nowJST = dbNow();
     const subscription = await prisma.subscription.update({
       where: {
         originalTransactionId,
       },
       data: {
-        expireDate: new Date(),
+        expireDate: nowJST,
       },
     });
 

@@ -1,5 +1,5 @@
 import Hapi from "@hapi/hapi";
-import { nowJST, prisma } from "~/lib/prisma";
+import { dbNow, prisma } from "~/lib/prisma";
 import { Artifacts } from "~/auth/bearer";
 import { throwInvalidError } from "~/helpers/errors";
 import {
@@ -34,6 +34,8 @@ const createTalkRoom = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       timestamp: existingTalkRoom.updatedAt.toString(),
     };
   }
+
+  const nowJST = dbNow();
 
   const newTalkRoom = await prisma.talkRoom.create({
     data: {

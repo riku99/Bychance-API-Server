@@ -1,5 +1,5 @@
 import Hapi from "@hapi/hapi";
-import { nowJST, prisma } from "~/lib/prisma";
+import { dbNow, prisma } from "~/lib/prisma";
 import { Artifacts } from "~/auth/bearer";
 import { throwInvalidError } from "~/helpers/errors";
 import {
@@ -10,6 +10,8 @@ import {
 const createFlashStamp = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const user = req.auth.artifacts as Artifacts;
   const payload = req.payload as CreateFlashStampPayload;
+
+  const nowJST = dbNow();
 
   try {
     await prisma.flashStamp.create({

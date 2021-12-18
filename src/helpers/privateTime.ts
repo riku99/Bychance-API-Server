@@ -1,9 +1,10 @@
 import { PrivateTime } from "@prisma/client";
-
+import { dbNow } from "~/lib/prisma";
 import { confirmInTime } from "~/utils";
 
 export const getUserIsInPrivateTime = (privateTimes: PrivateTime[]) => {
-  const date = new Date();
+  const nowJST = dbNow();
+  const date = nowJST;
   const hours = date.getHours();
   const minutes = date.getMinutes();
 

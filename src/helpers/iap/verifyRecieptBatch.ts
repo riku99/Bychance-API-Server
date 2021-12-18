@@ -1,15 +1,16 @@
 import { subHours } from "date-fns";
-import { prisma, nowJST } from "~/lib/prisma";
+import { prisma, dbNow } from "~/lib/prisma";
 import { postToAppleServer } from "./postToAppleServer";
 
 // しっかりテスト書くこと!
 export const verifyRecieptBatch = async () => {
   console.log("✊ verifyRecieptBatchの実行");
+  const nowJST = dbNow();
   const subscriptions = await prisma.subscription.findMany({
     where: {
       expireDate: {
-        lte: subHours(new Date(), 1),
-        gt: subHours(new Date(), 2),
+        lte: nowJST,
+        gt: subHours(nowJST, 1),
       },
     },
   });

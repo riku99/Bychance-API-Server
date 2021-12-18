@@ -1,5 +1,5 @@
 import Hapi from "@hapi/hapi";
-import { nowJST, prisma } from "~/lib/prisma";
+import { dbNow, prisma } from "~/lib/prisma";
 import { Artifacts } from "~/auth/bearer";
 import { throwInvalidError } from "~/helpers/errors";
 import {
@@ -29,6 +29,8 @@ const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   if (!room) {
     return throwInvalidError();
   }
+
+  const nowJST = dbNow();
 
   const data = payload.ids.map((d) => ({
     userId: user.id,

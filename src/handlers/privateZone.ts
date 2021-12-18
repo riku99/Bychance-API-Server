@@ -1,7 +1,7 @@
 import Hapi from "@hapi/hapi";
 import distance from "@turf/distance";
 import { point } from "@turf/helpers";
-import { nowJST, prisma } from "~/lib/prisma";
+import { dbNow, prisma } from "~/lib/prisma";
 import { Artifacts } from "~/auth/bearer";
 import { throwInvalidError } from "~/helpers/errors";
 import {
@@ -51,6 +51,8 @@ const createPrivateZone = async (
   );
 
   const cryptoAddress = handleAddressCrypt(payload.address, "encrypt");
+
+  const nowJST = dbNow();
 
   const result = await prisma.privateZone.create({
     data: {

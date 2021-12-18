@@ -1,5 +1,5 @@
 import Hapi from "@hapi/hapi";
-import { nowJST, prisma } from "~/lib/prisma";
+import { dbNow, prisma } from "~/lib/prisma";
 import { Artifacts } from "~/auth/bearer";
 import { throwInvalidError } from "~/helpers/errors";
 import {
@@ -40,6 +40,8 @@ const createPrivateTime = async (
     endHours,
     endMinutes,
   } = req.payload as CreatePrivateTimePayload;
+
+  const nowJST = dbNow();
 
   const result = await prisma.privateTime.create({
     data: {

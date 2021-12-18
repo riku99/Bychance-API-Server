@@ -26,9 +26,10 @@ import { throwInvalidError } from "~/helpers/errors";
 import { handleUserLocationCrypto, createHash } from "~/helpers/crypto";
 import { geohashPrecision } from "~/constants";
 import { getUserIsInPrivateTime } from "~/helpers/privateTime";
-import { prisma, nowJST } from "~/lib/prisma";
+import { prisma, dbNow } from "~/lib/prisma";
 import { getLoginData } from "~/models/sessions";
 import { formLoginData } from "~/helpers/sessions";
+import { subHours } from "date-fns";
 
 const createUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const payload = req.payload as CreateUserPayload;
@@ -46,6 +47,8 @@ const createUser = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   } catch (e) {
     return throwInvalidError();
   }
+
+  const nowJST = dbNow();
 
   const user = await prisma.user.create({
     data: {

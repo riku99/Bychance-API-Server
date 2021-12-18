@@ -1,5 +1,5 @@
 import Hapi from "@hapi/hapi";
-import { prisma, nowJST } from "~/lib/prisma";
+import { prisma, dbNow } from "~/lib/prisma";
 import { Artifacts } from "~/auth/bearer";
 import { CreateDeviceTokenPayload } from "~/routes/deviceToken/validator";
 
@@ -15,6 +15,8 @@ const createDeviceToken = async (
       token: payload.token,
     },
   });
+
+  const nowJST = dbNow();
 
   if (!existingToken) {
     await prisma.deviceToken.create({

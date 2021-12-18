@@ -138,7 +138,6 @@ export const startServer = async (server: Hapi.Server) => {
   setupSocketIo();
   registerFirebaseAdmin();
   await server.start();
-  console.log(new Date().toLocaleString());
   console.log("🆗 サーバー起動: " + server.info.uri);
   return server;
 };

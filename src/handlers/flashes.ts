@@ -1,6 +1,6 @@
 import Hapi from "@hapi/hapi";
 import { PrismaClient } from "@prisma/client";
-import { nowJST, prisma } from "~/lib/prisma";
+import { prisma } from "~/lib/prisma";
 import { Artifacts } from "~/auth/bearer";
 import {
   CreateFlashPayload,

@@ -1,5 +1,5 @@
 import Hapi from "@hapi/hapi";
-import { nowJST, prisma } from "~/lib/prisma";
+import { dbNow, prisma } from "~/lib/prisma";
 import {
   CreateGroupsPayload,
   GetGroupsParams,
@@ -31,6 +31,7 @@ const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   if (existingGroup) {
     groupId = existingGroup.id;
   } else {
+    const nowJST = dbNow();
     // オーナーユーザーのグループがまだ存在しない場合は新たにデータ作成
     const newGroup = await prisma.group.create({
       data: {

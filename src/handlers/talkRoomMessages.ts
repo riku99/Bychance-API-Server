@@ -8,7 +8,7 @@ import {
 import { talkRoomMessageNameSpace } from "~/server";
 import { throwInvalidError } from "~/helpers/errors";
 import { pushNotificationToMany } from "~/helpers/pushNotification";
-import { prisma, nowJST } from "~/lib/prisma";
+import { prisma, dbNow } from "~/lib/prisma";
 
 const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   const user = req.auth.artifacts as Artifacts;
@@ -110,6 +110,8 @@ const create = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
       },
     },
   });
+
+  const nowJST = dbNow();
 
   const message = await prisma.talkRoomMessage.create({
     data: {

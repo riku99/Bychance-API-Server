@@ -1,7 +1,9 @@
 import { dayMs } from "~/constants";
+import { nowJST } from "~/lib/prisma";
+import { addHours } from "date-fns";
 
 export const filterByDayDiff = (timestamp: Date, days: number) =>
-  (new Date().getTime() - new Date(timestamp).getTime()) / dayMs < days;
+  (nowJST.getTime() - new Date(timestamp).getTime()) / dayMs < days;
 
 export const formatDate = ({ date }: { date: Date }) => {
   const y = new Date(date).getFullYear();

@@ -1,5 +1,5 @@
 import Hapi from "@hapi/hapi";
-import { nowJST, prisma } from "~/lib/prisma";
+import { dbNow, prisma } from "~/lib/prisma";
 import { Artifacts } from "~/auth/bearer";
 import { CreateViewedFlashPayload } from "~/routes/viewedFlashes/validator";
 
@@ -22,6 +22,8 @@ const createViewedFlash = async (
   if (existing) {
     return h.response().code(200);
   }
+
+  const nowJST = dbNow();
 
   // viewedFlashを作る時のFlashがもう削除されている場合がある。prismaは失敗するとエラーを出すので、これにより500エラーがクライアントに返る。このエラーを解決したい。
   // 作成する前にFlashの存在を確かめるのでも解決するが、毎回やるのもあれなのでtry構文で囲ってエラー処理する。

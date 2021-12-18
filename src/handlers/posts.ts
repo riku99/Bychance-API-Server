@@ -1,5 +1,5 @@
 import Hapi from "@hapi/hapi";
-import { prisma, nowJST } from "~/lib/prisma";
+import { prisma, dbNow } from "~/lib/prisma";
 import { Artifacts } from "~/auth/bearer";
 import {
   CreatePostPayload,
@@ -24,6 +24,8 @@ const createPost = async (req: Hapi.Request, h: Hapi.ResponseToolkit) => {
   if (!url) {
     return throwInvalidError();
   }
+
+  const nowJST = dbNow();
 
   const post = await prisma.post.create({
     data: {

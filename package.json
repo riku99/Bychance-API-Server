@@ -62,7 +62,7 @@
     "webpack-node-externals": "^3.0.0"
   },
   "scripts": {
-    "dev": "yarn add sharp && yarn ts-node-dev -r tsconfig-paths/register ./src/index.ts",
+    "dev": "yarn add sharp && yarn nodemon",
     "up": "docker-compose up -d",
     "down": "docker-compose down",
     "build": "yarn webpack --config webpack.prod.js",

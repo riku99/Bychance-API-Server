@@ -1,6 +1,6 @@
 import Hapi from "@hapi/hapi";
 import { differenceInMinutes } from "date-fns";
-import { prisma, nowJST } from "~/lib/prisma";
+import { prisma, dbNow } from "~/lib/prisma";
 import { create4digitNumber } from "~/utils";
 import { sendMail } from "~/mailer";
 import {
@@ -15,6 +15,8 @@ const createUserAuthCodeAndSendEmail = async (
 ) => {
   const { email } = req.payload as CreateUserAuthCode;
   const code = create4digitNumber();
+
+  const nowJST = dbNow();
 
   await prisma.userAuthCode.create({
     data: {
@@ -46,6 +48,7 @@ const verifyUserAuthCode = async (
     return throwInvalidError("コードが間違っています。", true);
   }
 
+  const nowJST = dbNow();
   const minDiff = differenceInMinutes(nowJST, new Date(codeData.createdAt));
 
   if (minDiff > 30) {

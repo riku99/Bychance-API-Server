@@ -2,8 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { addHours } from "date-fns";
 
 // 日本時間で現在
-const dbNow = (): Date => addHours(new Date(), 9);
-export const nowJST = dbNow();
+export const dbNow = (): Date => addHours(new Date(), 9);
 
 const isPrimitive = (val: any) => Object(val) !== val;
 
