@@ -61,6 +61,7 @@ model User {
   backGroundItemId Int?
   backGroundItem BackGroundItem? @relation(fields: [backGroundItemId], references: [id])
   subscription Subscription?
+  shopInfo ShopInfo?
 
   @@index([login, display, accountType, inPrivateZone, geohash, lat, lng])
   @@index([uid])
@@ -405,6 +406,15 @@ model Subscription {
   @@index([expireDate])
 }
 
+model ShopInfo {
+  id Int @id @default(autoincrement())
+  userId String @unique
+  genre ShopGenre
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([genre])
+}
+
 enum FlashSourceTypeRole {
   image
   video
@@ -439,4 +449,11 @@ enum IapPlanName {
 enum AccountType {
   NormalUser
   Shop
+}
+
+enum ShopGenre {
+  RESTAURANT
+  CAFE
+  IZAKAYA
+  APPAREL
 }
