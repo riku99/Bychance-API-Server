@@ -39,6 +39,7 @@ model User {
   descriptionOfNotGettingTalkRoomMessageShowed Boolean @default(false) // 相手がメッセージを受け取らない設定にしている可能性があることについての説明を見せたかどうか
   descriptionOfMyDisplayShowed Boolean @default(false) // 自分が表示されてないから設定を変えてくださいの説明を見せたかどうか
   onCall Boolean @default(false) // 通話中
+  accountType AccountType @default(NormalUser)
   flashes              Flash[]
   posts                Post[]
   readTalkRoomMessages ReadTalkRoomMessage[]
@@ -59,9 +60,10 @@ model User {
   applyingGroup ApplyingGroup[] @relation("applyingGroup")
   backGroundItemId Int?
   backGroundItem BackGroundItem? @relation(fields: [backGroundItemId], references: [id])
+  subscription Subscription?
+  shopInfo ShopInfo?
 
-
-  @@index([display, login, inPrivateZone, geohash, lat, lng])
+  @@index([login, display, accountType, inPrivateZone, geohash, lat, lng])
   @@index([uid])
   @@index([groupId])
 }
@@ -390,6 +392,28 @@ model UserAuthCode {
   createdAt DateTime @default(now())
 }
 
+model Subscription {
+  id Int @id @default(autoincrement())
+  userId String @unique
+  productId String
+  originalTransactionId String @unique
+  reciept String @db.LongText
+  expireDate DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([expireDate])
+}
+
+model ShopInfo {
+  id Int @id @default(autoincrement())
+  userId String @unique
+  genre ShopGenre
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([genre])
+}
 
 enum FlashSourceTypeRole {
   image
@@ -414,15 +438,22 @@ enum FlashStampValue {
   seikai
 }
 
+enum IapPlanId {
+  shop
+}
 
-// /*
-//   Warnings:
+enum IapPlanName {
+  Shop
+}
 
-//   - A unique constraint covering the columns `[applyingUserId,appliedUserId]` on the table `ApplyingGroup` will be added. If there are existing duplicate values, this will fail.
+enum AccountType {
+  NormalUser
+  Shop
+}
 
-// */
-// -- DropIndex
-// DROP INDEX `ApplyingGroup.applyingUserId_appliedUserId_index` ON `ApplyingGroup`;
-
-// -- CreateIndex
-// CREATE UNIQUE INDEX `ApplyingGroup.applyingUserId_appliedUserId_unique` ON `ApplyingGroup`(`applyingUserId`, `appliedUserId`);
+enum ShopGenre {
+  RESTAURANT
+  CAFE
+  IZAKAYA
+  APPAREL
+}

@@ -1,6 +1,5 @@
 import Joi from "joi";
 import { Post } from "@prisma/client";
-
 import { throwInvalidError } from "~/helpers/errors";
 
 export type CreatePostPayload = {

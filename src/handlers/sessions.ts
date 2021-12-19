@@ -1,6 +1,5 @@
 import Hapi from "@hapi/hapi";
 import { UnwrapPromise } from "@prisma/client";
-
 import { handleUserLocationCrypto } from "~/helpers/crypto";
 import { throwLoginError } from "~/helpers/errors";
 import { Artifacts } from "~/auth/bearer";
@@ -66,6 +65,27 @@ export const getLoginData = async (
         onCall: false,
       },
     });
+  }
+
+  // verifyRecieptBatchでaccountTypeの変更は行っているが、何かしらの理由でバッチ処理での更新が行えなかった時のことを考えてここでも検証、更新
+  if (user.accountType === "Shop") {
+    const subscription = await prisma.subscription.findUnique({
+      where: {
+        userId: user.id,
+      },
+    });
+
+    const now: number = Date.now();
+    if (!subscription || subscription.expireDate < new Date(now)) {
+      await prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          accountType: "NormalUser",
+        },
+      });
+    }
   }
 
   const data = await loginDataQuery(user.id);
